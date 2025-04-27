@@ -26,7 +26,7 @@ export class DatabaseProvider {
     if (!currentToken) return; 
 
     let uid = this.authProvider.currentUserUid()       
-    return this.db.list("/userProfile/"  + this.dataInfo.defaultState)
+    return this.db.list("/userProfile/")
         .update(uid, {token: currentToken} )
   }  
 
@@ -40,7 +40,7 @@ export class DatabaseProvider {
 
   getUser(){
     let uid = this.authProvider.currentUserUid()          
-    let path = "/userProfile/"  + this.dataInfo.defaultState + "/"    
+    let path = "/userProfile/" + "/"    
     
 
     console.log(path)
@@ -52,7 +52,7 @@ export class DatabaseProvider {
   }
 
   getClients(){    
-    let path = "/userProfile/"  + this.dataInfo.defaultState + "/"
+    let path = "/userProfile/" + "/"
 
     return this.db.list(path, 
           ref => ref.orderByChild("userType")
@@ -62,7 +62,7 @@ export class DatabaseProvider {
 
   getUserUid(uid){    
 
-    let path = "/userProfile/"  + this.dataInfo.defaultState + "/"
+    let path = "/userProfile/" + "/"
 
     return this.db.list(path, 
           ref => ref.orderByChild("uid")
@@ -72,7 +72,7 @@ export class DatabaseProvider {
 
 
   getManagers(){    
-    let path = "/userProfile/"  + this.dataInfo.defaultState + "/"
+    let path = "/userProfile/" + "/"
 
     return this.db.list(path, 
           ref => ref.orderByChild("userType")
@@ -82,7 +82,7 @@ export class DatabaseProvider {
   
 
   updateIndication(uid_, indications_: number){    
-    return this.db.list("/userProfile/"  + this.dataInfo.defaultState)
+    return this.db.list("/userProfile/")
     .update(uid_, { totalIndications: indications_ } ) 
   }
 
@@ -96,7 +96,7 @@ export class DatabaseProvider {
   addUserStartRegister(email_: string, type_: number, name_: string, state_: string){  
 
     let uid = this.authProvider.currentUser().uid   
-    let path = "/userProfile/" + state_
+    let path = "/userProfile/"
 
     let status = 'Perfil verificado'    
     let credits = 100
@@ -155,7 +155,7 @@ export class DatabaseProvider {
     ifoodClientId: string,
     ifoodClientSecret: string){
 
-      let path = "/userProfile/" + this.dataInfo.defaultState
+      let path = "/userProfile/"
     
       return this.db.list(path)
 
@@ -223,7 +223,7 @@ export class DatabaseProvider {
     ifoodClientId: string,
     ifoodClientSecret: string){
 
-      let path = "/userProfile/" + this.dataInfo.defaultState
+      let path = "/userProfile/"
     
       return this.db.list(path)
 
@@ -295,7 +295,7 @@ export class DatabaseProvider {
 
      let uid = this.authProvider.currentUser().uid      
 
-      let path = "/userProfile/" + this.dataInfo.defaultState
+      let path = "/userProfile/"
 
       return this.db.list(path)
 
@@ -400,16 +400,16 @@ export class DatabaseProvider {
   }
 
   updateUserStatus(uid_, status_){
-    return this.db.list("/userProfile/" + this.dataInfo.defaultState).update(uid_, { status: status_ })
+    return this.db.list("/userProfile/").update(uid_, { status: status_ })
   }
 
   updateUserCredit(uid_, credit_){
-    return this.db.list("/userProfile/" + this.dataInfo.defaultState).update(uid_, { credits: credit_ })
+    return this.db.list("/userProfile/").update(uid_, { credits: credit_ })
   }
 
 
   getWorkers(){        
-    let path = "/userProfile/"  + this.dataInfo.defaultState + "/"
+    let path = "/userProfile/" 
 
     return this.db.list(path, 
           ref => ref.orderByChild("userType")
@@ -418,35 +418,35 @@ export class DatabaseProvider {
   }  
 
   updateRankingUser(key_, ranking_){
-    return this.db.list("/userProfile/"  + this.dataInfo.defaultState)
+    return this.db.list("/userProfile/")
           .update(key_, {ranking: ranking_} )          
   }
 
   updateProfileStatusUser(key_, status_){
-    return this.db.list("/userProfile/"  + this.dataInfo.defaultState)
+    return this.db.list("/userProfile/")
         .update(key_, {status: status_} )          
   }  
 
   updatePrePaid(uid_, prePaid_: Boolean){          
-    return this.db.list("/userProfile/"  + this.dataInfo.defaultState)
+    return this.db.list("/userProfile/")
     .update(uid_, { prePaid: prePaid_ } ) 
   }
 
 
   updateCanChangeFinalValue(uid_, isPremium_: Boolean){          
-    return this.db.list("/userProfile/"  + this.dataInfo.defaultState)
+    return this.db.list("/userProfile/")
     .update(uid_, { isPremium: isPremium_ } ) 
   }
 
 
 
   updateManager(uid_, manager: Boolean){          
-    return this.db.list("/userProfile/"  + this.dataInfo.defaultState)
+    return this.db.list("/userProfile/")
     .update(uid_, { manager: manager, userType: 3 } ) 
   }
 
   updateManagerRegion(uid_, region: string){          
-    return this.db.list("/userProfile/"  + this.dataInfo.defaultState)
+    return this.db.list("/userProfile/")
     .update(uid_, { managerRegion: region } ) 
   }
     
@@ -590,7 +590,7 @@ export class DatabaseProvider {
    
     let uid = this.authProvider.currentUser().uid       
 
-    return this.db.list("/userProfile/"  + this.dataInfo.defaultState)
+    return this.db.list("/userProfile/")
       .update(uid, {latitude: lat, longitude: long} )
   }
   
@@ -962,7 +962,7 @@ export class DatabaseProvider {
 
   getUserInfo(uid){    
 
-    return this.db.list("/userProfile/" + this.dataInfo.defaultState, 
+    return this.db.list("/userProfile/" , 
           ref => ref.orderByKey()
             .equalTo(uid))
             .snapshotChanges()            
@@ -970,7 +970,7 @@ export class DatabaseProvider {
 
   getUserName(name){    
 
-    let path = "/userProfile/" + this.dataInfo.defaultState
+    let path = "/userProfile/"
 
      return this.db.list(path, 
       ref => ref.orderByChild('name')
@@ -981,7 +981,7 @@ export class DatabaseProvider {
 
   getWorkAccept(key_: string){
     
-    let path = "/notificationsAll/" + this.dataInfo.defaultState + "/" +  this.dateYear + "/" + this.dateMonth          
+    let path = "/notificationsAll/" +  this.dateYear + "/" + this.dateMonth          
 
     return this.db.list(path, 
       ref => ref.orderByKey()
@@ -991,7 +991,7 @@ export class DatabaseProvider {
 
 
   startWork(key_: string, msg_: string){    
-    let path = "/notificationsAll/" + this.dataInfo.defaultState + "/" +  this.dateYear + "/" + this.dateMonth          
+    let path = "/notificationsAll/" +  this.dateYear + "/" + this.dateMonth          
 
     return this.db.list(path)
         .update(key_, {status: "Iniciado", msg: msg_, datetimeStart: moment().format()})
@@ -999,7 +999,7 @@ export class DatabaseProvider {
   
 
   cancelWork(key_: string, msg_: string){        
-    let path = "/notificationsAll/" + this.dataInfo.defaultState + "/" +  this.dateYear + "/" + this.dateMonth          
+    let path = "/notificationsAll/" +  this.dateYear + "/" + this.dateMonth          
 
     return this.db.list(path)
         .update(key_, {status: "Cancelado", msgCancel: msg_, datetimeCancel: moment().format()})
@@ -1013,14 +1013,14 @@ export class DatabaseProvider {
   }
 
   updateTotalWorks(uid_, totalWorks_: number){   
-    let path = "/userProfile/"  + this.dataInfo.defaultState    
+    let path = "/userProfile/"    
 
     return this.db.list(path)
       .update(uid_, { totalWorks: totalWorks_ } ) 
   }  
 
   removeUser(uid_){   
-    let path = "/userProfile/"  + this.dataInfo.defaultState    + '/' + uid_
+    let path = "/userProfile/" + '/' + uid_
     return this.db.list(path).remove()
       
   }  
@@ -1083,7 +1083,7 @@ export class DatabaseProvider {
 
   updateUserCredits(credits_: any){
     let uid = this.authProvider.currentUser().uid       
-    let path = "/userProfile/"  + this.dataInfo.defaultState
+    let path = "/userProfile/"
     return this.db.list(path).update(uid, { credits: credits_ } ) 
   }
 
@@ -1128,7 +1128,7 @@ export class DatabaseProvider {
   /** IFOOD */
 
   addIfoodVerification(uid_, data){        
-    return this.db.list("/userProfile/"  + this.dataInfo.defaultState).update(uid_, { ifood: data } ) 
+    return this.db.list("/userProfile/").update(uid_, { ifood: data } ) 
   }
 
   addIfoodEvent(data){        

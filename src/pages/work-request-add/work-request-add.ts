@@ -129,7 +129,7 @@ export class WorkRequestAddPage {
 
   checkBillingType(){
 
-    if(this.dataInfo && this.dataInfo.appConfig.appUserCredit){
+    if(this.dataInfo && this.dataInfo.appConfig && this.dataInfo.appConfig.appUserCredit){
 
       if(! this.dataInfo.userInfo.credits)
         this.dataInfo.userInfo.credits = 0.00
@@ -284,13 +284,19 @@ export class WorkRequestAddPage {
       let info = element.payload.val()
       info.key = element.payload.key
 
+      console.log('info cliente', info)
+
       if(info.status !== 'Desativado'){
 
         if(!info.razaoSocial || (info.razaoSocial && info.razaoSocial === this.dataText.textUninformed))
           info.razaoSocial = info.name
 
-          
 
+
+          
+        if(! info.name){
+          info.name = info.email
+        }
 
         this.usersClientsArray.push(info)
 
@@ -316,6 +322,10 @@ export class WorkRequestAddPage {
 
       let info = element.payload.val()
       info.key = element.payload.key
+
+      if(! info.name){
+        info.name = info.email
+      }
 
       if(info.status !== 'Desativado')            
         this.usersWorkersArray.push(info)

@@ -8,7 +8,7 @@ export class DataInfoProvider {
   
   // CONFIGURAÇÕES DO APP  
   isDev: Boolean = false
-  appName: string = "Motok Painel"
+  appName: string = "Pedmoto Painel"
   primeiroUso: Boolean = false
   appVersion: string = ""   
   appIsActive: Boolean = true
@@ -25,8 +25,8 @@ export class DataInfoProvider {
   appCreditUseTotalValue:Boolean = true
   urlFirebase: string = ""
 
-  defaultCarPic: string = '../assets/imgs/car-1.jpeg'  
-  imgDefaultClient: string = '../assets/imgs/cadastro.jpg'
+  defaultCarPic: string = '../assets/imgs/100x100.png'  
+  imgDefaultClient: string = '../assets/imgs/100x100.png'
   isWeb: Boolean = false
   isHome: Boolean = false
   userInfo: any;       

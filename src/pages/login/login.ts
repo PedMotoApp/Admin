@@ -72,17 +72,8 @@ export class LoginPage {
     });
 
     if (this.dataInfo.userInfo) {
-      if (!this.dataInfo.userInfo.ifoodClientId)
-        this.dataInfo.userInfo.ifoodClientId = "b37ac194-2522-4c0f-8179-2de0da16a327";
-
-      if (!this.dataInfo.userInfo.ifoodClientSecret)
-        this.dataInfo.userInfo.ifoodClientSecret =
-          "4rxsb2ud4q2tuepr00tydl6k5x2mzok3p8lzirkj9qcck8koj9nuhpps9lmyj1syfjp69vd9igmqqykc894nm8pdgp7cu8dezdw";
-
-      console.log(
-        this.dataInfo.userInfo.ifoodClientId,
-        this.dataInfo.userInfo.ifoodClientSecret
-      );
+      this.dataInfo.userInfo.state = "DF"
+      this.dataInfo.userInfo.defaultState = "DF"
     }
 
     this.getConfigurations();

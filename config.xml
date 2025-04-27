@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget android-version="2" id="com.dbltecnologia.motokadmin" version="0.0.2" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Motok Admin</name>
+    <name>PedMoto Admin</name>
     <description>Serviços Rápidos e Seguros</description>
     <author email="admin@dbltecnologia.com.br" href="http://www.dbltecnologia.com.b4/">DBL Tecnologia</author>
     <content src="index.html" />
