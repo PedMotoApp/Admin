@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "public": "www",
+    "site": "motokadministrador",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}

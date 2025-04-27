@@ -1,0 +1,75 @@
+<ion-header>
+    <ion-navbar>
+        <ion-title>
+            Serviço aceito
+        </ion-title>
+    </ion-navbar>
+</ion-header>
+
+<ion-content padding class="mrg-top">
+
+    <ion-card>
+
+        <ion-card-content class="text-light">
+    
+            <div class="rider-info heading">
+                
+                <ion-row>
+                    <ion-col col-9>
+    
+                        <ion-list>
+                            <ion-item no-lines>
+                                <ion-avatar item-start>
+    
+                                    <img *ngIf="dataInfo.userType === 1 && driverPhoto" src="{{driverPhoto}}">
+                                    <img *ngIf="dataInfo.userType === 2 && clientPhoto" src="{{clientPhoto}}">                            
+                                        
+                                    <img *ngIf="dataInfo.userType === 1 && !driverPhoto"  src="{{dataInfo.imgDefaultClient}}" alt="User Profile Default">
+                                    <img *ngIf="dataInfo.userType === 2 && !clientPhoto"  src="{{dataInfo.imgDefaultClient}}" alt="User Profile Default">
+    
+                                </ion-avatar>
+    
+                                <small class="text-light">REFERÊNCIA</small>
+                                <h2 class="text-black">
+                                    {{toAddress}}
+                                </h2>
+    
+                                <small class="text-light">PARTIDA</small>
+                                <h2 class="text-black">
+                                    {{fromAddress}}
+                                </h2>                                    
+                                
+                                <small class="text-light" *ngIf="dataInfo.userType === 1">Profissional</small>
+                                <h2 class="text-black"   *ngIf="dataInfo.userType === 1">{{driverName}}</h2>
+    
+                            </ion-item>
+    
+                        </ion-list>
+    
+                    </ion-col>
+    
+                    <ion-col text-center col-3>
+                        <ion-icon name="cash"></ion-icon>
+                        <br>
+                        <small>{{dataText.currency}} {{totalValue}}</small>
+                    </ion-col>
+                </ion-row>
+    
+            </div>
+    
+        </ion-card-content>
+            
+    </ion-card>
+    
+</ion-content>
+
+<ion-footer>            
+        <button *ngIf="workStatus === 'Aceito'" ion-button full large (click)="start()" color="primary"  class="big-button">{{'service_start' | translate}}</button>
+        <button *ngIf="workStatus === 'Iniciado'" ion-button full large (click)="finish()" color="danger"  class="big-button">{{'service_finish' | translate}}</button>
+        <button *ngIf="workStatus === 'Cancelado'" ion-button full large (click)="canceled()"  color="danger"  class="big-button">{{'service_canceled' | translate}}</button>                  
+        <button *ngIf="workStatus === 'Finalizado'" ion-button full large (click)="tripFinished()"  class="big-button">{{'service_finished' | translate}}</button>            
+
+        <button ion-button full large (click)="contactsClient()"       *ngIf="dataInfo.userType === 1"  color="secondary" class="big-button">{{'CONTACTS' | translate}}</button>  
+        <button ion-button full large (click)="contactsProfessional()" *ngIf="dataInfo.userType === 2" color="secondary" class="big-button">{{'CONTACTS' | translate}}</button>  
+        <button ion-button full large (click)="navigate()"             *ngIf="dataInfo.appNavigate"  class="big-button">{{'NAVIGATE' | translate}}</button>  	    
+</ion-footer>

@@ -1,0 +1,100 @@
+<ion-header class="bg-theme text-white">
+    <ion-navbar text-center no-border-bottom>      
+      <ion-title  *ngIf="dataInfo.userInfo.isAdmin"> Painel {{dataInfo.appName}} {{dataInfo.defaultState}} </ion-title>
+      <ion-title  *ngIf="!dataInfo.userInfo.isAdmin && dataInfo.userInfo.manager"> {{dataInfo.appName}} {{dataInfo.userInfo.managerRegion}} </ion-title>
+      <ion-title  *ngIf="!dataInfo.userInfo.isAdmin && ! dataInfo.userInfo.manager"> Painel {{dataInfo.appName}}  </ion-title>              
+      <ion-buttons end>                             
+        <button ion-button style="color: white" (click)="logout()" class="mrg-bt-10">                  
+          <ion-icon name="md-exit"  item-start style="margin-right: 15px;"></ion-icon>        
+          {{dataText.exit}}
+        </button>
+      </ion-buttons>  
+  </ion-navbar>    
+</ion-header>  
+<ion-content padding>
+  <ion-list padding no-lines>
+    <ion-row>
+      <ion-col col-6 col-md-4 col-lg-3 col-xl-2>
+        <ion-card (click)="goPageWorks()">
+          <img src="../../assets/imgs/central.jpg" />
+          <ion-card-content>
+            <ion-card-title>
+              {{dataText.central}}
+            </ion-card-title>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col col-6 col-md-4 col-lg-3 col-xl-2>
+        <ion-card (click)="goPageClients()">
+          <img src="../../assets/imgs/clientes.jpg" />
+          <ion-card-content>
+            <ion-card-title>
+              {{dataText.clients}}
+            </ion-card-title>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col col-6 col-md-4 col-lg-3 col-xl-2>
+        <ion-card (click)="goPagProfessionals()">
+          <img src="../../assets/imgs/profissionais.jpg" />
+          <ion-card-content>
+            <ion-card-title>
+              {{dataText.professionals}}
+            </ion-card-title>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col col-6 col-md-4 col-lg-3 col-xl-2 *ngIf="dataInfo.userInfo.isAdmin || dataInfo.userInfo.manager">
+        <ion-card (click)="goPageTablesPrice()">
+          <img src="../../assets/imgs/tabela.jpg" />
+          <ion-card-content>
+            <ion-card-title>
+              {{dataText.tablePrice}}
+            </ion-card-title>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col col-6 col-md-4 col-lg-3 col-xl-2 *ngIf="dataInfo.userInfo.isAdmin">
+        <ion-card (click)="goPageServicess()">
+          <img src="../../assets/imgs/servicos.jpg" />
+          <ion-card-content>
+            <ion-card-title>
+              {{dataText.services}}
+            </ion-card-title>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col col-6 col-md-4 col-lg-3 col-xl-2 *ngIf="!dataInfo.userInfo.isAdmin">
+        <ion-card (click)="suporte()">
+          <img src="../../assets/imgs/marcas.jpg" />
+          <ion-card-content>
+            <ion-card-title>
+              {{dataText.help}}
+            </ion-card-title>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col col-6 col-md-4 col-lg-3 col-xl-2 *ngIf="dataInfo.userInfo.isAdmin">
+        <ion-card (click)="goPageManager()">
+          <img src="../../assets/imgs/manager.jpg" />
+          <ion-card-content>
+            <ion-card-title>
+              {{dataText.managers}}
+            </ion-card-title>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col col-6 col-md-4 col-lg-3 col-xl-2>
+        <ion-card (click)="showRedMine()">
+          <img src="../../assets/imgs/help.jpg" />
+          <ion-card-content>
+            <ion-card-title>
+              {{dataText.support}}
+            </ion-card-title>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-list>
+</ion-content>
+  

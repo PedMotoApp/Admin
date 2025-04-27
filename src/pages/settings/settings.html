@@ -1,0 +1,614 @@
+<ion-header>
+
+  <ion-navbar text-center no-border-bottom>    
+    <ion-title>{{dataText.settings}}</ion-title>                       
+  </ion-navbar>
+</ion-header>
+
+<ion-content>  
+
+    <ion-list *ngIf="payload">     
+      
+      <ion-list-header color="primary">Geral</ion-list-header>
+      <ion-item>          
+        <ion-label stacked>Nome do app</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.appName"></ion-input>
+      </ion-item>  
+      <ion-item>          
+        <ion-label stacked>Versão do app</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.appVersion"></ion-input>
+      </ion-item> 
+
+      
+      <ion-item>    
+        <ion-label stacked>Liga modo mototáxi</ion-label>  
+        <ion-select [(ngModel)]="payload.isMobility">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+      <ion-item>    
+        <ion-label stacked>Desativa o mapa para o cliente na tela inicial</ion-label>  
+        <ion-select [(ngModel)]="payload.appTabNoMap">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+                  
+      <ion-item>    
+        <ion-label stacked>Pergunta pelo retorno</ion-label>  
+        <ion-select [(ngModel)]="payload.appAskReturn">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked>Permite compartilhar corrida</ion-label>  
+        <ion-select [(ngModel)]="payload.appCanShare">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked>Profissional fica offline automaticamente quando nega corrida</ion-label>  
+        <ion-select [(ngModel)]="payload.appAutoOffline">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked>Verificação automática do perfil</ion-label>  
+        <ion-select [(ngModel)]="payload.appAutoProfileVerified">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>       
+
+      <ion-item>    
+        <ion-label stacked>Faturado padrão - Não mostra a tela do pagamento toda vez que for fazer um pedido</ion-label>  
+        <ion-select [(ngModel)]="payload.appDefaultPrePaid">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+      <ion-item>    
+        <ion-label stacked>Usuário premium default - Ativa as disputas</ion-label>  
+        <ion-select [(ngModel)]="payload.appDefaultPremium">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+      <ion-item>    
+        <ion-label stacked>Ativa ou não as disputas</ion-label>  
+        <ion-select [(ngModel)]="payload.appShowDispute">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+      <ion-item>          
+        <ion-label stacked>Valor máximo permitido na disputa</ion-label>
+        <ion-input type="number" [(ngModel)]="payload.appDisputeMax"></ion-input>
+      </ion-item>  
+      <ion-item>          
+        <ion-label stacked>Valor minímo permitido na disputa</ion-label>
+        <ion-input type="number" [(ngModel)]="payload.appDisputeMin"></ion-input>
+      </ion-item>        
+      <ion-item>          
+        <ion-label stacked>Distância para clicar no cheguei em metros</ion-label>
+        <ion-input type="number" [(ngModel)]="payload.appDistanceArrive"></ion-input>
+      </ion-item>  
+      
+
+      <ion-item>          
+        <ion-label stacked>Tempo de atualização das estatisticas</ion-label>
+        <ion-input type="number" [(ngModel)]="payload.timerStatistics"></ion-input>
+      </ion-item> 
+
+      <ion-item>    
+        <ion-label stacked>Obrigatório ou não o envio de documentação</ion-label>  
+        <ion-select [(ngModel)]="payload.appDocsRequired">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+    
+      <ion-item>          
+        <ion-label stacked>Site para abrir quando o cliente clicar no ajuda</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.appHelp"></ion-input>
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked> Mostra ou não somente informações básicas na tela de aceite</ion-label>  
+        <ion-select [(ngModel)]="payload.appIsWorkRequestBasicInformation">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked> Mostra ou não os endereços de coleta e entrega na tela de recentes</ion-label>  
+        <ion-select [(ngModel)]="payload.appIsWorkTodayBasicInformation">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked> Tipo de login</ion-label>  
+        <ion-select [(ngModel)]="payload.appLoginType">
+          <ion-option>Email</ion-option>
+          <ion-option>Telefone</ion-option>
+        </ion-select>                          
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked> Permite ou não selecionar o serviço</ion-label>  
+        <ion-select [(ngModel)]="payload.appMultiServiceDelivery">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked>Multi estados</ion-label>  
+        <ion-select [(ngModel)]="payload.appMultiState">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked> Permite ou não o envio rápido no cliente</ion-label>  
+        <ion-select [(ngModel)]="payload.appQuickSendClient">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked> Permite ou não o envio rápido no profissional</ion-label>  
+        <ion-select [(ngModel)]="payload.appQuickSendWorker">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked>Ativa login pelas redes sociais</ion-label>  
+        <ion-select [(ngModel)]="payload.appLoginSocial">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+
+      <ion-item>          
+        <ion-label stacked>Taxa de uso do cartão de crédito</ion-label>
+        <ion-input type="number" [(ngModel)]="payload.appPaymentCardTax"></ion-input>
+      </ion-item>  
+      
+      <ion-item>          
+        <ion-label stacked>Tempo manual para chegada em minutos</ion-label>
+        <ion-input type="number" [(ngModel)]="payload.appManualTimeArrive"></ion-input>
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked>Permite o cliente informar diversos endereços</ion-label>  
+        <ion-select [(ngModel)]="payload.appSearchDifferentPage">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked>Ativa ou não recuperar os últimos endereços de coleta e entrega</ion-label>  
+        <ion-select [(ngModel)]="payload.appShowLastCollectPoint">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked>Mostra ou não o dinheiro que o entregador recebeu nas corridas</ion-label>  
+        <ion-select [(ngModel)]="payload.appShowMoneyKeeped">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+      <ion-item>    
+        <ion-label stacked>Mostra ou não detalhes dos preços da tabela</ion-label>  
+        <ion-select [(ngModel)]="payload.appShowPricesDetails">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+      <ion-item>    
+        <ion-label stacked>Mostra ou não as rotas</ion-label>  
+        <ion-select [(ngModel)]="payload.appShowRoutes">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+
+      <ion-item>    
+        <ion-label stacked>Mostra o valor total a ser recebido em dinheiro</ion-label>  
+        <ion-select [(ngModel)]="payload.appShowTotalValue">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+      
+      <ion-item>    
+        <ion-label stacked>Mostra ou não whatsapp (somente business)</ion-label>  
+        <ion-select [(ngModel)]="payload.appShowWhatsApp">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+      <ion-item>    
+        <ion-label stacked>Ativa ou não a assinatura nos pontos de entrega</ion-label>  
+        <ion-select [(ngModel)]="payload.appSkipSignature">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+      <ion-item>    
+        <ion-label stacked>Link do termo de uso</ion-label>  
+        <ion-input type="text" [(ngModel)]="payload.appTermsConditions"></ion-input>                       
+      </ion-item>
+
+      <ion-item>    
+        <ion-label stacked>Link de privacidade</ion-label>  
+        <ion-input type="text" [(ngModel)]="payload.appTermsPriv"></ion-input>                       
+      </ion-item>
+
+    
+
+      <ion-item>    
+        <ion-label stacked> Monitora a posição do profissional</ion-label>  
+        <ion-select [(ngModel)]="payload.appWatchPosition">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+      <ion-item>          
+        <ion-label stacked>Monitora a posição do profissional</ion-label>
+        <ion-input type="number" [(ngModel)]="payload.appWatchTotalTimer"></ion-input>
+      </ion-item> 
+
+      <ion-item>    
+        <ion-label stacked>Ativa ou não a possibilidade do profissional cancelar a corrida</ion-label>  
+        <ion-select [(ngModel)]="payload.appWorkerCanCancel">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+      <ion-item>    
+        <ion-label stacked>Ativa ou não a possibilidade do profissional modificar suas informações</ion-label>  
+        <ion-select [(ngModel)]="payload.appWorkerCanChangeInformations">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+     
+
+      <ion-item>    
+        <ion-label stacked>Profissional pode selecionar os serviços que deseja oferecer</ion-label>  
+        <ion-select [(ngModel)]="payload.appWorkerServiceSelect">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+      <ion-item>    
+        <ion-label stacked>Profissional pode pular a assinatura</ion-label>  
+        <ion-select [(ngModel)]="payload.appWorkerSkipAttachment">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+    
+
+      <ion-item>    
+        <ion-label stacked> Remove o ponto de retorno da contagem de pontos</ion-label>  
+        <ion-select [(ngModel)]="payload.removeReturnPointValue">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+   
+      <ion-item>    
+        <ion-label stacked>Debita o valor da comissão da corrida dos créditos</ion-label>  
+        <ion-select [(ngModel)]="payload.appCreditUseComission">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+
+      <ion-item>    
+        <ion-label stacked>Adiciona ou não o valor do serviço no valor total</ion-label>  
+        <ion-select [(ngModel)]="payload.appAddServicePriceTotal">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+      <ion-item>    
+        <ion-label stacked> Libera ou não o profissional enviar serviços</ion-label>  
+        <ion-select [(ngModel)]="payload.appQuickServiceProfessional">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>      
+
+      <ion-item>    
+        <ion-label stacked>Liga ou desliga o recebimento em dinheiro</ion-label>  
+        <ion-select [(ngModel)]="payload.appReceiveInCash">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+      <ion-item>          
+        <ion-label stacked>Chave api do google para o mapa</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.googleApiKey"></ion-input>
+      </ion-item>
+
+      <ion-item>          
+        <ion-label stacked> Icon localização cliente </ion-label>
+        <ion-input type="text" [(ngModel)]="payload.iconLocationClient"></ion-input>
+      </ion-item>
+
+      <ion-item>          
+        <ion-label stacked> Icon localização profissional </ion-label>
+        <ion-input type="text" [(ngModel)]="payload.iconLocationWorker"></ion-input>
+      </ion-item>
+
+  
+      <ion-item>          
+        <ion-label stacked>Distância máxima para receber as notificações no profissional</ion-label>
+        <ion-input type="number" [(ngModel)]="payload.maxDistance"></ion-input>
+      </ion-item>  
+
+      <ion-item>          
+        <ion-label stacked>Tempo que fica tocando a notificação</ion-label>
+        <ion-input type="number" [(ngModel)]="payload.maxTimeNotification"></ion-input>
+      </ion-item>  
+
+
+      <ion-item>          
+        <ion-label stacked>Moeda - Exemplos: R$, $ </ion-label>
+        <ion-input type="number" [(ngModel)]="payload.appCurrency"></ion-input>
+      </ion-item> 
+      
+
+      <ion-item>          
+        <ion-label stacked>Tempo de notificação</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.timeRequest"></ion-input>
+      </ion-item>  
+
+      <ion-item>          
+        <ion-label stacked>Url de compartilhamento</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.urlFirebase"></ion-input>
+      </ion-item>  
+
+ 
+    
+      <ion-list-header color="primary">Pagamentos</ion-list-header>
+
+      <ion-item>    
+        <ion-label stacked>Ativa ou não pagamento online
+        </ion-label>  
+        <ion-select [(ngModel)]="payload.appPaymentOnline">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked>Selecione gateway de pagamento</ion-label>  
+        <ion-select [(ngModel)]="payload.appPaymentGateway">
+          <ion-option value="0">Mercadopago</ion-option>
+          <ion-option value="1">Pagseguro</ion-option>
+          <ion-option value="2">Paypal</ion-option>
+        </ion-select>                          
+      </ion-item> 
+
+      <ion-item>    
+        <ion-label stacked>Ativa ou não sandbox do Pagseguro</ion-label>  
+        <ion-select [(ngModel)]="payload.appPaymentSandbox">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+
+      <ion-item>          
+        <ion-label stacked>E-mail PagSeguro</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.pagSeguroEmail"></ion-input>
+      </ion-item>  
+
+
+      <ion-item>          
+        <ion-label stacked>Token PagSeguro</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.pagSeguroToken"></ion-input>
+      </ion-item>  
+
+      <ion-item>          
+        <ion-label stacked>Token Mercado Pago</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.mercadoPagoAccessToken"></ion-input>
+      </ion-item>  
+
+      <ion-item>          
+        <ion-label stacked>Chave Mercado Pago</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.mercadoPagoPublicAPI"></ion-input>
+      </ion-item>  
+
+      <ion-item>          
+        <ion-label stacked>Endpoint do mercado pago para callback</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.mercadoPagoURL"></ion-input>
+      </ion-item>  
+
+      <ion-item>          
+        <ion-label stacked>Endpoint para receber notificações</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.notificationURL"></ion-input>
+      </ion-item>  
+
+      <ion-item>          
+        <ion-label stacked>Endpoint para notificar mercado pago das transações</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.mercadoPagoURLContinue"></ion-input>
+      </ion-item>  
+
+      <ion-item>          
+        <ion-label stacked>Token PayPal</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.paypalAccessToken"></ion-input>
+      </ion-item>  
+
+
+   
+      <ion-list-header color="primary">
+        Créditos
+      </ion-list-header>
+
+      <ion-item>    
+        <ion-label stacked>Ativa ou não o uso de créditos</ion-label>  
+        <ion-select [(ngModel)]="payload.appUserCredit">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+      <ion-item>    
+        <ion-label stacked>Ativa ou não os créditos nos profissionais</ion-label>  
+        <ion-select [(ngModel)]="payload.appWorkerCredit">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+
+      <ion-item>    
+        <ion-label stacked>Creditos diários</ion-label>  
+        <ion-select [(ngModel)]="payload.appCreditDaily">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>  
+
+      <ion-item>          
+        <ion-label stacked>Valor Creditos diários</ion-label>
+        <ion-input type="number" [(ngModel)]="payload.appCreditWorkValue"></ion-input>
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked>Debita o valor total da corrida nos créditos</ion-label>  
+        <ion-select [(ngModel)]="payload.appCreditUseTotalValue">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+
+
+
+
+      <ion-list-header color="primary">Integrações</ion-list-header>
+
+
+      <ion-item>          
+        <ion-label stacked>Id Ifood</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.ifoodClientId"></ion-input>
+      </ion-item>
+
+      <ion-item>          
+        <ion-label stacked>Secret ifood</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.ifoodClientSecret"></ion-input>
+      </ion-item>  
+
+    
+      <ion-item>          
+        <ion-label stacked>URL do gestor OnPedido</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.onPedidoGerenteUrl"></ion-input>
+      </ion-item>  
+
+      <ion-item>          
+        <ion-label stacked>Token OnPedido</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.onPedidoToken"></ion-input>
+      </ion-item>  
+
+      <ion-item>    
+        <ion-label stacked>Despacha automaticamente os pedidos</ion-label>  
+        <ion-select [(ngModel)]="payload.appIfoodAutoSend">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+     
+
+      
+
+
+      <ion-list-header color="primary">Propaganda</ion-list-header>
+
+      <ion-item>    
+        <ion-label stacked> Ativa ou não os Ads</ion-label>  
+        <ion-select [(ngModel)]="payload.isAdsEnabled">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+      <ion-item>    
+        <ion-label stacked> Ativa ou não os Ads de teste</ion-label>  
+        <ion-select [(ngModel)]="payload.isAdsTest">
+          <ion-option value="true">Sim</ion-option>
+          <ion-option value="false">Não</ion-option>
+        </ion-select>                          
+      </ion-item>
+
+      <ion-item>
+        <ion-label stacked>adTime</ion-label>
+        <ion-input type="number" [(ngModel)]="payload.adTime"></ion-input>
+      </ion-item>    
+
+      <ion-item>
+        <ion-label stacked>adMobBannerClient</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.adMobBannerClient"></ion-input>
+      </ion-item>    
+
+
+      <ion-item>
+        <ion-label stacked>adMobBannerPro</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.adMobBannerPro"></ion-input>
+      </ion-item>   
+
+      <ion-item>
+        <ion-label stacked>adMobVideo</ion-label>
+        <ion-input type="text" [(ngModel)]="payload.adMobVideo"></ion-input>
+      </ion-item>   
+
+
+      
+      
+    </ion-list>
+            
+</ion-content>
+
+
+<ion-footer>    
+    <button ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="add()" *ngIf="!payload">{{dataText.add}}</button>  
+    <button ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="save()" *ngIf="payload">{{dataText.update}}</button>  
+</ion-footer>

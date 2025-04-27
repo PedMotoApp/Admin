@@ -1,0 +1,78 @@
+
+<ion-header>
+
+  <ion-navbar text-center no-border-bottom>
+    <ion-title>{{dataText.tablePrice}}</ion-title>      
+
+    <ion-buttons end> 
+        <button ion-button color="white_" (click)="add()">{{dataText.addNew}}</button>
+    </ion-buttons>    
+
+
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="trips detail-bg">
+
+  <ion-list padding>
+
+      <ion-card class="trip card" text-wrap *ngFor="let service of tablesArray" no-lines>
+
+        <ion-card-header>
+          <ion-title>{{service.name}} - {{service.description}}</ion-title>                              
+        </ion-card-header>
+        
+       <ion-row padding>
+         <ion-col>
+          <ion-card-content>  
+            <p *ngIf="service.regiao"><b>{{dataText.region}}:</b> {{service.regiao}}</p>
+
+            <p><b>{{dataText.startValue}}:</b> {{dataText.currency}} {{service.valueStart}}</p>
+            <p><b>{{dataText.returnValue}}:</b> {{dataText.currency}} {{service.valueReturn}}</p>
+            
+            <p *ngIf="service.type === 'Cliente'"><b>{{dataText.comission}}:</b>{{service.workComission}}%</p>
+            <p *ngIf="service.type === 'Cliente'"><b>{{dataText.comission}} {{dataText.currency}}:</b>{{service.workComission}}</p>
+            <p><b>{{dataText.pointValue}}:</b> {{dataText.currency}} {{service.valuePoint}}</p>
+            <p><b>{{dataText.valueByKm}}:</b> {{dataText.currency}} {{service.valueMeter}}</p>
+            <p *ngIf="service.type === 'Cliente'"><b>{{dataText.valueByHeight}}:</b> {{dataText.currency}} {{service.valueHeight}}</p>
+            <p *ngIf="service.type === 'Cliente'"><b>{{dataText.valueByCubic}}:</b> {{dataText.currency}} {{service.valueCubic}}</p>            
+        </ion-card-content>   
+         </ion-col>
+
+         <ion-col>
+          <ion-card-content>  
+            <p><b>{{dataText.freeUntil}}</b> {{service.workFreeMinutes}} {{dataText.minutes}}</p>
+            <p><b>{{dataText.freeUntil}}</b> {{service.workFreeMeters}} {{dataText.km}}</p>
+            <p><b>{{dataText.charge}} {{dataText.currency}}</b> {{service.workMinuteValue}}  por minuto após  {{service.workFreeMinutes}} {{dataText.minutes}}</p>                       
+            <p *ngIf="service.type === 'Cliente'"><b>{{dataText.conditionalType}}:</b> {{dataText.currency}} {{service.distanceValueType}}</p>
+            <p *ngIf="service.type === 'Cliente'"><b>{{dataText.conditionalTable}}:</b> {{dataText.currency}} {{service.valueMeter}}</p>
+            <p><b>{{dataText.returnValueFix}}:</b> {{dataText.currency}}  {{service.valueReturn}}</p>
+        </ion-card-content>   
+         </ion-col>
+
+       </ion-row>
+      
+      <ion-row class="mrg-lt-10">
+
+        <ion-col>    
+                      
+            <button ion-button icon-start clear small (click)="edit(service)"> 
+                <ion-icon name="clipboard" color="secondary"></ion-icon>
+              <div> {{dataText.edit}} </div>
+            </button>
+          </ion-col>
+
+          <ion-col>    
+            <button ion-button icon-start clear small (click)="remove(service)">
+              <ion-icon name="trash" color="danger"></ion-icon>
+              <div>{{dataText.remove}}</div>
+            </button>
+          </ion-col> 
+                
+    </ion-row>
+                          
+    </ion-card>    
+
+  </ion-list>
+
+</ion-content>

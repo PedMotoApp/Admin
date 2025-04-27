@@ -1,0 +1,197 @@
+
+<ion-header>
+
+  <ion-navbar text-center no-border-bottom>
+    <ion-title> Configurações Ifood </ion-title>                
+
+    <ion-buttons end>
+      <button ion-button (click)="showAuth()" color="white_"><ion-icon name="key" style="margin-right: 10px;"></ion-icon>CONFIGURAR AUTENTICAÇÃO</button>
+  </ion-buttons>
+  
+    
+  
+  </ion-navbar>
+ 
+</ion-header>
+
+<ion-content padding>
+
+    <ion-list *ngIf="isAuthConfigVisible">        
+           
+      <ion-row *ngIf="false">
+        <ion-col>
+          <ion-item no-lines>
+            <ion-label stacked>Client ID</ion-label>  
+            <ion-input class="fs-13"  type="text" placeholder="Client ID"  [(ngModel)]="ifoodClientId">
+          </ion-input>
+          </ion-item>
+        </ion-col>
+
+        <ion-col>
+          <ion-item no-lines>
+            <ion-label stacked>Client Secret</ion-label>  
+            <ion-input class="fs-13"  type="text" placeholder="Client Secret"  [(ngModel)]="ifoodClientSecret">
+          </ion-input>
+        </ion-item>
+        </ion-col>
+
+      </ion-row>
+
+
+      <ion-row>
+
+        <ion-col>
+          <ion-item no-lines>
+            <ion-label stacked>Token solicitação</ion-label>  
+            <ion-input class="fs-13"  type="text" placeholder="Token solicitação"  [(ngModel)]="payload.userCode">
+
+              
+          </ion-input>
+        </ion-item>
+        </ion-col>
+
+        <ion-col>
+          <ion-item no-lines>
+            <ion-label stacked>Cole aqui o token de confirmação recebido no portal</ion-label>  
+            <ion-input class="fs-13"  type="text" placeholder="Código de autenticação"  [(ngModel)]="payload.authorizationCode" >
+          </ion-input>
+        </ion-item>
+        </ion-col>               
+
+      </ion-row>
+
+
+
+      <ion-row>
+        <ion-col>
+          <ion-item no-lines>
+            <ion-label stacked>Token de autenticação</ion-label>  
+            <ion-input class="fs-13"  type="text" placeholder="Código de autenticação"  [(ngModel)]="payload.accessToken">
+          </ion-input>
+        </ion-item>
+        </ion-col>   
+
+        <ion-col>
+          <ion-item no-lines>
+            <ion-label stacked>Token de refresh</ion-label>  
+            <ion-input class="fs-13"  type="text" placeholder="Código de refresh"  [(ngModel)]="payload.refreshToken">
+          </ion-input>
+        </ion-item>
+        </ion-col>   
+      </ion-row>
+                
+  </ion-list>
+
+
+    <ion-card class="trip card" text-wrap no-lines>
+            
+      <ion-list-header color="primary">Autenticação</ion-list-header>
+  
+      <ion-card-content  *ngIf="payload">                    
+        <p><b>Status:</b> {{payload.status}}</p>      
+        <p *ngIf="payload.datetimeStr"><b>Horário de autenticação Request token:</b> {{payload.datetimeStr}} </p>
+        <p *ngIf="payload.accessTokenExpiresStr"><b>Access Token expira às :</b> {{payload.accessTokenExpiresStr}} </p>                      
+      </ion-card-content>              
+
+      <ion-row>      
+
+        <ion-col style="margin-left: 10px;">   
+          <button ion-button icon-start clear small (click)="getAuthToken()"> 
+              <ion-icon name="md-trophy" color="primary"></ion-icon>
+            <div> Solicitar token </div>
+          </button>
+        </ion-col>
+
+
+
+  
+        <ion-col style="margin-left: 10px;" *ngIf="payload.status === 'Token recebido'">   
+
+
+          <button ion-button icon-start clear small (click)="authApp()"> 
+              <ion-icon name="md-trophy" color="primary"></ion-icon>
+            <div> Permitir aplicativo </div>
+          </button>
+        </ion-col>
+  
+  
+        <ion-col style="margin-left: 10px;" *ngIf="payload.status === 'Token recebido' && payload.authorizationCode">           
+          <button ion-button icon-start clear small (click)="authStore()"> 
+              <ion-icon name="md-trophy" color="primary"></ion-icon>
+            <div> Autenticar loja </div>
+          </button>
+        </ion-col>                  
+  
+    </ion-row>
+  
+    <ion-row>
+  
+      <ion-col style="margin-left: 10px;" *ngIf="payload.accessToken">    
+  
+        <button ion-button icon-start clear small (click)="getMerchants()"> 
+            <ion-icon name="md-trophy" color="primary"></ion-icon>
+          <div> Abrir loja </div>
+        </button>
+  
+  
+      </ion-col>
+     
+  </ion-row>
+    
+       
+  </ion-card>
+
+
+  <ion-list-header color="primary" *ngIf="payload.stores">Lojas</ion-list-header>
+
+
+  <ion-card *ngFor="let store of payload.stores" >
+           
+    <ion-card-header>
+      <ion-title> Eventos {{store.name}} {{store.lastEvent}}</ion-title>       
+    </ion-card-header>
+
+    <ion-card-content *ngFor="let orders of store.orders" > 
+                    
+        <p><b>{{dataText.ifoodId}}: # </b>{{orders.orderId}}</p>
+        <p><b>Criado:</b> {{orders.createdAtStr}}</p>
+        <p><b>Status:</b> {{orders.fullCode}}</p>     
+        
+        <p *ngIf="orders.details && orders.details.customer && orders.details.customer.name"><b>Cliente:</b> {{orders.details.customer.name}}</p>
+        <p *ngIf="orders.details && orders.details.customer && orders.details.customer.phone"><b>{{dataText.phone}} cliente:</b> {{orders.details.customer.phone.number}}</p>
+  
+        <p *ngIf="orders.details && orders.details.delivery"><b>Data entrega:</b> {{orders.details.delivery.deliveryDateTime}}</p>        
+        <p *ngIf="orders.details && orders.details.deliveryAddress"><b>Entrega:</b> {{orders.details.deliveryAddress.formattedAddress}}</p>
+        <p *ngIf="orders.details && orders.details.total"><b>Total:</b> {{dataText.currency}} {{orders.details.total.subTotal}}</p>
+        <p *ngIf="orders.details && orders.details.total"><b>Taxa pelo Ifood:</b> {{dataText.currency}} {{orders.details.total.deliveryFee}}</p>
+        <p *ngIf="orders.details && orders.details.total"><b>{{dataText.jobValue}} do pedido:</b> {{orders.details.total.orderAmount}}</p>
+        <p *ngIf="orders.details && orders.details.payments"><b>Pagamento:</b> {{orders.details.payments.methods[0].method}}</p>
+
+        <ion-item *ngIf="orders && orders.details">
+                              
+          <ion-list-header color="primary" style="margin-top: 10px; margin-bottom: 10px;">
+            Produtos
+          </ion-list-header>
+
+          <ion-item *ngFor="let item of orders.details.items" >                       
+            <p> <b>Pedido: </b>{{item.name}} - {{item.quantity}} - {{item.unit}} - {{dataText.currency}} {{item.totalPrice}}</p>                                                            
+          </ion-item>
+          
+        </ion-item>
+              
+        
+    </ion-card-content>
+
+ 
+  </ion-card>
+
+
+  
+
+
+
+
+
+
+
+</ion-content>

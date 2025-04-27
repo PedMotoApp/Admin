@@ -1,0 +1,128 @@
+
+$font-path: "../assets/fonts";
+$app-direction: ltr;
+
+
+@import "ionic.globals";
+@import "ionic.theme.default";
+@import "ionic.ionicons";
+@import "roboto";
+@import "noto-sans";
+
+
+$colors: (
+  primary:    #aa0605,
+  secondary:  #32db64,  
+  success:    #4CAF50,
+  danger:     #f53d3d,
+  tema:     #aa0605,  
+  light:      #f4f4f4,
+  dark:       #222,
+  white_:     white,  
+  gold:       rgb(255,215,0),
+  silver:     #C0C0C0,
+  bronze:     #CD7F32,
+  orange:     #FF9800,
+  white-transparent: rgba(255,255,255, 0.2)
+);
+
+$theme-color: #aa0605;
+
+$bg-color: #f5f4f4;
+$fb-color: #2553b4;
+$white: #fff;
+$yellow_color: #ffca28;
+$red_color: #ff1e1e;
+$green_color: #4CAF50;
+$gray:#808080;
+
+
+$text-input-placeholder-color:               color($colors, white-transparent, base) !default;
+$text-input-md-show-focus-highlight:        false !default;
+$text-input-md-show-valid-highlight:        $text-input-md-show-focus-highlight !default;
+$text-input-md-show-invalid-highlight:      $text-input-md-show-focus-highlight !default;
+
+$text-input-ios-show-focus-highlight:        false !default;
+$text-input-ios-show-valid-highlight:        $text-input-ios-show-focus-highlight !default;
+$text-input-ios-show-invalid-highlight:      $text-input-ios-show-focus-highlight !default;
+
+$menu-shadow-color: rgba(0,0,0,.7);
+$menu-icon-color: #747474;
+$menu-font-color: #484848;
+$menu-back-ground-color: #FFFFFF;
+
+$item-color-bg: #ccc;
+$header-color-bg: #eee;
+$animation-duration: 0.3s;
+
+$fab-size: 75px;
+$fab-content-margin: 20px;
+
+ // ======================= 
+// ======================= varible
+// ======================= 
+
+$transparent: transparent;
+
+$black      : #212121;
+$white      : #fff;
+$white-1    : #fafafa;
+$white-2    : #f1f1f1;
+$grey-1     : #ebebeb;
+$grey-2     : #ddd;
+$grey-3     : #bebebe;
+$grey-4     : #757575;
+$grey-5     : #555;
+
+$red        : #F44336;
+$pink       : #E91E63;
+$purple     : #9C27B0;
+$d-purple   : #673AB7;
+$indigo     : #3F51B5;
+$blue       : #2196F3;
+$l-blue     : #03A9F4;
+$cyan       : #00BCD4;
+$teal       : #009688;
+$green      : #4CAF50;
+$l-green    : #8BC34A;
+$lime       : #CDDC39;
+$yellow     : #FFEB3B;
+$amber      : #FFC107;
+$orange     : #FF9800;
+$d-orange   : #FF5722;
+$brown      : #795548;
+$blue-grey  : #607D8B;
+
+
+$coban: #11c99f;
+$lama: #d0eeaa;
+
+$datroi: #a1e3e2;
+$tim: #957eed;
+
+$lanon: #cef9c0;
+$hong: #fcb7be; 
+
+$lot: #eaf8f8;
+$phan: #faecfd;
+
+
+
+$shadow-1: 0px 2px 5px 0px rgba(0,0,0,0.05);
+$shadow-2: 0px 5px 10px 0px rgba(0,0,0,0.1);
+$shadow-3: 0px 10px 15px 0px rgba(0,0,0,0.1);
+$shadow-inset-1: inset 0px 2px 5px 0px rgba(0,0,0,0.2);
+$shadow-inset-2: inset 0px 5px 10px 0px rgba(0,0,0,0.2);
+$shadow-inset-3: inset 0px 10px 15px 0px rgba(0,0,0,0.2);
+
+
+$black-opct: rgba(0,0,0,0.3);
+$black-opct-1: rgba(0,0,0,0.6);
+$black-opct-2: rgba(0,0,0,0.9);
+
+$white-opct: rgba(255,255,255,0.3);
+$white-opct-1: rgba(255,255,255,0.6);
+$white-opct-2: rgba(255,255,255,0.9);
+
+$label-ios-text-color: $blue;
+$label-md-text-color: $blue;

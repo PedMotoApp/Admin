@@ -1,0 +1,95 @@
+<ion-header>
+
+    <ion-navbar text-center no-border-bottom>
+      <ion-title>{{dataText.documentation}}</ion-title>                
+    </ion-navbar>
+   
+</ion-header>  
+
+<ion-content class="bg-light">
+        
+  <ion-list>
+
+      <ion-card class="trip card" text-center>  
+          <ion-card-header class="bg-theme text-black">{{dataText.cardId}}
+              <span *ngIf="picOne" ion-text><strong> {{dataText.sent}}</strong></span>
+              <span *ngIf="! picOne" ion-text><strong> {{dataText.notSent}}</strong></span>
+          </ion-card-header>
+          
+          <img src="{{picOne}}">
+                                
+      </ion-card>
+
+      <ion-card text-center>  
+          <ion-card-header class="bg-theme text-black">{{dataText.driveLicence}}
+              <span  ion-text><strong>{{dataText.sent}}</strong></span>
+              <span *ngIf="! picTwo" ion-text><strong>{{dataText.notSent}}</strong></span>
+          </ion-card-header>            
+
+          <img src="{{picTwo}}">
+          
+      </ion-card>
+
+      <ion-card text-center>
+          <ion-card-header class="bg-theme text-black">{{dataText.photo1}}
+              <span *ngIf="picThree" ion-text><strong>{{dataText.sent}}</strong></span>
+              <span *ngIf="! picThree" ion-text><strong>{{dataText.notSent}}</strong></span>
+          </ion-card-header>            
+
+          <img src="{{picThree}}">
+                      
+      </ion-card>     
+
+      <ion-card text-center>
+          <ion-card-header class="bg-theme text-black">{{dataText.renavan}}
+              <span *ngIf="picFour" ion-text><strong>{{dataText.sent}}</strong></span>
+              <span *ngIf="! picFour" ion-text><strong>{{dataText.notSent}}</strong></span>
+          </ion-card-header>     
+
+          <img src="{{picFour}}">
+          
+      </ion-card>
+
+      <ion-card text-center>
+          <ion-card-header class="bg-theme text-black">{{dataText.criminal}}      
+              <span *ngIf="picFive" ion-text><strong>{{dataText.sent}}</strong></span>
+              <span *ngIf="! picFive" ion-text><strong>{{dataText.notSent}}</strong></span>
+          </ion-card-header>     
+
+          <img src="{{picFive}}">          
+      </ion-card>
+
+      <ion-card text-center>
+          <ion-card-header class="bg-theme text-black">{{dataText.residenceProof}}
+              <span *ngIf="picSix" ion-text><strong>{{dataText.sent}}</strong></span>
+              <span *ngIf="! picSix" ion-text><strong>{{dataText.notSent}}</strong></span>
+          </ion-card-header>            
+
+          <img src="{{picSix}}">
+          
+      </ion-card>
+
+      <ion-card text-center>
+        <ion-card-header class="bg-theme text-black">{{dataText.photo2}}
+            <span *ngIf="picSeven" ion-text><strong>{{dataText.sent}}</strong></span>
+            <span *ngIf="! picSeven" ion-text><strong>{{dataText.notSent}}</strong></span>
+        </ion-card-header>            
+        
+        <img src="{{picSeven}}">
+
+    </ion-card>
+
+    <ion-card text-center>
+        <ion-card-header class="bg-theme text-black">{{dataText.photo3}}
+            <span *ngIf="picHeight" ion-text><strong>{{dataText.sent}}</strong></span>
+            <span *ngIf="! picHeight" ion-text><strong>{{dataText.notSent}}</strong></span>
+        </ion-card-header>            
+
+        <img src="{{picHeight}}">
+        
+    </ion-card>
+
+      
+  </ion-list>
+
+</ion-content>  

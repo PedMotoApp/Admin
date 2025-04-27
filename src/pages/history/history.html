@@ -1,0 +1,398 @@
+
+<ion-header>
+    <ion-navbar text-center no-border-bottom>
+        <ion-title>{{textHeader}}</ion-title>                
+    </ion-navbar>       
+</ion-header>
+    
+  <ion-content padding>
+
+    
+    <ion-list no-lines>
+
+      <ion-row>
+        <ion-col>
+          <ion-item [class.no-border]="platform.is('core')" no-lines>
+            <ion-label stacked>{{dataText.startDate}}</ion-label>
+            <ion-datetime displayFormat="DD/MM/YYYY" min="2020-01-01" doneText="OK" cancelText="{{dataText.cancel}}" [(ngModel)] ="selectedDate"></ion-datetime>        
+          </ion-item>                
+        </ion-col>
+
+        <ion-col>
+          <ion-item [class.no-border]="platform.is('core')" no-lines>
+            <ion-label stacked>{{dataText.endDate}}</ion-label>
+            <ion-datetime displayFormat="DD/MM/YYYY" min="2020-01-01" doneText="OK" cancelText="{{dataText.cancel}}" [(ngModel)] ="selectedDateEnd"></ion-datetime>        
+          </ion-item>    
+        </ion-col> 
+        
+      </ion-row>
+      
+      <ion-row>
+
+        <ion-col>
+          
+        
+          <ion-item  no-lines>
+            
+            <ion-label>{{dataText.clients}}</ion-label>
+            <ionic-selectable
+              item-content 
+              [(ngModel)]="client"
+              [items]="clientsWorkersArray"
+              itemValueField="uid"              
+              itemTextField="name"
+              [canSearch]="true"
+              (onChange)="clientChange($event)">
+            </ionic-selectable>
+          </ion-item>
+          
+    
+        </ion-col>
+
+        <ion-col>
+
+          <ion-item  no-lines>
+            <ion-label>{{dataText.professionals}}</ion-label>
+            <ionic-selectable
+            
+              item-content 
+              [(ngModel)]="worker"
+              [items]="usersWorkersArray"
+              itemValueField="uid"
+              itemTextField="name"
+              [canSearch]="true"
+              (onChange)="workersChanged($event)">
+            </ionic-selectable>
+          </ion-item>
+
+        </ion-col>     
+
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          
+          <ion-item [class.no-border]="platform.is('core')" no-lines>
+            
+            <ion-label stacked>{{dataText.selectStatus}}</ion-label>  
+
+            <ion-select [(ngModel)]="status" (ionChange)="getHistory()">
+              <ion-option *ngFor="let statuss of dataInfo.workStatus">{{statuss}}</ion-option>                                                                              
+            </ion-select>                          
+          </ion-item>
+
+        </ion-col>
+        
+      </ion-row>          
+
+    </ion-list> 
+
+    <ion-list *ngIf="reportsArray.length > 0">           
+    
+      <ion-card class="trip card" text-wrap *ngFor="let report of reportsArray" no-lines padding>
+        
+        <p><b>{{dataText.dateRequest}}:</b> {{report.datetime}} </p>
+        <p><b>{{dataText.datetime}}:</b> {{report.data}} </p>        
+        <p><b>{{dataText.status}}:</b> {{report.statusReport}} </p>
+
+        <ion-row>
+          <ion-col>
+            <button ion-button full icon-start text-uppercase (click)="open(report)" color="secondary"  [disabled]="report.statusReport !== 'Finalizado'">
+              <ion-icon name="md-clipboard"></ion-icon>
+              <div>{{dataText.openReport}}</div></button>
+          </ion-col>
+             
+
+          
+          <ion-col>            
+            <button ion-button full icon-start text-uppercase (click)="removeReport(report)"  color="danger"  [disabled]="report.statusReport === 'Finalizado'"> 
+                <ion-icon name="trash"></ion-icon>
+              <div>{{dataText.remove}}</div>
+            </button>
+          </ion-col> 
+          
+      </ion-row>  
+
+      </ion-card>
+    </ion-list>
+
+    <ion-list *ngIf="worksArray.length > 0"> 
+
+      <ion-list-header class="bg-theme text-white" *ngIf="worksArray && worksArray.length > 0">{{dataText.resumeServices}}</ion-list-header>
+
+       <ion-row>
+          <ion-col><p><b>{{dataText.totalServices}}:</b> {{totalJobs}} </p></ion-col>
+          <ion-col><p><b>{{dataText.totalComission}}:</b> {{dataText.currency}} {{totalComissionStr}} </p></ion-col>
+          <ion-col><p><b>{{dataText.totalBilled}}:</b> {{dataText.currency}} {{totalPrePaidStr}} </p></ion-col>          
+       </ion-row>       
+
+       <ion-row>        
+        <ion-col><p><b>{{dataText.totalCard}}:</b> {{dataText.currency}} {{totalCardStr}} </p></ion-col>
+        <ion-col><p><b>{{dataText.totalMoney}}:</b> {{dataText.currency}} {{totalMoneyStr}} </p></ion-col>          
+        <ion-col><p><b>{{dataText.totalFinal}}:</b> {{dataText.currency}} {{totalFinalStr}} </p></ion-col>          
+     </ion-row>       
+                        
+      <ion-card class="trip card" text-wrap no-lines *ngIf="worksArray && worksArray.length > 0">
+
+      </ion-card>
+
+            
+      <ion-list-header class="bg-theme text-white">{{dataText.results}}</ion-list-header>
+    
+      <ion-card class="trip card" text-wrap *ngFor="let work of worksArray" no-lines>
+
+        <ion-item>
+            <ion-avatar item-start>
+              <img src="./assets/imgs/default-user.png" *ngIf="! work.photo">
+              <img src="{{work.photo}}" *ngIf="work.photo">
+            </ion-avatar>
+
+            <p><b>{{dataText.key}}:</b> {{work.key}} </p>
+            <p *ngIf="work.workerInfo"><b>{{dataText.professional}}:</b> {{work.workerInfo.name}} </p>
+            <p><b>{{dataText.clients}}:</b> {{work.name}} </p>
+            <p *ngIf="work.cnpj"><b>{{dataText.cnpj}}:</b> {{work.cnpj}} </p>
+            <p><b>{{dataText.status}}:</b> {{work.status}} </p>
+
+            <p *ngIf="work.datetime"><b>{{dataText.dateRequest}}:</b> {{work.datetime}} </p>             
+            <p *ngIf="work.datetimeStart"><b>{{dataText.dateArrived}}:</b> {{work.datetimeStart}} </p>
+            <p *ngIf="work.datetimeFinish"><b>{{dataText.dateFinished}}:</b> {{work.datetimeFinish}} </p>              
+            <p *ngIf="work.totalTimeWaiting"><b>{{dataText.estimatedTime}}:</b> {{work.totalTimeWaiting}} {{dataText.minutes}}</p>                                                
+            
+            <p  *ngIf="work.carInfo && work.carInfo.paymentMethod"><b>{{dataText.paymentMethod}}: </b> {{work.carInfo.paymentMethod}} </p>
+
+            <p *ngIf="work.carInfo"><b>{{dataText.jobValue}}: </b> {{dataText.currency}} {{work.carInfo.total}} </p>
+            <p *ngIf="work.workComission"><b>{{dataText.comission}}: </b> {{dataText.currency}} {{work.workComission}} </p>            
+            <p *ngIf="work.totalWaitMoney"><b>{{dataText.valueTimeWaited}}:</b> {{dataText.currency}} {{work.totalWaitMoney}}</p>            
+            <p *ngIf="work.totalWaitMoney"><b>{{dataText.jobValue}}: </b> {{dataText.currency}} {{work.totalRun}} </p>
+            <p *ngIf="work.carInfo && work.carInfo.paymentChange"><b>{{dataText.changeFor}}: </b> {{dataText.currency}} {{work.carInfo.paymentChange}} </p>                                  
+
+          </ion-item>
+
+          <ion-card-content style="margin-top: 10px;" *ngIf="work.expand">                    
+
+            <p *ngIf="work.dropPoints"><b>{{dataText.pickUp}}:</b> {{work.dropPoints[0].description}} </p>
+            <p *ngIf="work.totalTime"><b>{{dataText.estimatedTime}}:</b> {{work.totalTime}} </p>                                                
+            <p *ngIf="!work.msgFinish && work.msgCancel"><b>{{dataText.messageCanceled}}:</b> {{work.msgCancel}} </p>
+            <p *ngIf="work.msgFinish"><b>{{dataText.messageFinished}}:</b> {{work.msgFinish}} </p>     
+
+            <p><b>{{dataText.dropPoints}}</b></p>
+            
+            <ion-item *ngFor="let point of work.dropPoints">
+
+              <p><b>{{dataText.address}}:</b> {{point.description}} </p>
+              <p><b>{{dataText.status}}:</b> {{point.status}} </p>
+            
+              <p *ngIf="point.responsible"><b>{{dataText.responsible}}:</b> {{point.responsible}}</p>
+              <p *ngIf="point.instructions"><b>{{dataText.instructions}}:</b> {{point.instructions}}</p>
+              <p *ngIf="point.obs"><b>{{dataText.obs}}:</b> {{point.obs}}</p>
+              <p *ngIf="point.datetime"><b>{{dataText.startDate}}:</b> {{point.datetime}} </p>
+              <p *ngIf="point.arrived"><b>{{dataText.dateArrived}}:</b> {{point.arrived}} </p>
+              <p *ngIf="point.datetimeEnd"><b>{{dataText.dateFinished}}:</b> {{point.datetimeEnd}} </p>
+              <p *ngIf="point.totalWait"><b>{{dataText.totalWaitTime}}:</b> {{point.totalWait}} </p>
+              <p *ngIf="point.signedBy"><b>{{dataText.signedBy}}:</b> {{point.signedBy}} </p>
+
+              <button ion-button icon-start clear small (click)="open(point)" color="danger" *ngIf="point.url">  
+                <ion-icon name="ios-image"></ion-icon>                        
+                {{dataText.attachment}}
+            </button>                            
+
+            <button ion-button icon-start clear small (click)="openDirect(point)" color="danger" *ngIf="point.url">  
+              <ion-icon name="md-link"></ion-icon>                        
+              {{dataText.directLink}}
+          </button>
+              
+        </ion-item>                                 
+
+        </ion-card-content>
+
+        <ion-card-content *ngIf="work.ifood && work.showIfood">
+
+
+          <ion-list-header color="danger" style="margin-top: 10px; margin-bottom: 10px;">
+            {{dataText.ifoodInfo}}
+          </ion-list-header>
+
+          <ion-item no-lines> 
+              
+            <p><b>{{dataText.ifoodId}}: # </b>{{work.ifood.orderId}}</p>
+            <p><b>{{dataText.created}}:</b> {{work.ifood.createdAtStr}}</p>
+            <p *ngIf="work.ifood.details && work.ifood.details.delivery"><b>{{dataText.dateOrder}}:</b> {{work.ifood.details.delivery.deliveryDateTimeStr}}</p>                        
+            <p><b>{{dataText.status}}:</b> {{work.ifood.fullCodeStr}}</p>     
+    
+            <p *ngIf="work.ifood.details && work.ifood.details.customer && work.ifood.details.customer.name"><b>{{dataText.clients}}:</b> {{work.ifood.details.customer.name}}</p>
+            <p *ngIf="work.ifood.details && work.ifood.details.customer && work.ifood.details.customer.phone"><b>{{dataText.phone}}:</b> {{work.ifood.details.customer.phone.number}}</p>          
+            <p *ngIf="work.ifood.details && work.ifood.details.deliveryAddress"><b>{{dataText.address}}:</b> {{work.ifood.details.deliveryAddress.formattedAddress}}</p>
+            <p *ngIf="work.ifood.details && work.ifood.details.total"><b>{{dataText.total}}:</b> {{dataText.currency}} {{work.ifood.details.total.subTotal}}</p>
+            <p *ngIf="work.ifood.details && work.ifood.details.total"><b>{{dataText.deliveryFees}}:</b> {{dataText.currency}} {{work.ifood.details.total.deliveryFee}}</p>            
+            <p *ngIf="work.ifood.details && work.ifood.details.payments && work.ifood.details.payments.methods[0].method ==='CASH'"><b>{{dataText.paymentMethod}}:</b> {{dataText.money}} </p>
+            <p *ngIf="work.ifood.details && work.ifood.details.payments && work.ifood.details.payments.methods[0].method !=='CASH'"><b>{{dataText.paymentMethod}}:</b> {{dataText.card}} </p>        
+            <p *ngIf="work.ifood.details && work.ifood.details.payments && work.ifood.details.payments.methods[0].cash && work.ifood.details.payments.methods[0].cash.changeFor"><b>{{dataText.changeFor}}:</b> {{dataText.currency}} {{work.ifood.details.payments.methods[0].cash.changeFor}} </p>
+    
+
+            <ion-item *ngIf="work.ifood.details && work.ifood.details.items" no-lines>                              
+    
+              <ion-list-header color="danger" style="margin-top: 10px; margin-bottom: 10px;">
+                {{dataText.orderDetails}}
+              </ion-list-header>
+    
+    
+
+              <ion-item *ngFor="let item of work.ifood.details.items" no-lines>                       
+                <p> 
+                  <b> {{item.name}} </b> - {{item.quantity}} - {{item.unit}} - {{dataText.currency}} {{item.totalPrice}}            
+                  <br>
+                  
+                  <b *ngIf="item.observations">Observação: {{item.observations}}</b>              
+                  <b *ngIf="item.options">Extras: </b>
+    
+                  <ion-item *ngFor="let option of item.options" >                       
+                    <p> {{option.name}} - {{option.quantity}} - {{option.unit}} - {{dataText.currency}} {{option.unitPrice}}</p>
+                    
+                  </ion-item>
+    
+    
+                </p>    
+                
+                
+    
+              </ion-item>
+              
+            </ion-item>
+
+          </ion-item>
+
+
+        </ion-card-content>
+
+
+            <ion-row>        
+              
+              <ion-col>
+
+                <button ion-button icon-start clear small (click)="recovery(work)"  color="danger"> 
+                    <ion-icon name="clipboard"></ion-icon>
+                  <div>{{dataText.recovery}}</div>
+                </button>
+              </ion-col> 
+
+
+              <ion-col *ngIf="! work.expand">
+                  <button ion-button icon-start clear small (click)="expand(work)">
+                      <ion-icon name="arrow-down"></ion-icon>
+                      {{dataText.expand}} 
+                  </button>
+              </ion-col>      
+
+              <ion-col *ngIf="work.expand">
+                <button ion-button icon-start clear small (click)="expand(work)" color="danger">                                                                            
+                    <ion-icon name="arrow-up"></ion-icon>                        
+                    {{dataText.less}}
+                </button>
+              </ion-col>
+
+                <ion-col *ngIf="!work.showIfood">
+                    <button ion-button icon-start clear small (click)="expandIfood(work)">
+                        <ion-icon name="arrow-down"></ion-icon>
+                        {{dataText.expand}} Ifood
+                    </button>
+                </ion-col>        
+
+                <ion-col *ngIf="work.showIfood">
+                  <button ion-button icon-start clear small (click)="expandIfood(work)" color="danger">                                                                            
+                      <ion-icon name="arrow-up"></ion-icon>                        
+                      {{dataText.less}} Ifood
+                  </button>
+                </ion-col>
+                 
+
+              <ion-col *ngIf="work.status === 'Criado' || work.status === 'Aceito' || work.status === 'Iniciado'">
+
+                <button ion-button icon-start clear small (click)="edit(work)"  color="danger"> 
+                    <ion-icon name="trash"></ion-icon>
+                  <div>{{dataText.edit}}</div>
+                </button>
+              </ion-col> 
+    
+              
+              <ion-col>
+                <button ion-button icon-start clear small (click)="removeWork(work)"  color="danger" [disabled]="!dataInfo.userInfo.isAdmin"> 
+                    <ion-icon name="trash"></ion-icon>
+                  <div>{{dataText.remove}}</div>
+                </button>
+              </ion-col> 
+    
+
+              <ion-col *ngIf="work.status !== 'Cancelado'">
+
+                <button ion-button icon-start clear small (click)="cancelWork(work)"  color="danger"> 
+                    <ion-icon name="md-checkbox-outline"></ion-icon>
+                  <div>{{dataText.cancel}}</div>
+                </button>
+              </ion-col> 
+
+    
+              <ion-col *ngIf="work.status === 'Criado' || work.status === 'Aceito' || work.status === 'Iniciado'">
+                <button ion-button icon-start clear small (click)="finishWorkDelivery(work)"  color="danger"> 
+                    <ion-icon name="md-checkbox-outline"></ion-icon>
+                  <div>{{dataText.finish}}</div>
+                </button>
+              </ion-col> 
+    
+
+              <ion-col *ngIf="work.status === 'Criado' || work.status === 'Cancelado' || work.status === 'Vencida'">
+                <button ion-button icon-start clear small (click)="restartWork(work)"> 
+                    <ion-icon name="md-refresh"></ion-icon>
+                  <div>{{dataText.restart}}</div>
+                </button>
+              </ion-col> 
+              
+          </ion-row>  
+
+                                  
+        </ion-card>
+
+    </ion-list>
+      
+  </ion-content>
+
+  <ion-footer>
+
+    <ion-row>          
+
+      <ion-col *ngIf="!isReportOpen">
+
+        <button ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="showReport()">
+          <ion-icon name="folder-open" item-start style="margin-right: 15px;"></ion-icon>          
+          {{dataText.reportsGenerated}}
+        </button>
+      </ion-col>
+
+      <ion-col *ngIf="isReportOpen">
+        <button ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="backHistory()">
+          <ion-icon name="md-search" item-start style="margin-right: 15px;"></ion-icon>
+          {{dataText.newSearch}}
+        </button> 
+      </ion-col>
+      
+      <ion-col *ngIf="!isReportOpen">
+        <button ion-button full text-uppercase (click)="showHistory()" class="btn bg-theme mrg-bt-10 text-white ">
+            <ion-icon name="md-search" style="margin-right: 10px;"></ion-icon> {{dataText.search}}
+        </button>
+      </ion-col>
+
+      <ion-col>
+        <button ion-button full text-uppercase (click)="clear()" class="btn bg-theme mrg-bt-10 text-white ">
+            <ion-icon name="md-trash" style="margin-right: 10px;"></ion-icon> {{dataText.clear}}
+        </button>
+      </ion-col>  
+
+      <ion-col>
+        <button ion-button full text-uppercase (click)="downloadExcel()" [disabled]="worksArray.length === 0" class="btn bg-theme mrg-bt-10 text-white ">
+          <ion-icon name="md-download"  style="margin-right: 10px;"></ion-icon> Download
+        </button>  
+      </ion-col>
+
+    </ion-row>
+
+
+  </ion-footer>

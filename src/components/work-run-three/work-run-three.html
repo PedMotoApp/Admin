@@ -1,0 +1,140 @@
+
+<ion-content>
+  <div style="width:100%; height:100%"  #maprun id="maprun" ></div>
+
+  <ion-fab right bottom *ngIf="dataInfo.userType === 2">
+      <button ion-fab (click)="navigate()"><ion-icon name="navigate"></ion-icon></button>
+    </ion-fab>
+
+</ion-content>
+
+<ion-footer no-border [ngClass]="viewType == 'active' ? 'footer active':'footer'">    
+<div class="card-box">
+    <ion-card class="text-black">
+        <ion-card-header class="d-flex">              
+            <h4 *ngIf="dataInfo.userType === 1">{{'driver_info' | translate}}</h4>
+            <h4 *ngIf="dataInfo.userType === 2">{{'client_info' | translate}}</h4>              
+            <h4 *ngIf="workStatus != 'Cancelado'" class="text-theme end" (click)="cancel()">{{'cancel_ride' | translate}}</h4>
+        </ion-card-header>
+
+        <ion-card-content>
+
+            <ion-list>
+                <ion-item style="height: 100%; width: 100%">
+
+                  <ion-avatar item-start>
+                      <img *ngIf="dataInfo.userType === 1" src="{{driverPhoto}}">
+                      <img *ngIf="dataInfo.userType === 2" src="{{clientPhoto}}">                            
+
+                      <img *ngIf="dataInfo.userType === 1 && !driverPhoto"  src="{{dataInfo.imgDefaultClient}}" alt="User Profile Default">
+                      <img *ngIf="dataInfo.userType === 2 && !clientPhoto"  src="{{dataInfo.imgDefaultClient}}" alt="User Profile Default">
+                  </ion-avatar>
+
+                    <h2 class="text-black" *ngIf="dataInfo.userType === 1">{{driverName}}</h2>
+                    <h2 class="text-black" *ngIf="dataInfo.userType === 2">{{clientName}}</h2>
+                    <p class="text-black d-flex">5.0
+
+                        <span class="rateing">
+                            <ion-icon class="material-icons active" name="star"></ion-icon>
+                            <ion-icon class="material-icons active" name="star"></ion-icon>
+                            <ion-icon class="material-icons active" name="star"></ion-icon>
+                            <ion-icon class="material-icons active" name="star"></ion-icon>
+                            <ion-icon class="material-icons active" name="star"></ion-icon>
+                            <ion-icon class="material-icons" name="star"></ion-icon>
+                        </span>
+                    </p>
+                </ion-item>
+            </ion-list>
+            
+            <ion-row padding class="car_details">
+                
+                <ion-col col-4>
+                  <small class="text-black">Status da corrida</small>
+                  <strong class="text-light">{{workStatus}}</strong>
+                </ion-col>                                    
+                <ion-col col-4>                    
+                  <small class="text-black">{{dataText.phone}}</small>                  
+                  <strong class="text-light">{{clientPhone}}</strong>                  
+                </ion-col>
+                <ion-col col-4>
+                    <small class="text-black">{{'arriving_in' | translate}}</small>
+                    <strong class="text-light">{{totalTravelingTime}}</strong>
+                </ion-col>
+            </ion-row>
+
+            <div text-center padding-left padding-right>
+                
+                <button ion-button block class="btn" (click)="contactsClient()" *ngIf="dataInfo.userType === 1">{{'CONTACTS' | translate}}</button>  
+                <button ion-button block class="btn" (click)="contactsProfessional()" *ngIf="dataInfo.userType === 2">{{'CONTACTS' | translate}}</button>  
+
+                <button *ngIf="workStatus === 'Aceito'" ion-button block class="btnStart" (click)="start()">{{'service_start' | translate}}</button>
+                <button *ngIf="workStatus === 'Iniciado'" ion-button block class="btn" (click)="finish()">{{'service_finish' | translate}}</button>
+                <button *ngIf="workStatus === 'Cancelado'" ion-button block class="btn" (click)="canceled()">{{'service_canceled' | translate}}</button>                  
+                <button *ngIf="workStatus === 'Finalizado'" ion-button block class="btn" (click)="tripFinished()">{{'service_finished' | translate}}</button>
+
+
+                <div class="icon_box">                  
+                    <ion-icon name="ios-arrow-up" class="up_icon" (click)="setViewType('active')"></ion-icon>
+                    <ion-icon name="ios-arrow-down" class="down_icon" (click)="setViewType(null)"></ion-icon>
+                </div>
+
+            </div>
+        </ion-card-content>
+
+        <ion-card-content class="trip_info">
+            <h2>{{'trip_info' | translate}}</h2>
+
+            <ion-row>
+                <ion-list class="form" no-lines>
+
+                    <ion-item class="from">
+                        <ion-icon class="material-icons" item-start name="car"></ion-icon>
+                        <p><span class="text-black">{{'from' | translate}}</span>{{fromAddress}}</p>
+                    </ion-item>
+                            
+                    <ion-item class="to">
+                        <ion-icon class="material-icons" item-start name="car"></ion-icon>
+                        <p><span class="text-black">{{'to' | translate}}</span>{{toAddress}}</p>
+                    </ion-item>
+
+                    <ion-item text-wrap>                    
+
+                        
+                    <small class="text-black">Produtos</small>
+                    <strong class="text-light">{{carName}}</strong>                  
+                    </ion-item>
+
+                </ion-list>                             
+            </ion-row>
+
+            <ion-row padding class="car_details" *ngIf="dataInfo.appShowRoutes">
+
+                <ion-col col-3>
+                    <small class="text-light">{{'distance' | translate}}</small>
+                    <strong class="text-black">{{totalDistance}}</strong>
+                </ion-col>                
+                <ion-col col-5>
+                    <small class="text-light">{{'traveling_time' | translate}}</small>
+                    <strong class="text-black">{{totalTravelingTime}}</strong>
+                </ion-col>
+                <ion-col col-4>
+                    <small class="text-light">{{'arrival' | translate}}</small>
+                    <strong class="text-black">{{estimateArrival}}    </strong>
+                </ion-col>
+            </ion-row>
+        </ion-card-content>
+
+        <ion-card-content class="payment">
+            <ion-row padding class="car_details">
+                <ion-col col-4>
+                    <small class="text-light">{{'payment' | translate}}</small>
+                    <strong class="text-black">{{'wallet' | translate}}</strong>
+                </ion-col>
+                <ion-col col-8>
+                    <small class="" text-end>{{dataText.currency}} {{totalValue}}</small>
+                </ion-col>
+            </ion-row>
+        </ion-card-content>
+    </ion-card>
+</div>
+</ion-footer>

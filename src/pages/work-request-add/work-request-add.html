@@ -1,0 +1,143 @@
+
+<ion-header>
+
+  <ion-navbar text-center no-border-bottom>
+    <ion-title>{{dataText.quickSend}}</ion-title>  
+
+    <ion-buttons end *ngIf="dataInfo.userInfo">        
+      <button ion-button style="color: white" (click)="goPageWorks()">
+        <ion-icon name="md-megaphone"  item-start style="margin-right: 15px;"></ion-icon>        
+          {{dataText.services}}   
+      </button>      
+    </ion-buttons>
+
+  </ion-navbar>
+  
+
+</ion-header>
+
+
+<ion-content class="trips detail-bg">
+
+  <ion-list>  
+
+    <ion-card class="trip card" text-wrap no-lines>
+
+      <ion-item no-lines>    
+        <ion-label stacked>Serviço</ion-label>  
+        <ion-select [(ngModel)]="selectedService">
+          <ion-option *ngFor="let service of (services | async)">{{service.payload.val().name}}</ion-option>
+        </ion-select>                          
+      </ion-item>       
+      
+      <ion-item no-lines>    
+        <ion-label stacked>{{dataText.selectClients}}</ion-label>  
+        <ion-select [(ngModel)]="client" (ionChange)="clientChanged()">          
+          <ion-option *ngFor="let cl of usersClientsArray">{{cl.razaoSocial}}</ion-option>
+        </ion-select>                          
+      </ion-item>       
+      
+        
+      <ion-item no-lines *ngIf="dataInfo.userType === 1">
+
+        <ion-label stacked>{{dataText.selectProfessionals}}</ion-label>  
+        <ion-select [(ngModel)]="emailProfissionalEntrega"  (ionChange)="workersChanged()" multiple="true">
+          <ion-option *ngFor="let worker of usersWorkersArray">{{worker.name}}</ion-option>                                                  
+        </ion-select>   
+        
+      </ion-item>
+
+
+      <ion-item no-lines>
+        <ion-label stacked>{{dataText.pickUp}}:</ion-label>
+        <ion-input type="text" [(ngModel)]="from"  (keyup.enter)="searchFromAddress()" (ionBlur)="searchFromAddress()"></ion-input>
+
+      <button ion-button item-right (click)="searchFromAddress()" *ngIf="autocompleteItemsFrom &&  autocompleteItemsFrom.length == 0" [disabled]="from && from.length === 0">
+        <ion-icon icon-start name="md-home" color="light"> </ion-icon>
+      </button>                        
+
+      <button ion-button  item-right (click)="userLocation()" color="primary">
+        <ion-icon icon-start  name="md-locate" color="light"> </ion-icon>
+      </button>
+
+      <button ion-button item-right (click)="clearFrom()" color="danger"  [disabled]="from && from.length === 0">
+        <ion-icon name="ios-trash" color="light"> </ion-icon>
+      </button>
+
+    </ion-item>
+
+                                     
+      <ion-item *ngFor="let address of autocompleteItemsFrom" text-wrap  no-lines (click)="selectAddressFrom(address)">              
+        {{address.description}}
+          <ion-icon item-start name="md-locate" color="primary" style="font-size: 30px;"> </ion-icon>
+      </ion-item>                   
+            
+
+
+      <ion-item *ngFor="let att of anArray; let idx = index">
+      
+        <ion-label stacked>{{dataText.delivery}} #{{idx+1}}</ion-label>
+
+        <ion-input type="text" [(ngModel)]="anArray[idx].description"  (keyup.enter)="updateSearchResults(idx)" (ionBlur)="updateSearchResults(idx)">      
+        </ion-input>            
+
+        
+        <button  ion-button  item-right (click)="updateSearchResults(idx)"  *ngIf="autocompleteItemsTo && autocompleteItemsTo.length == 0 && anArray[idx].description && anArray[idx].description.length > 5">
+          <ion-icon name="search" color="light"> </ion-icon>
+        </button>
+        
+        <button  ion-button  item-right (click)="confirmSearchResults()" color="primary" *ngIf="idx == lastIndex && autocompleteItemsTo.length > 0">
+          <ion-icon name="md-clipboard" color="light"> </ion-icon>
+        </button>
+
+        <button  ion-button  item-right (click)="remove(idx)" color="danger">
+          <ion-icon name="ios-trash" color="light"> </ion-icon>
+        </button>                  
+
+      </ion-item>     
+      
+      <ion-item *ngFor="let address of autocompleteItemsTo" text-wrap  no-lines (click)="selectAddress(address)">      
+        {{address.description}}
+          <ion-icon item-start name="md-locate" color="primary" style="font-size: 30px;"> </ion-icon>
+      </ion-item>        
+
+      
+      <button ion-button full class="bg-theme mrg-bt-10 text-white" [disabled]="!selectedService || requestSent"  *ngIf="! showOnlyTotalDelivery" (click)="Add()">{{dataText.add}} {{dataText.address}}</button>
+                                  
+    </ion-card>
+
+
+  </ion-list>    
+
+ 
+</ion-content>
+
+
+
+<ion-footer *ngIf="!requestSent">  
+  
+  <ion-list>    
+
+    
+    
+      <button ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="recoveryLastQuickRun()">
+        <ion-icon name="md-refresh" item-start style="margin-right: 15px;"></ion-icon>
+        Preenchimento Anterior
+      </button>        
+  
+      <button ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="calc()" [disabled]="! checkInputs()">
+        <ion-icon name="md-clipboard"  item-start style="margin-right: 15px;"></ion-icon>
+          Calcular
+        </button>    
+    
+      <button ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="enviaQuickRun()"  [disabled]="! checkInputsQuickRun()">
+        <ion-icon name="md-send"  item-start style="margin-right: 15px;"></ion-icon>
+        Enviar {{dataText.currencyText}} {{finalValue}}
+      </button>               
+
+    </ion-list>
+
+    
+
+    
+</ion-footer>

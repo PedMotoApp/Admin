@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {    
+    "allowSyntheticDefaultImports": true,
+    "declaration": false,
+    "skipLibCheck": false,
+    "types": ["googlemaps"],
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "lib": [
+      "dom",
+      "ESNext"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "target": "ESNext"
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/**/*.spec.ts",
+    "src/**/__tests__/*.ts"
+  ],
+  "compileOnSave": false,
+  "atom": {
+    "rewriteTsconfig": false
+  }
+}

@@ -1,0 +1,143 @@
+<ion-header class="lot-vs-phan">
+  
+  <ion-navbar>
+      <ion-title>{{dataInfo.appName}}</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+
+    <div class="user" style="background-image: url('assets/imgs/background.jpg');" *ngIf="!dataInfo.isWeb">     
+
+      <figure class="user-register">        
+          <img (click)="selectPicture()" [src]="base64Image" *ngIf="base64Image" />                  
+          <img (click)="selectPicture()" *ngIf="! base64Image" src="{{dataInfo.clientPicDefault}}" />                                    
+      </figure>
+      <h2 class="user-name">{{name}}</h2>
+    </div>
+
+      <div class="user" style="background-image: url('assets/imgs/background.jpg');" *ngIf="dataInfo.isWeb">
+        <figure class="user-register">
+          <img [src]="base64Image" *ngIf="base64Image" />
+          <input type="file" class="file-input-register" (change)="picChange($event)" accept="image/*;capture=camera">
+          <img *ngIf="!base64Image" src="{{dataInfo.clientPicDefault}}" />
+        </figure>
+        <h2 class="user-name">{{name}}</h2>
+      </div>
+
+      <ion-list>
+        <ion-item no-lines>
+          <ion-label stacked>Tipo de cliente</ion-label>
+          <ion-select [(ngModel)]="clientType">
+            <ion-option value="1">Pessoa Física</ion-option>
+            <ion-option value="2">CNPJ</ion-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item *ngIf="clientType === 'Pessoa jurídica'">
+          <ion-label stacked>Pessoa jurídica</ion-label>
+          <ion-input type="text" [(ngModel)]="razaoSocial" [attr.maxlength]="300"></ion-input>
+        </ion-item>
+
+        <ion-item *ngIf="clientType === 'Pessoa jurídica'">
+          <ion-label stacked>Pessoa jurídica</ion-label>
+          <ion-input type="text" [(ngModel)]="cnpj" [attr.maxlength]="18" (keyup.enter)="cnpjChanged()" (ionBlur)="cnpjChanged()"></ion-input>
+        </ion-item>
+
+        <form [formGroup]="formGroup" class="pagseguro" no-padding no-margin margin-top>
+          <ion-item no-lines>
+            <ion-label stacked>{{dataText.name}}</ion-label>
+            <ion-input type="text" formControlName="name" [attr.maxlength]="40" #nameInput (keyup.enter)="nameInputChanged()"></ion-input>
+          </ion-item>
+          <ion-note margin-left ion-text color="danger" *ngIf="!formGroup.get('name').valid && formGroup.get('name').touched && !formGroup.get('name').hasError('minlength') && !formGroup.get('name').hasError('maxlength')">{{dataText.required}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('name').hasError('minlength')">{{dataText.textRegisterError1}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('name').hasError('maxlength')">{{dataText.textRegisterError2}}</ion-note>
+
+          <ion-item no-lines>
+            <ion-label stacked>{{dataText.lastName}}</ion-label>
+            <ion-input type="text" formControlName="lastName" [attr.maxlength]="100" #lastNameInput (keyup.enter)="lastNameInputChanged()"></ion-input>
+          </ion-item>
+          <ion-note margin-left ion-text color="danger" *ngIf="!formGroup.get('lastName').valid && formGroup.get('lastName').touched && !formGroup.get('lastName').hasError('minlength') && !formGroup.get('lastName').hasError('maxlength')">{{dataText.required}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('lastName').hasError('minlength')">{{dataText.textRegisterError1}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('lastName').hasError('maxlength')">{{dataText.textRegisterError3}}</ion-note>
+
+          <ion-item no-lines>
+            <ion-label stacked>Telefone</ion-label>
+            <ion-input type="text" formControlName="tel" [attr.maxlength]="12" #telNameInput (keyup.enter)="telInputChanged()"></ion-input>
+          </ion-item>
+          <ion-note margin-left ion-text color="danger" *ngIf="!formGroup.get('tel').valid && formGroup.get('lastName').touched && !formGroup.get('tel').hasError('minlength') && !formGroup.get('tel').hasError('maxlength')">{{dataText.required}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('tel').hasError('minlength')">{{dataText.textRegisterError4}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('tel').hasError('maxlength')">{{dataText.textRegisterError5}}</ion-note>
+
+          <ion-item no-lines>
+            <ion-label stacked>CEP</ion-label>
+            <ion-input type="text" formControlName="postCode" [attr.maxlength]="30" #complementInput (keyup.enter)="cepInputChanged()" (ionBlur)="cepInputChanged()"></ion-input>
+          </ion-item>
+          <ion-note margin-left ion-text color="danger" *ngIf="!formGroup.get('postCode').valid && formGroup.get('postCode').touched && !formGroup.get('postCode').hasError('minlength') && !formGroup.get('postCode').hasError('maxlength')">{{dataText.required}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('postCode').hasError('minlength')">{{dataText.textRegisterError6}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('postCode').hasError('maxlength')">{{dataText.textRegisterError6}}</ion-note>
+
+          <ion-item no-lines>
+            <ion-label stacked>{{dataText.address}}</ion-label>
+            <ion-input type="text" formControlName="address" [attr.maxlength]="300" #addressInput (keyup.enter)="addressInputChanged()"></ion-input>
+          </ion-item>
+          <ion-note margin-left ion-text color="danger" *ngIf="!formGroup.get('address').valid && formGroup.get('address').touched && !formGroup.get('address').hasError('minlength') && !formGroup.get('address').hasError('maxlength')">{{dataText.required}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('address').hasError('minlength')">{{dataText.textRegisterError1}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('address').hasError('maxlength')">{{dataText.textRegisterError8}}</ion-note>
+
+          <ion-item no-lines>
+            <ion-label stacked>Número</ion-label>
+            <ion-input type="number" formControlName="numero" [attr.maxlength]="30" #complementInput (keyup.enter)="numeroInputChanged()"></ion-input>
+          </ion-item>
+          <ion-note margin-left ion-text color="danger" *ngIf="!formGroup.get('numero').valid && formGroup.get('numero').touched && !formGroup.get('numero').hasError('minlength') && !formGroup.get('numero').hasError('maxlength')">{{dataText.required}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('numero').hasError('minlength')">{{dataText.textRegisterError4}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('numero').hasError('maxlength')">{{dataText.textRegisterError7}}</ion-note>
+
+          <ion-item no-lines>
+            <ion-label stacked>{{dataText.district}}</ion-label>
+            <ion-input type="text" formControlName="district" [attr.maxlength]="300" #complementInput (keyup.enter)="districtChanged()"></ion-input>
+          </ion-item>
+          <ion-note margin-left ion-text color="danger" *ngIf="!formGroup.get('district').valid && formGroup.get('district').touched && !formGroup.get('district').hasError('minlength') && !formGroup.get('district').hasError('maxlength')">{{dataText.required}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('district').hasError('minlength')">{{dataText.textRegisterError1}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('district').hasError('maxlength')">{{dataText.textRegisterError8}}</ion-note>
+
+          <ion-item no-lines>
+            <ion-label stacked>{{dataText.state}}</ion-label>
+            <ion-input type="text" formControlName="state" [attr.maxlength]="20" #complementInput (keyup.enter)="stateChanged()"></ion-input>
+          </ion-item>
+          <ion-note margin-left ion-text color="danger" *ngIf="!formGroup.get('state').valid && formGroup.get('state').touched && !formGroup.get('state').hasError('minlength') && !formGroup.get('state').hasError('maxlength')">{{dataText.required}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('state').hasError('minlength')">{{dataText.textRegisterError9}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('state').hasError('maxlength')">{{dataText.textRegisterError10}}</ion-note>
+
+          <ion-item no-lines>
+            <ion-label stacked>{{dataText.city}}</ion-label>
+            <ion-input type="text" formControlName="city" [attr.maxlength]="300" #complementInput (keyup.enter)="cityChanged()"></ion-input>
+          </ion-item>
+          <ion-note margin-left ion-text color="danger" *ngIf="!formGroup.get('city').valid && formGroup.get('city').touched && !formGroup.get('city').hasError('minlength') && !formGroup.get('city').hasError('maxlength')">{{dataText.required}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('city').hasError('minlength')">{{dataText.textRegisterError1}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('city').hasError('maxlength')">{{dataText.textRegisterError8}}</ion-note>
+
+          <ion-item no-lines>
+            <ion-label stacked>{{dataText.complement}}</ion-label>
+            <ion-input type="text" formControlName="complement" [attr.maxlength]="300" #complementInput (keyup.enter)="complementInputChanged()"></ion-input>
+          </ion-item>
+          <ion-note margin-left ion-text color="danger" *ngIf="!formGroup.get('complement').valid && formGroup.get('complement').touched && !formGroup.get('complement').hasError('minlength') && !formGroup.get('complement').hasError('maxlength')">{{dataText.required}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('complement').hasError('minlength')">{{dataText.textRegisterError1}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('complement').hasError('maxlength')">{{dataText.textRegisterError8}}</ion-note>
+
+          <ion-item>
+            <ion-label stacked>{{dataText.cpf}}</ion-label>
+            <ion-input type="number" formControlName="cpf" [attr.maxlength]="11" #cpfInput (keyup.enter)="cpfnputChanged()"></ion-input>
+          </ion-item>
+          <ion-note margin-left ion-text color="danger" *ngIf="!formGroup.get('cpf').valid && formGroup.get('cpf').touched && !formGroup.get('cpf').hasError('minlength') && !formGroup.get('cpf').hasError('maxlength')">{{dataText.required}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('cpf').hasError('minlength')">{{dataText.textRegisterError11}}</ion-note>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('cpf').hasError('maxlength')">{{dataText.textRegisterError11}}</ion-note>
+        </form>
+
+        <ion-item style="margin-bottom: 50px;">
+          <button ion-button block class="btn" (click)="save()">SALVAR</button>
+        </ion-item>
+      </ion-list>
+
+
+</ion-content>

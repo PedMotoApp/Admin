@@ -1,0 +1,57 @@
+
+<ion-header>
+
+  <ion-navbar text-center no-border-bottom>
+    <ion-title>{{dataText.brands}}</ion-title>      
+
+
+
+    <ion-buttons end> 
+      <button ion-button (click)="add()" style="color: white;">
+        {{dataText.addNew}}        
+      </button>
+
+  </ion-buttons>     
+
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="trips detail-bg">
+
+  <ion-list padding>    
+
+      <ion-card class="trip card" text-wrap *ngFor="let service of (services | async)" no-lines>
+
+
+        <ion-item>     
+          <h2>{{dataText.name}}: {{service.payload.val().name}}</h2>
+          <p><b>{{dataText.description}}:</b>{{service.payload.val().description}}</p>
+          <p><b>{{dataText.models}}:</b> {{service.payload.val().models}}</p>
+          
+      </ion-item >   
+      
+      <ion-row class="mrg-lt-10">
+
+        <ion-col>    
+                      
+            <button ion-button icon-start clear small (click)="edit(service)"> 
+                <ion-icon name="clipboard" color="secondary"></ion-icon>
+              <div> {{dataText.edit}} </div>
+            </button>
+          </ion-col>
+
+          <ion-col>    
+            <button ion-button icon-start clear small (click)="remove(service)">
+              <ion-icon name="trash" color="danger"></ion-icon>
+              <div>{{dataText.remove}}</div>
+            </button>
+          </ion-col> 
+                
+    </ion-row>
+                          
+    </ion-card>    
+    
+
+  </ion-list>
+
+</ion-content>

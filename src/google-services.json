@@ -1,0 +1,231 @@
+{
+  "project_info": {
+    "project_number": "698426579872",
+    "firebase_url": "https://motok-a98db.firebaseio.com",
+    "project_id": "motok-a98db",
+    "storage_bucket": "motok-a98db.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698426579872:android:ba518c10b8eed8fc",
+        "android_client_info": {
+          "package_name": "com.dbltecnologia.motok"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "698426579872-43a63mm8li3bfe1octeoqr5vbgj1dath.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dbltecnologia.motok",
+            "certificate_hash": "c66302b58fa0f940b8fa5d06187ab6b686c23ed1"
+          }
+        },
+        {
+          "client_id": "698426579872-o0gq9ecl604nm8n66jrg6eruf4dh09d9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdUV5-mMf9LEm4c1s-V-oV6ymLhnvCFIE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "698426579872-o0gq9ecl604nm8n66jrg6eruf4dh09d9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "698426579872-87umtm7h9bt0p5n3i3ed22ccvvf27qmc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.dbltecnologia.motok"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698426579872:android:9b18223e9dc956130ce2c5",
+        "android_client_info": {
+          "package_name": "com.dbltecnologia.motokcomerciante"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "698426579872-8l936o44timsq61s2378kvv7155b9uo5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dbltecnologia.motokcomerciante",
+            "certificate_hash": "0980e62e32cc51c2cf97e3367de190257a31e581"
+          }
+        },
+        {
+          "client_id": "698426579872-o0gq9ecl604nm8n66jrg6eruf4dh09d9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdUV5-mMf9LEm4c1s-V-oV6ymLhnvCFIE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "698426579872-o0gq9ecl604nm8n66jrg6eruf4dh09d9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "698426579872-87umtm7h9bt0p5n3i3ed22ccvvf27qmc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.dbltecnologia.motok"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698426579872:android:ee1c72e03876d8940ce2c5",
+        "android_client_info": {
+          "package_name": "com.dbltecnologia.motokmotorista"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "698426579872-u646u7989p933vhte8fb5vfhtjii2uv6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dbltecnologia.motokmotorista",
+            "certificate_hash": "7d5bdf736edee89c2ad0a100bfc97860e042aac0"
+          }
+        },
+        {
+          "client_id": "698426579872-o0gq9ecl604nm8n66jrg6eruf4dh09d9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdUV5-mMf9LEm4c1s-V-oV6ymLhnvCFIE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "698426579872-o0gq9ecl604nm8n66jrg6eruf4dh09d9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "698426579872-87umtm7h9bt0p5n3i3ed22ccvvf27qmc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.dbltecnologia.motok"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698426579872:android:3e98cd8837a955260ce2c5",
+        "android_client_info": {
+          "package_name": "com.dbltecnologia.pedmoto"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "698426579872-u8nj7rsue7u8s83i47tbfo0juj8r213a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dbltecnologia.pedmoto",
+            "certificate_hash": "43e9edf2acbc50cd509f68a1a4e018432ca85783"
+          }
+        },
+        {
+          "client_id": "698426579872-o0gq9ecl604nm8n66jrg6eruf4dh09d9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdUV5-mMf9LEm4c1s-V-oV6ymLhnvCFIE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "698426579872-o0gq9ecl604nm8n66jrg6eruf4dh09d9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "698426579872-87umtm7h9bt0p5n3i3ed22ccvvf27qmc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.dbltecnologia.motok"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698426579872:android:9ee0c9fcbf1464c70ce2c5",
+        "android_client_info": {
+          "package_name": "com.dbltecnologia.pedmotomotociclista"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "698426579872-sn1h31gqrabrc2eh8tj8lbc8aiq1ofdt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dbltecnologia.pedmotomotociclista",
+            "certificate_hash": "f65ed5b04685cf93669cff54ab0e92bae5318bfd"
+          }
+        },
+        {
+          "client_id": "698426579872-o0gq9ecl604nm8n66jrg6eruf4dh09d9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdUV5-mMf9LEm4c1s-V-oV6ymLhnvCFIE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "698426579872-o0gq9ecl604nm8n66jrg6eruf4dh09d9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "698426579872-87umtm7h9bt0p5n3i3ed22ccvvf27qmc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.dbltecnologia.motok"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

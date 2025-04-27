@@ -1,0 +1,32 @@
+<ion-header>
+    <ion-navbar>
+        <ion-title>{{dataInfo.appName}}</ion-title>
+    </ion-navbar>
+</ion-header>
+
+<ion-content padding-left padding-right padding-top text-center>
+    <img src="assets/imgs/logo.png" class="logo ani-left-to-right">
+    <div padding>
+        <ion-list class="form" no-lines>
+            <ion-item class="bg-light text-theme">
+                <ion-label stacked>{{dataText.yourEmail}}</ion-label>
+                <ion-input type="text" value="" [(ngModel)]="username" placeholder="{{dataText.yourEmail}}"></ion-input>
+            </ion-item>
+            <ion-item class="bg-light text-theme">
+                <ion-label stacked>{{dataText.yourPassword}}</ion-label>
+                <ion-input class="password" type="password" value="" [(ngModel)]="password" placeholder="{{dataText.yourPassword}}"></ion-input>
+            </ion-item>
+        </ion-list>
+        <button ion-button block full text-uppercase class="bg-theme text-white btn round shadow-blue" (click)="loginUser()">{{dataText.login}}</button>
+        <ion-row padding-left padding-right>         
+            <ion-col (click)="goToSignup()"  *ngIf="dataInfo.appUserType !== 3"><small  class="text-theme">Quer se cadastrar?<strong class="text-theme">Clique aqui</strong></small></ion-col>
+            <ion-col (click)="goToResetPassword()" text-end><small class="text-theme">Esqueceu<strong class="text-theme">a senha?</strong></small></ion-col>
+        </ion-row>
+    </div>
+</ion-content>
+
+<ion-footer style="background-color: transparent;">
+    <ion-row text-center>
+        <ion-col (click)="languageChanged()"><small class="text-theme"><strong class="text-theme">{{dataText.changeLanguage}}</strong></small></ion-col>
+    </ion-row>
+</ion-footer>

@@ -1,0 +1,575 @@
+
+
+    .mrg-20 {
+        margin: 20px;
+    }
+ 
+
+    .mrg-bt-10 {
+        margin-bottom: 10px;
+    }
+
+
+    
+    .mrg-lt-10 {
+        margin-left: 10px;
+    }
+
+    @font-face {
+        font-family: 'Material Icons';
+        font-style: normal;
+        font-weight: 400;
+        
+        src: url('../../assets/font/material_icons.woff2') format('woff2');
+    }
+
+    .material-icons {
+
+        font-family: 'Material Icons';
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .user-avatar {
+        margin: 0 auto;
+        width: 100px;
+        height: 100px;
+      
+        img {
+            width: 100%;
+            height: 100%;
+            border-radius: 100%;
+            box-shadow: 0 1px 2px $menu-shadow-color;
+        }
+       }
+
+       .mrg-bt-10 {
+        margin-bottom: 10px;
+      }
+      
+      
+      side-menu-content {
+      
+          $active-color: map-get($colors, primary);
+      
+          ion-item.item.item-block.option {
+              background-color: #fff;
+              color: #222;
+      
+              &.active-side-menu-option {
+                  color: $active-color;
+                  font-weight: 700;
+              }
+          }
+      
+          ion-item.item.item-block.header {
+              background-color: #eee;
+              color: #222;
+      
+              &.active-side-menu-option {
+                  color: $active-color;
+                  font-weight: 700;
+              }
+          }
+      
+          ion-item.item.item-block.sub-option {
+              background-color: #fff;
+              color: #222;
+      
+              &.active-side-menu-option {
+                  color: $active-color;
+                  font-weight: 700;            
+              }
+          }
+      }
+      
+      .item-bordless {
+          border-top: 0px;
+          border-left: 0px;
+          border-right: 0px;
+          border-bottom: 0px;
+        }
+      
+        .file-input-register {
+          opacity: 0;
+          position: absolute;
+          top: 15%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 150px;
+          height: 150px;
+        }  
+      
+        .file-input-register.ng-invalid {
+          border-bottom-color: transparent;
+        }
+       
+        .file-input-register.ng-valid {
+          border-bottom-color: transparent;
+        }
+      
+      
+        .file-input {
+          opacity: 0;
+          position: absolute;
+          transform: translate(-50%, -50%);    
+        }  
+        
+        .file-input.ng-invalid {
+          border-bottom-color: transparent;
+        }
+       
+        .file-input.ng-valid {
+          border-bottom-color: transparent;
+        }
+          
+        scroll-content {
+            background: #EDEDED;
+        }     
+        
+        
+
+        
+      
+        action-sheets-basic-page {
+          .ion-md-share {
+            color: #ED4248;
+          }
+          .ion-md-arrow-dropright-circle {
+            color: #508AE4;
+          }
+          .ion-md-heart-outline {
+            color: #31D55F;
+          }
+          .action-sheet-cancel ion-icon,
+          .action-sheet-destructive ion-icon {
+            color: #757575;
+          }
+        }
+      
+        .primary-bg {
+          background-color: color($colors, primary) !important;
+        }
+      
+        .trips {
+          .card {
+              margin: 5px;
+              box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+          }
+      
+        .trip {
+          overflow: hidden;
+      
+          .background {
+            background-size: 100% auto;
+            background-position: center;
+      
+            .background-filter {
+              height: 16rem;
+              background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.65));
+      
+              .align-bottom {
+                width: 100%;
+      
+                h6 {
+                  margin-top: 0;
+                }
+              }
+            }
+          }
+        }
+       }
+      
+      .detail-bg {
+          background-color: #f1f1f5;
+       }
+      
+      .card {
+        background: #FFF;
+        border-radius: 1rem;  
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+      }
+      
+      .border-bottom {
+          border-bottom: 1px solid rgba(86, 61, 124, 0.1);
+      }
+        
+      .rlt {
+         position: relative;
+      }
+      
+      .align-bottom {
+         position: absolute;
+         bottom: 0;
+      }
+      
+      .pull-left {
+        float: left;
+      }
+      
+      .pull-right {
+        float: right;
+      }
+      
+      .text-white {
+        color: #fff;
+      }
+      
+      .clear {
+          clear: both;
+      }
+      
+      .padding-sm {
+          padding: 1rem;
+      }
+      
+      .top-default {
+        margin-top: 10px;
+      }
+      
+      .user {
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+        background-size: cover;
+        height: 190px;
+        padding-top: 10px;
+      
+        .bar-buttons .bar-button {
+            text-shadow: 0 1px 2px $menu-shadow-color;
+        }
+      
+        .toolbar-background {
+            background-color: transparent; 
+        }
+      
+        .toolbar-content {
+            .toolbar-title {
+                color: map-get($colors, 'light');
+                text-shadow: 0 1px 2px $menu-shadow-color;
+            }
+        }
+      }
+      
+      .user-avatar {
+        margin: 0 auto;
+        width: 100px;
+        height: 100px;
+      
+        img {
+            width: 100%;
+            height: 100%;
+            border-radius: 100%;
+            box-shadow: 0 1px 2px $menu-shadow-color;
+        }
+       }
+      
+       .user-register {  
+        width: 150px;
+        height: 150px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      
+        img {
+            width: 100%;
+            height: 100%;
+            border-radius: 100%;
+            box-shadow: 0 1px 2px $menu-shadow-color;
+        }
+       }
+      
+      .user-profile {
+        margin: 0 auto;
+        width: 100px;
+        height: 100px;
+      
+        img {
+            width: 100%;
+            height: 100%;
+            border-radius: 100%;
+            box-shadow: 0 1px 2px $menu-shadow-color;
+        }
+      }
+      
+      .user-name {
+        color: map-get($colors, 'dark');
+        font-size: 15px;
+        text-align: center;
+        text-shadow: 0 1px 2px $menu-shadow-color;
+      }
+      
+      ion-item.item-ios,
+      ion-item.item-md,
+      ion-item.item-wp {
+      
+        padding-left: 16px;
+        padding-right: 16px;
+        min-height: 50px;  
+      
+        &.item.item-block {
+            border-bottom: 1px solid $item-color-bg;
+        }
+        
+        & [item-left], 
+        & [item-right] {
+            margin-left: 0;
+        }
+      
+        & ion-icon[item-left] + .item-inner, 
+        & ion-icon[item-left] + .item-input {
+           margin-left: 8px;
+        }
+      }
+      
+      ion-list.accordion-menu {
+      
+        ion-item.header {
+      
+            background-color: $header-color-bg;
+      
+            ion-icon.header-icon {
+                will-change: transform;
+                transition: transform $animation-duration ease;
+      
+                &.rotate {
+                    -webkit-transform: rotate(-180deg);
+                    -moz-transform: rotate(-180deg);
+                    -ms-transform: rotate(-180deg);
+                    -o-transform: rotate(-180deg);
+                    transform: rotate(-180deg);
+                }
+            }
+        }
+      
+      
+        
+        div.options {
+            will-change: height;
+            transition: height $animation-duration ease;
+            overflow-y: hidden;
+            height: 0;
+        }
+      
+        ion-item.item.item-block.item-ios.no-icon .item-inner {
+            margin-left: 48px;
+        }
+        
+        ion-item.item.item-block.item-md.no-icon .item-inner,
+        ion-item.item.item-block.item-wp.no-icon .item-inner {
+            margin-left: 40px;
+        }
+      
+        };
+      
+      
+        
+      
+      @keyframes top-to-bottom {
+        0%   {transform: translateY(-20px); opacity: 0;}
+        70%  {transform: translateY(-20px); opacity: 0;}
+        100% {transform: translateY(0px); opacity: 1;}
+      }
+      
+      @keyframes bottom-to-top {
+        0%   {transform: translateY(20px); opacity: 0;}
+        70%  {transform: translateY(20px); opacity: 0;}
+        100% {transform: translateY(0px); opacity: 1;}
+      }
+      
+      @keyframes left-to-right {
+        0%   {transform: translateX(-50px); opacity: 0;}
+        70%  {transform: translateX(-20px); opacity: 0;}
+        100% {transform: translateX(0px); opacity: 1;}
+      }
+      
+      @keyframes right-to-left {
+        0%   {transform: translateX(20px); opacity: 0;}
+        70%  {transform: translateX(20px); opacity: 0;}
+        100% {transform: translateX(0px); opacity: 1;}
+      }
+      
+      @keyframes bottom-to-left {
+        0%   {transform: translateY(20px) translateX(20px); opacity: 0;}
+        70%  {transform: translateY(20px) translateX(20px); opacity: 0;}
+        100% {transform: translateY(0px) translateX(0); opacity: 1;}
+      }
+      
+      @keyframes bottom-to-right {
+        0%   {transform: translateY(20px) translateX(-20px); opacity: 0;}
+        70%  {transform: translateY(20px) translateX(-20px); opacity: 0;}
+        100% {transform: translateY(0px) translateX(0); opacity: 1;}
+      }
+      
+      @keyframes top-to-left {
+        0%   {transform: translateY(-20px) translateX(20px); opacity: 0;}
+        70%  {transform: translateY(-20px) translateX(20px); opacity: 0;}
+        100% {transform: translateY(0px) translateX(0); opacity: 1;}
+      }
+      
+      @keyframes top-to-right {
+        0%   {transform: translateY(-20px) translateX(-20px); opacity: 0;}
+        70%  {transform: translateY(-20px) translateX(-20px); opacity: 0;}
+        100% {transform: translateY(0px) translateX(0); opacity: 1;}
+      }
+      
+      @keyframes fade-in {
+        0%   {opacity: 1;}
+        50%  {opacity: 1;}
+        100% {opacity: 0;}
+      }
+      
+      @keyframes fade-out {
+        0%   {opacity: 0;}
+        50%  {opacity: 0;}
+        100% {opacity: 1;}
+      }
+      
+      @keyframes scale {
+        0%   {transform: scale(0,0);}
+        50%  {transform: scale(0,0);}
+        100% {transform: scale(1,1);}
+      }
+      
+      .ani-scale{
+      animation-name: scale;
+      animation-duration: 0.5s;
+      animation-timing-function: linear;
+      animation-direction: alternate;
+      }
+      .ani-fade-in{
+      animation-name: fade-in;
+      animation-duration: 1s;
+      animation-timing-function: linear;
+      animation-direction: alternate;
+      }
+      .ani-fade-out{
+      animation-name: fade-out;
+      animation-duration: 1s;
+      animation-timing-function: linear;
+      animation-direction: alternate;
+      }
+      .ani-left-to-right{
+      animation-name: left-to-right;
+      animation-duration: 1s;
+      animation-timing-function: linear;
+      animation-direction: alternate;
+      }
+      .ani-right-to-left{
+      animation-name: right-to-left;
+      animation-duration: 1s;
+      animation-timing-function: linear;
+      animation-direction: alternate;
+      }
+      .ani-top-to-bottom{
+      animation-name: top-to-bottom;
+      animation-duration: 1s;
+      animation-timing-function: linear;
+      animation-direction: alternate;
+      }
+      .ani-top-to-left{
+      animation-name: top-to-left;
+      animation-duration: 1s;
+      animation-timing-function: linear;
+      animation-direction: alternate;
+      }
+      .ani-top-to-right{
+      animation-name: top-to-right;
+      animation-duration: 1s;
+      animation-timing-function: linear;
+      animation-direction: alternate;
+      }
+      .ani-bottom-to-top{
+      animation-name: bottom-to-top;
+      animation-duration: 1s;
+      animation-timing-function: linear;
+      animation-direction: alternate;
+      }
+      .ani-bottom-to-left{
+      animation-name: bottom-to-left;
+      animation-duration: 1s;
+      animation-timing-function: linear;
+      animation-direction: alternate;
+      }
+      .ani-bottom-to-right{
+      animation-name: bottom-to-right;
+      animation-duration: 1s;
+      animation-timing-function: linear;
+      animation-direction: alternate;
+      }
+      
+      $time: 0.8;
+      
+      @for $i from 1 through 30 {
+        .ani-left-to-right:nth-child(#{$i}){
+        animation-name: left-to-right;	
+        animation-timing-function: linear;
+        animation-direction: alternate;
+        animation-duration: #{$time}s;
+      }
+      .ani-right-to-left:nth-child(#{$i}){
+        animation-name: right-to-left;	
+        animation-timing-function: linear;
+        animation-direction: alternate;
+        animation-duration: #{$time}s;
+      }
+      .ani-top-to-bottom:nth-child(#{$i}){
+        animation-name: top-to-bottom;	
+        animation-timing-function: linear;
+        animation-direction: alternate;
+        animation-duration: #{$time}s;
+      }
+      .ani-top-to-left:nth-child(#{$i}){
+        animation-name: top-to-left;	
+        animation-timing-function: linear;
+        animation-direction: alternate;
+        animation-duration: #{$time}s;
+      }
+      .ani-top-to-right:nth-child(#{$i}){
+        animation-name: top-to-right;	
+        animation-timing-function: linear;
+        animation-direction: alternate;
+        animation-duration: #{$time}s;
+      }
+      .ani-bottom-to-top:nth-child(#{$i}){
+        animation-name: bottom-to-top;	
+        animation-timing-function: linear;
+        animation-direction: alternate;
+        animation-duration: #{$time}s;
+      }
+      .ani-bottom-to-left:nth-child(#{$i}){
+        animation-name: bottom-to-left;	
+        animation-timing-function: linear;
+        animation-direction: alternate;
+        animation-duration: #{$time}s;
+      }
+      .ani-bottom-to-right:nth-child(#{$i}){
+        animation-name: bottom-to-right;	
+        animation-timing-function: linear;
+        animation-direction: alternate;
+        animation-duration: #{$time}s;
+      }
+      
+        $time: ($time + 0.05);
+      
+        @if($time > 1.3){
+        $time: 0.8;	
+       }
+      }
+
+      
+
+      
+      
+
+      
+ 

@@ -1,0 +1,108 @@
+
+<ion-header>
+
+  <ion-navbar text-center no-border-bottom>
+    <ion-title> {{dataText.managers}} </ion-title>                
+
+    <ion-buttons end>
+      <button ion-button (click)="addClient()" style="color: white;"> {{dataText.addNew}}
+      </button>
+  </ion-buttons>
+
+  </ion-navbar>
+
+ 
+</ion-header>
+
+<ion-content padding class="trips detail-bg">
+
+    <ion-list>
+      
+    <ion-item no-lines>
+        <ion-label stacked>{{dataText.order}}</ion-label>  
+          <ion-select [(ngModel)]="orderType" (ionChange)="reload()">            
+            <ion-option value="1">{{dataText.order1}}</ion-option>
+            <ion-option value="2">{{dataText.order2}}</ion-option>
+            <ion-option value="3">{{dataText.order3}}</ion-option>
+            <ion-option value="4">{{dataText.order4}}</ion-option>
+          </ion-select>                          
+    </ion-item>
+
+    <ion-item  no-lines>
+      <ion-label stacked>{{dataText.selectManager}}</ion-label>
+      
+      <ionic-selectable
+      
+        item-content 
+        [(ngModel)]="client"
+        [items]="usersArray"
+        itemValueField="name"
+        itemTextField="name"
+        [canSearch]="true"
+        (onChange)="clientChanged($event)">
+      </ionic-selectable>
+    </ion-item>
+
+
+    <ion-card class="trip card" text-wrap *ngFor="let worker of usersArray" no-lines>
+      
+    <ion-item>
+
+      <ion-avatar item-start>
+        <img src="./assets/imgs/default-user.png" *ngIf="! worker.photo">
+        <img src="{{worker.photo}}" *ngIf="worker.photo">
+      </ion-avatar>
+      
+      <h2>{{worker.name}}</h2>
+      <p *ngIf="worker.prePaid" style="color: green;"><b>{{dataText.billedClient}}</b></p>
+      <p><b>Ranking:</b>{{worker.ranking}} </p>
+      <p><b>{{dataText.email}}:</b> {{worker.email}} </p>
+      <p *ngIf="worker.managerRegion"><b>{{dataText.region}} administrativa:</b>{{worker.managerRegion}} </p>
+      <p *ngIf="! worker.managerRegion"><b>Favor selecionar uma região administrativa</b></p>
+      <p *ngIf="worker.lastDatetimeStr"><b>{{dataText.lastAccess}}:</b>{{worker.lastDatetimeStr}} </p>
+      <p *ngIf="worker.address"><b>{{dataText.address}}:</b>{{worker.address}} </p>      
+      <p *ngIf="worker.tel"><b>{{dataText.phone}}:</b> {{worker.tel}} </p>
+      <p *ngIf="worker.tablePrice"><b>{{dataText.tablePrice}}:</b>{{worker.tablePrice}} </p>
+      <p *ngIf="worker.totalWorks"><b>{{dataText.totalServices}}:</b>{{worker.totalWorks}} </p>
+    </ion-item>              
+          
+    <ion-row>
+      <ion-col style="margin-left: 10px;">
+        <button ion-button icon-start clear small (click)="changeRanking(worker.key)"> 
+            <ion-icon name="medal" color="gold" *ngIf="worker.ranking === 'Ouro'"></ion-icon>
+            <ion-icon name="medal" color="gray" *ngIf="worker.ranking === 'Prata'"></ion-icon>
+            <ion-icon name="medal" color="bronze" *ngIf="worker.ranking === 'Bronze'"></ion-icon>
+            <ion-icon name="medal" color="bronze" *ngIf="!worker.ranking"></ion-icon>
+            <ion-icon name="md-trophy" color="primary" *ngIf="worker.ranking === 'Star'"></ion-icon>
+          <div> Ranking {{worker.ranking}}</div>
+        </button>
+      </ion-col>
+      <ion-col>
+        <button ion-button icon-start clear small (click)="changeProfileStatus(worker.key)">
+          <ion-icon name="checkmark-circle" color="primary" *ngIf="worker.status === 'Não verificado'"></ion-icon>
+          <ion-icon name="checkmark-circle" color="secondary" *ngIf="worker.status === 'Perfil verificado'"></ion-icon>
+          <div>{{worker.status}}</div>
+        </button>
+      </ion-col>    
+
+      <ion-col  *ngIf="worker.manager">
+        <button ion-button icon-start clear small (click)="changeRegion(worker)">
+          <ion-icon name="md-locate" color="primary"></ion-icon>
+          <div>{{dataText.region}}</div>
+        </button>
+      </ion-col>
+      
+      <ion-col>    
+        <button ion-button icon-start clear small (click)="options(worker)">          
+          <ion-icon name="md-clipboard" color="primary"></ion-icon>            
+          <div>{{dataText.options}}</div>
+        </button>
+      </ion-col>
+
+    </ion-row>
+      
+  </ion-card>
+
+  </ion-list>
+
+</ion-content>

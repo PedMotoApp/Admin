@@ -1,0 +1,30 @@
+page-search-delivery {
+
+    .button {
+        &.btn {
+            font-size: 1.3rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            height: 42px;
+            box-shadow: none;
+            background: $theme-color;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+    
+    
+            &:hover:not(.disable-hover) {
+                background: $theme-color;
+            }
+    
+            .button-inner {
+                //letter-spacing: 2px;
+            }
+    
+            &[block] {
+                border-radius: 7px;
+            }
+    
+        }
+    }
+
+}

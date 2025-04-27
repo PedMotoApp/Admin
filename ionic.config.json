@@ -1,0 +1,7 @@
+{
+  "name": "Motok_admin",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "ionic-angular"
+}

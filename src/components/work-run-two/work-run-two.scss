@@ -1,0 +1,107 @@
+work-run-two {
+
+    .mrg-top{
+        
+        margin-top: 30px;
+    }
+
+    .big-button {
+        height: 100px;
+    }
+
+
+    .bg-theme {	        
+        background: $theme-color !important;
+      } 
+      
+      .text-black{
+        color: $black !important;
+        .p, span, i, a, div, ion-icon, b, small, strong{
+            color: $black !important;
+        }
+        input::placeholder{
+            color: $black !important;
+        }
+    }
+
+      
+    .mymap {
+        z-index: -1 !important;
+        background: none !important;
+        width: 100% !important;
+        height: 100% !important;
+        top: 0 !important;
+        left: 0 !important;
+        position: fixed !important;
+    }
+    
+    .bg-img {
+        background: url(../../assets/imgs/home-bg.jpg);
+        background-size: cover;
+        background-position: center;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+    .card {
+
+        width: calc(100% - 0px) !important;
+        margin-top: 20px;
+        border-radius: 0px !important;
+
+        .card-content {
+            padding: 13px !important;
+        }
+
+        .rider-info.heading {
+            background: none !important;
+            padding: 0 !important;
+
+            ion-avatar {
+                width: 47px !important;
+                height: 47px !important;
+                margin-bottom: 0 !important;
+                margin-top: 0 !important;
+            }
+            h2 {
+                font-size: 2.0rem;
+                font-weight: 700;
+                padding-bottom: 4px;
+                margin-top: .5rem;
+            }
+            p {
+                font-size: 1rem;
+            }
+            .item-inner {
+                border-bottom: 0 !important;
+            }
+            img {
+                border-radius: 10px !important;
+                width: 100%;
+                height: 100%;
+            }
+            .item {
+                padding-left: 0 !important;
+            }
+            .item-block:last-child {
+                border: none !important;
+            }
+            ion-label {
+                white-space: normal !important;
+                width: 148px;
+                margin: 0px 8px 0px 0 !important;
+            }
+            ion-icon {
+                font-size: 3rem !important;
+            }
+            .col {
+                padding: 0 !important;
+            }
+        }
+    }
+
+    
+    
+}

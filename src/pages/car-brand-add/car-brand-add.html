@@ -1,0 +1,37 @@
+
+<ion-header>
+
+  <ion-navbar text-center no-border-bottom>
+    <ion-title>{{dataText.brands}}</ion-title>    
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content class="trips detail-bg">
+
+  <ion-list>  
+
+    <ion-card class="trip card" text-wrap no-lines>    
+        <ion-item no-lines><ion-label stacked>{{dataText.name}}:</ion-label><ion-input type="text" [(ngModel)]="name"></ion-input></ion-item>                      
+        <ion-item no-lines><ion-label stacked>{{dataText.description}}: </ion-label><ion-input type="text" [(ngModel)]="description"></ion-input></ion-item>   
+        <ion-item no-lines><ion-label stacked>{{dataText.models}}*: </ion-label><ion-input type="text" [(ngModel)]="models"></ion-input></ion-item>
+
+    </ion-card>
+
+
+  </ion-list>    
+
+</ion-content>
+
+<ion-footer>
+
+  <ion-item>
+    <ion-title style="color: red;">{{dataText.warning1}}</ion-title>
+    <p>* {{dataText.msgBrands}}</p>
+  </ion-item>
+  
+
+    <button *ngIf="!key" ion-button block class="btn" (click)="add()">{{dataText.add}}</button>
+    <button *ngIf="key" ion-button block class="btn" (click)="save()">{{dataText.save}}</button>
+</ion-footer>

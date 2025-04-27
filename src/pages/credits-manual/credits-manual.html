@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-navbar text-center no-border-bottom>
+
+  <ion-title>{{dataText.credits}}</ion-title> 
+
+  <ion-buttons end *ngIf="!primeiroUso">
+      <button ion-button menuToggle color="white_">
+      <ion-icon name="menu"></ion-icon></button>
+  </ion-buttons>
+
+</ion-navbar>   
+</ion-header>
+
+<ion-content>
+     
+  <ion-list>                     
+    
+    <ion-item no-lines><ion-label stacked>{{dataText.creditsNow}}</ion-label><ion-input type="text" [(ngModel)]="creditNow"></ion-input></ion-item>
+    <ion-item no-lines><ion-label stacked>{{dataText.creditsNew}}</ion-label><ion-input type="text" [(ngModel)]="creditNew"></ion-input></ion-item>
+              
+    <button *ngIf="!payload" ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="signUp()">{{dataText.add}}</button>
+    <button *ngIf="payload" ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="save()">{{dataText.save}}</button>
+          
+  </ion-list>
+          
+
+</ion-content>

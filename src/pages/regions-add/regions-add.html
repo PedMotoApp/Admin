@@ -1,0 +1,33 @@
+
+<ion-header>
+
+  <ion-navbar text-center no-border-bottom>
+    <ion-title>{{dataText.regions}}</ion-title>    
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content class="trips detail-bg">
+
+  <ion-list>  
+   
+    <ion-card class="trip card" text-wrap no-lines>          
+
+      <ion-card-header  class="bg-theme text-white">
+        {{dataText.region}}
+      </ion-card-header>      
+
+      <ion-item no-lines><ion-label stacked>{{dataText.name}}</ion-label><ion-input type="text" [(ngModel)]="name"></ion-input></ion-item>
+      <ion-item no-lines><ion-label stacked>{{dataText.description}}</ion-label><ion-input type="text" [(ngModel)]="description"></ion-input></ion-item>                
+
+    </ion-card>
+
+  </ion-list>   
+
+</ion-content>
+
+<ion-footer>
+    <button *ngIf="!key" ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="add()">{{dataText.add}}</button>
+    <button *ngIf="key" ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="save()">{{dataText.save}}</button>
+</ion-footer>

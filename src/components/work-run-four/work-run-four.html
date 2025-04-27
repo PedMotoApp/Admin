@@ -1,0 +1,96 @@
+
+<ion-content>
+  <div style="width:100%; height:100%"  #maprun id="maprun" ></div>  
+</ion-content>
+
+<ion-footer no-border [ngClass]="viewType == 'active' ? 'footer active':'footer'">    
+<div class="card-box">
+    <ion-card class="text-black">
+        <ion-card-header class="d-flex">              
+            <h4>{{'driver_info' | translate}}</h4>            
+            <h4 class="text-theme end" (click)="history()">{{dataText.history}}</h4>            
+        </ion-card-header>
+
+        <ion-card-content>
+
+            <ion-list>
+                <ion-item style="height: 100%; width: 100%">
+
+                  <ion-avatar item-start>
+                      <img *ngIf="driverPhoto" src="{{driverPhoto}}">                                                                            
+                      <img *ngIf="!driverPhoto"  src="{{dataInfo.imgDefaultClient}}" alt="User Profile Default">                      
+                  </ion-avatar>
+                  
+                    <h2 class="text-black" >{{driverName}}</h2>
+                </ion-item>
+            </ion-list>
+            
+            <ion-row padding class="car_details">
+                
+                <ion-col col-4>
+                  <small class="text-black">Status da corrida</small>
+                  <strong class="text-black">{{workStatus}}</strong>
+                </ion-col>                                    
+                <ion-col col-4>                    
+                  <small class="text-black">Veículo</small>
+                  <strong class="text-black">{{carName}} - {{carPlate}}</strong>                  
+                </ion-col>
+                <ion-col col-4>
+                    <small class="text-black">Cliente</small>
+                    <strong class="text-black">{{clientName}}</strong>
+                </ion-col>
+            </ion-row>
+
+            <div text-center padding-left padding-right>
+                                
+                <button ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="contactsProfessional()">{{'contacts' | translate}}</button>  
+
+
+
+                <button ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="canceled()">{{dataText.exit}}</button>  
+
+                <div class="icon_box">
+                    <ion-icon name="ios-arrow-up" class="up_icon" (click)="setViewType('active')"></ion-icon>
+                    <ion-icon name="ios-arrow-down" class="down_icon" (click)="setViewType(null)"></ion-icon>
+                </div>
+            </div>    
+        </ion-card-content>
+
+        <ion-card-content class="trip_info">
+            <h2>{{'trip_info' | translate}}</h2>
+
+            <ion-row>
+                  <ion-list class="form" no-lines>
+                    <ion-item class="from"  text-wrap>
+                        <p><span class="text-black">{{'from' | translate}}</span>{{fromAddress}}</p>
+                    </ion-item>
+
+                    <ion-item class="to"  text-wrap>                                
+                        <p><span class="text-black">{{'to' | translate}}</span>{{toAddress}}</p>
+                    </ion-item>
+
+                </ion-list>                                                
+            </ion-row>
+
+            <ion-row padding class="car_details" *ngIf="totalDistance != 'Calculando'">
+
+                <ion-col col-4>
+                    <small class="text-black">{{'distance' | translate}}</small>
+                    <strong class="text-black">{{totalDistance}}</strong>
+                </ion-col>
+
+                <ion-col col-4>
+                    <small class="text-black">{{'traveling_time' | translate}}</small>
+                    <strong class="text-black">{{totalTravelingTime}}</strong>
+                </ion-col>
+                
+                <ion-col col-4>
+                    <small class="text-black">{{'arrival' | translate}}</small>
+                    <strong class="text-black">{{estimateArrival}}    </strong>
+                </ion-col>
+            </ion-row>
+        </ion-card-content>
+        
+    </ion-card>
+</div>
+</ion-footer>

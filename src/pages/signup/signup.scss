@@ -1,0 +1,455 @@
+page-signup {	
+
+	img {
+		display: block;
+	
+		&.logo {
+			margin: 0 auto;
+			width: 99px;
+			margin-bottom: 20px;
+			margin-top: 29px;
+		}
+	}
+
+	.lot-vs-phan{
+		background: #eaf8f8 !important; /* For browsers that do not support gradients */
+		background: -webkit-linear-gradient(left top, #eaf8f8, #faecfd) !important; /* For Safari 5.1 to 6.0 */
+		background: -o-linear-gradient(bottom right, #eaf8f8, #faecfd) !important; /* For Opera 11.1 to 12.0 */
+		background: -moz-linear-gradient(bottom right, #eaf8f8, #faecfd) !important; /* For Firefox 3.6 to 15 */
+		background: linear-gradient(to bottom right, #eaf8f8, #faecfd) !important; /* Standard syntax */
+	}	
+
+	$shadow-3: 0px 10px 15px 0px rgba(0,0,0,0.1);
+
+	.hong-vs-lanon {
+		background: #fcb7be !important; 
+		background: -webkit-linear-gradient(left top, #fcb7be, #cef9c0) !important; 
+		background: -o-linear-gradient(bottom right, #fcb7be, #cef9c0) !important; 
+		background: -moz-linear-gradient(bottom right, #fcb7be, #cef9c0) !important; 
+		background: linear-gradient(to bottom right, #fcb7be, #cef9c0) !important; 
+	}	
+
+	.ani-bottom-to-left {
+		animation-name: bottom-to-left;
+		animation-duration: 1s;
+		animation-timing-function: linear;
+		animation-direction: alternate;
+	}
+
+	.ani-left-to-right{
+		animation-name: left-to-right;
+		animation-duration: 1s;
+		animation-timing-function: linear;
+		animation-direction: alternate;
+	}
+
+	.mgb-10{
+		margin-bottom: 10px !important;
+	}
+
+	.round{
+		border-radius: 30px;
+	}
+
+	.pull-right{
+		float: right;
+	}
+
+	.block{
+		display: block !important;
+		width: 100%;
+	}
+
+	.mg-auto{
+		margin-left: auto !important;
+		margin-right: auto !important;
+	}
+
+	.mgb-20{
+		margin-bottom: 20px !important;
+	}
+
+	.btn-signup{
+		position: absolute;
+		bottom: 0;
+	}
+
+	.fs-13{
+		font-size: 13px !important;		
+	}
+
+	.fw-600{
+		font-weight: 600 !important;
+	}
+
+	.fw-400{
+		font-weight: 400 !important;
+	}
+
+	.fs-14{
+		font-size: 14px !important;
+		// line-height: 20px !important;
+	}
+
+	.spacing-1{
+		letter-spacing: 1px;
+	}
+
+	.fs-12{
+		font-size: 12px !important;
+		// line-height: 18px !important;
+	}
+
+	.mgt-15{
+		margin-top: 15px !important;
+	}
+
+	.text-grey-4{
+		color: $grey-4 !important;
+		.p, span, i, a, div, ion-icon, b, small, strong{
+			color: $grey-4 !important;
+		}
+		input::placeholder{
+			color: $grey-4 !important;
+		}
+	}
+
+	.white {
+		background: $white !important;
+	}
+
+	.text-grey-5{
+		color: $grey-5 !important;
+		.p, span, i, a, div, ion-icon, b, small, strong{
+			color: $grey-5 !important;
+		}
+		input::placeholder{
+			color: $grey-5 !important;
+		}
+	}
+
+	.tim-vs-datroi{
+		background: $tim !important; 
+		background: -webkit-linear-gradient(left top, $tim, $datroi) !important; 
+		background: -o-linear-gradient(bottom right, $tim, $datroi) !important;
+		background: -moz-linear-gradient(bottom right, $tim, $datroi) !important; 
+		background: linear-gradient(to bottom right, $tim, $datroi) !important;
+	}
+
+	.pink-vs-red{
+		background: $pink !important; /* For browsers that do not support gradients */
+		background: -webkit-linear-gradient(left top, $pink, $red) !important; /* For Safari 5.1 to 6.0 */
+		background: -o-linear-gradient(bottom right, $pink, $red) !important; /* For Opera 11.1 to 12.0 */
+		background: -moz-linear-gradient(bottom right, $pink, $red) !important; /* For Firefox 3.6 to 15 */
+		background: linear-gradient(to bottom right, $pink, $red) !important; /* Standard syntax */
+	}
+
+	.text-right{
+		text-align: right;
+	}
+
+	.text-white{
+		color: $white !important;
+		.p, span, i, a, div, ion-icon, b, small, strong{
+			color: $white !important;
+		}
+		input::placeholder{
+			color: $white !important;
+		}
+	}
+
+	.stroke-white    {
+		border-color: $white !important;
+	}
+	.stroke-white-1  {
+		border-color: $white-1 !important;
+	}
+
+	.stroke-1{
+		border-width: 1px !important;
+	}
+
+	.button{
+		text-transform: capitalize;
+		height: 36px;
+		&.button-circle{
+			width: 36px;
+			border-radius: 50% !important;
+		}
+		&.button-small{
+			height: 25px;
+			&.button-circle{
+				width: 25px;
+				border-radius: 50% !important;
+			}
+		}
+		&.button-large{
+			height: 55px;
+			&.button-circle{
+				width: 55px;
+				border-radius: 50% !important;
+			}
+		}
+	}
+	
+	.ani-bottom-to-top{
+		animation-name: bottom-to-top;
+		animation-duration: 1s;
+		animation-timing-function: linear;
+		animation-direction: alternate;
+	}
+
+	.signup-2 {
+		height: 100%;
+	}
+
+	.decor{
+		z-index: 5;
+		position: absolute;
+		height: 400px;
+		width: 400px;
+		border-radius: 50%;
+		top: -170px;
+		right: -190px;
+	}
+	.decor-2{
+		z-index: 1;
+		position: absolute;
+		height: 150px;
+		width: 150px;
+		border-radius: 50%;
+		top: 90px;
+		right: 50px;
+	}
+	.logo-img{
+		display: inline-block;
+		img{
+			height: 30px;
+		}
+	}
+
+	.pdt-0{
+		padding-top: 0px !important;
+	}
+
+	.text-left{
+		text-align: left;
+	}
+
+	.mgb-40{
+		margin-bottom: 40px !important;
+	}
+
+	.top-signup {
+		margin-top: 20px;
+	}
+
+	.ani-right-to-left{
+		animation-name: right-to-left;
+		animation-duration: 1s;
+		animation-timing-function: linear;
+		animation-direction: alternate;
+	}
+
+	.wrapper-page{
+		z-index: 10;
+		
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		display: flex;
+		flex-direction: column;
+	}
+
+	ion-slides{
+		&.height-auto{
+			height: auto !important;
+		}
+		&[effect="cube"]{
+			.swiper-pagination{
+				margin-bottom: 10px;
+			}
+		}
+		img{
+			display: block;
+		}
+		.slide-zoom{
+			// display: grid;
+		}
+		.slogan{
+			position: absolute;
+			z-index: 10;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+	}
+	
+	.wrapper-slide-pagination{
+		position: relative;
+		.btn-pagination{
+			height: 0;
+			z-index: 100;
+			left: 0;
+			right: 0;
+			position: absolute;
+			top: calc(50% - 20px);
+		}
+	}
+
+	.back-page{
+		position: absolute;
+		top: 15px;
+		right: 15px;
+		z-index: 10000;
+	}
+	.uppercase{
+		text-transform: uppercase !important;
+	}
+
+	.mgr-15{
+		margin-right: 15px !important;
+	}
+	.mgt-20{
+		margin-top: 20px !important;
+	}
+	.mgb-0{
+		margin-bottom: 0px !important;
+	}
+
+	.text-white{
+		color: $white !important;
+		.p, span, i, a, div, ion-icon, b, small, strong{
+			color: $white !important;
+		}
+		input::placeholder{
+			color: $white !important;
+		}
+	}
+	.text-white-1{
+		color: $white-1 !important;
+		.p, span, i, a, div, ion-icon, b, small, strong{
+			color: $white-1 !important;
+		}
+		input::placeholder{
+			color: $white-1 !important;
+		}
+	}
+
+	/* header color */
+
+.header {
+    &.bg-transparent {
+        .toolbar-background {
+            background: transparent !important;
+        }
+    }
+
+    &::after {
+        display: none;
+    }
+
+    .toolbar {
+        .toolbar-background {
+            background-color: $theme-color;
+            border: none !important;
+        }
+
+        .title {
+            .toolbar-title {
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: $white;
+                display: flex;
+                align-items: center;
+                letter-spacing: .5px !important;
+                text-transform: uppercase;
+
+                ion-icon {
+                    font-size: 2.2rem;
+                }
+            }
+
+            .end {
+                margin-left: auto !important;
+
+            }
+        }
+    }
+
+    .bar-buttons {
+        color: $white;
+        z-index: 999;
+    }
+
+    .back-button {
+        color: $white;
+        z-index: 999;
+
+        //        .ion-md-arrow-back:before {
+        //            content: "\f3cf";
+        //        }
+    }
+
+    .toolbar-ios {
+        ion-title {
+            padding: 0 16px;
+            position: unset;
+
+            .toolbar-title-ios {
+                text-align: justify;
+            }
+        }
+
+        .bar-buttons-ios {
+            color: $white;
+        }
+
+        .back-button-text {
+            display: none;
+        }
+    }
+
+    .bar-button-default:hover:not(.disable-hover) {
+        color: lighten($gray, 100%);
+    }
+}
+
+/* button style */
+
+
+.button {
+    &.btn {
+        font-size: 1.3rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        height: 42px;
+        box-shadow: none;
+        background: $theme-color;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+
+
+        &:hover:not(.disable-hover) {
+            background: $theme-color;
+        }
+
+        .button-inner {
+            //letter-spacing: 2px;
+        }
+
+        &[block] {
+            border-radius: 7px;
+        }
+
+    }
+}
+
+  
+}

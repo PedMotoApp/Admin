@@ -1,0 +1,211 @@
+
+<ion-header>
+
+  <ion-navbar text-center no-border-bottom>
+    <ion-title> Ifood </ion-title>                    
+
+    <ion-buttons end>
+      <button ion-button (click)="settings()"   color="white_"><ion-icon name="cog" style="margin-right: 10px;"></ion-icon>CONFIGURAÇÕES</button>      
+      <button ion-button color="white_" (click)="storeStatusCheck()">  <ion-icon name="home" style="margin-right: 10px;"></ion-icon>{{storeStatus}}</button>      
+    </ion-buttons>
+    
+  
+  </ion-navbar>
+ 
+</ion-header>
+
+<ion-content padding>
+
+
+  <ion-row>
+
+    <ion-col>          
+      <ion-item no-lines>                
+        <ion-label stacked>{{dataText.selectStatus}}</ion-label>  
+        <ion-select [(ngModel)]="status" (ionChange)="getOrders()">
+          <ion-option *ngFor="let statuss of dataInfo.workStatusIfood">{{statuss}}</ion-option>                                                                              
+        </ion-select>                          
+      </ion-item>
+    </ion-col>
+
+
+    
+
+  </ion-row>
+
+  <ion-list-header color="primary" *ngIf="!payload || !payload.stores" style="margin-top: 10px"> AGUARDANDO AUTENTICAÇÃO </ion-list-header>  
+
+
+  <ion-list-header color="success" *ngIf="payload && payload.stores && payload.stores[0]" style="margin-top: 10px">
+    LOJA AUTENTICADA: <b>{{payload.stores[0].name}} - {{storeStatus}}</b>  
+
+    <br>
+    <span style="align-items: right;">Próxima verificação de evento: {{datetimeNextEvent}}</span>
+  </ion-list-header>  
+
+  
+    <ion-list  no-lines *ngIf="storeStatus !== 'LOJA FECHADA'">
+
+               
+    <ion-item *ngFor="let order of orders" no-lines> 
+              
+        <ion-title><b>{{order.details.orderType}}</b> - {{order.fullCodeStr}} - {{order.createdAtStr}} </ion-title>   
+
+        <br>  
+
+        
+        
+        <ion-row style="margin-left: 25px;">
+
+          <ion-col>
+                        
+            <p><b>{{dataText.ifoodId}}: # </b>{{order.orderId}}</p>                                              
+
+
+            <p *ngIf="order.details && order.details.orderTiming === 'IMMEDIATE'"><b>Tempo de entrega:</b> IMEDIATA </p>
+            <p *ngIf="order.details && order.details.orderTiming !== 'IMMEDIATE'"><b>Tempo de entrega:</b> AGENDADA </p>
+
+            <p *ngIf="order.details && order.details.indoor && order.details.indoor.deliveryDateTime"><b>Horário retirada:</b> {{order.details.indoor.deliveryDateTimeStr}} </p>                        
+            <p *ngIf="order.details && order.details.indoor && order.details.indoor.table"><b>Local retirada:</b> {{order.details.indoor.table}} </p>
+            <p *ngIf="order.details && order.details.customer && order.details.customer.name"><b>Cliente:</b> {{order.details.customer.name}} - {{order.details.customer.phone.number}} </p>
+            <p *ngIf="order.details && order.details.delivery && order.details.delivery.deliveryAddress"><b>Entrega:</b> {{order.details.delivery.deliveryAddress.formattedAddress}}</p>        
+            <p *ngIf="order.details && order.details.delivery && order.details.delivery.deliveryAddress.reference"><b>Referência:</b> {{order.details.delivery.deliveryAddress.reference}}</p>
+            
+            <p *ngIf="order.details && order.details.delivery && order.details.delivery.deliveryAddress.neighborhood"><b>Bairro:</b> {{order.details.delivery.deliveryAddress.neighborhood}}</p>
+
+            <p *ngIf="order.details && order.details.delivery && order.details.delivery.preparationStartDateTime"><b>Horário preparo:</b> {{order.details.delivery.preparationStartDateTime}}</p>                                
+            <p *ngIf="order.details && order.details.delivery"><b>Horário entrega:</b> {{order.details.delivery.deliveryDateTimeStr}}</p>   
+
+          </ion-col>
+
+          <ion-col>
+            <p *ngIf="order.details && order.details.total"><b>Subtotal:</b> {{dataText.currency}} {{order.details.total.subTotal}}</p>    
+            <p *ngIf="order.details && order.details.total"><b>Taxa de entrega:</b> {{dataText.currency}} {{order.details.total.deliveryFee}}</p>    
+            <p *ngIf="order.details && order.details.total"><b>{{dataText.jobValue}} do pedido:</b> {{dataText.currency}} {{order.details.total.orderAmount}}</p>
+            <p *ngIf="order.details && order.details.payments && order.details.payments.methods[0].method ==='CASH'"><b>Pagamento:</b> Dinheiro </p>
+            <p *ngIf="order.details && order.details.payments && order.details.payments.methods[0].method !=='CASH'"><b>Pagamento:</b> Cartão - {{order.details.payments.methods[0].card.brand}} - {{order.details.payments.methods[0].method}}</p>           
+            <p *ngIf="order.details && order.details.payments && order.details.payments.methods[0].cash && order.details.payments.methods[0].cash.changeFor"><b>{{dataText.changeFor}}:</b> {{dataText.currency}} {{order.details.payments.methods[0].cash.changeFor}} </p>            
+            <p *ngIf="order.details && order.details.payments && order.details.payments.prepaid"><b>Valor já pago:</b> {{dataText.currency}} {{order.details.payments.prepaid}}</p>
+            <p *ngIf="order.details && order.details.payments && order.details.payments.pending"><b>Valor faltando receber:</b> {{dataText.currency}} {{order.details.payments.pending}}</p>        
+
+          </ion-col>
+
+        </ion-row>
+   
+
+        <ion-list *ngIf="order.details && order.details.benefits">
+
+          <ion-item *ngFor="let benefits of order.details.benefits" no-lines> 
+
+            <ion-title color="danger">            
+              Cupons 
+            </ion-title>            
+
+            
+            
+              <ion-item>
+                <p *ngIf="benefits.target === 'CART'"><b>Tipo:</b> Carrinho </p>
+                <p *ngIf="benefits.target === 'ITEM'"><b>Tipo:</b> Item </p>
+                <p *ngIf="benefits.target === 'PROGRESSIVE_DISCOUNT_ITEM'"><b>Tipo:</b> Carrinho </p>
+                <p *ngIf="benefits.target === 'DELIVERY_FEE'"><b>Tipo:</b>Desconto progressivo </p>
+
+                <p *ngIf="benefits.value"><b>Valor do cupom:</b> {{dataText.currency}} {{benefits.value}} </p>
+                <p *ngIf="benefits.sponsorshipValues && benefits.sponsorshipValues[0].value > 0"><b>Cupom:</b> Pago por {{benefits.sponsorshipValues[0].name}} - {{dataText.currency}} {{benefits.sponsorshipValues[0].value}}</p>
+                <p *ngIf="benefits.sponsorshipValues && benefits.sponsorshipValues[1].value > 0"><b>Cupom:</b> Pago por {{benefits.sponsorshipValues[0].name}} - {{dataText.currency}} {{benefits.sponsorshipValues[1].value}} </p>
+              </ion-item>
+  
+          </ion-item>               
+          
+        </ion-list>  
+
+        <ion-item *ngIf="order && order.details" no-lines>                              
+          
+          <ion-title color="danger" style="margin-top: 10px; margin-bottom: 10px;">
+            Detalhes do pedido
+          </ion-title>
+
+          <ion-item *ngFor="let item of order.details.items" style="border: 0px;">                       
+
+            <p> 
+              <b> {{item.name}} </b> - {{item.quantity}} - {{item.unit}} - {{dataText.currency}} {{item.totalPrice}}            
+              <b *ngIf="item.observations">Observação: {{item.observations}}</b>                                    
+              <br>
+              <br>
+
+              <ion-list *ngIf="item.options">
+
+                <span><b>Extras:</b></span>
+                            
+                  <ion-item *ngFor="let option of item.options" >                       
+                    <p> {{option.name}} - {{option.quantity}} - {{option.unit}} - {{dataText.currency}} {{option.unitPrice}}</p>                
+                  </ion-item>
+
+              </ion-list>
+              
+            </p>                            
+
+          </ion-item>
+          
+        </ion-item>
+
+
+        <ion-row>                
+
+          <ion-col style="margin-left: 10px;"  *ngIf="(order.fullCode === 'PLACED' || order.fullCode === 'CONFIRMED'  || order.fullCode === 'DISPATCHED') && !order.actionOk">                
+            <button ion-button icon-start clear small (click)="cancel(order)"  [disabled]="checkOrders(order)">               
+              <ion-icon name="md-close" color="primary"></ion-icon>
+              <div> {{dataText.cancel}} pedido </div>
+            </button>
+          </ion-col>
+
+
+          <ion-col style="margin-left: 10px;" *ngIf="order.fullCode === 'PLACED' && !order.actionOk">    
+            <button ion-button icon-start clear small (click)="confirm(order)" [disabled]="checkOrders(order)"> 
+                <ion-icon name="md-checkmark" color="primary"></ion-icon>
+              <div> Confirmar pedido </div>
+            </button>
+          </ion-col>
+
+
+          <ion-col style="margin-left: 10px;"  *ngIf="order.fullCode === 'CONFIRMED' && !order.actionOk && order.details.orderType === 'DELIVERY'">                
+            <button ion-button icon-start clear small (click)="delivery(order)" [disabled]="checkOrders(order)"> 
+                <ion-icon name="ios-contact" color="primary"></ion-icon>
+              <div> Chamar entregador </div>
+            </button>
+          </ion-col>
+          
+
+          <ion-col style="margin-left: 10px;"  *ngIf="order.fullCode === 'DISPATCHED'">                          
+            <button ion-button icon-start clear small (click)="show(order)"> 
+                <ion-icon name="md-search" color="primary"></ion-icon>
+              <div> Visualizar corrida </div>
+            </button>
+          </ion-col>
+          
+
+          <ion-col style="margin-left: 10px;"  *ngIf="order.fullCode === 'CONFIRMED' && (order.details.orderType === 'INDOOR' || order.details.orderType === 'TAKEOUT')">                                      
+            <button ion-button icon-start clear small (click)="pickup(order)" [disabled]="checkOrders(order)"> 
+                <ion-icon name="md-checkmark" color="primary"></ion-icon>
+              <div> Pronto para retirar </div>
+            </button>
+          </ion-col>
+          
+        </ion-row>
+        
+              
+        
+    </ion-item>
+
+ 
+  </ion-list>
+
+
+  
+
+
+
+
+
+
+
+</ion-content>

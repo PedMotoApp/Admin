@@ -1,0 +1,48 @@
+
+<ion-header>
+
+  <ion-navbar text-center no-border-bottom>
+    <ion-title>{{dataText.regions}}</ion-title>      
+
+    <ion-buttons end *ngIf="!payload">       
+        <button ion-button color="white_" (click)="add()">{{dataText.addNew}}</button>
+    </ion-buttons>    
+
+
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="trips detail-bg">
+
+  <ion-list padding>
+
+      <ion-card class="trip card" text-wrap *ngFor="let service of (services | async)" no-lines>
+
+        <ion-card-header>
+          <ion-title>{{service.payload.val().name}} - {{service.payload.val().description}}</ion-title>                              
+        </ion-card-header>
+        
+      <ion-row class="mrg-lt-10">
+                                  
+          <ion-col  *ngIf="!payload">    
+            <button ion-button icon-start clear small (click)="remove(service)">
+              <ion-icon name="trash" color="danger"></ion-icon>
+              <div>{{dataText.remove}}</div>
+            </button>            
+          </ion-col> 
+
+
+          <ion-col  *ngIf="payload">    
+            <button ion-button icon-start clear small (click)="select(service)">
+              <ion-icon name="md-locate" color="primary"></ion-icon>
+              <div>{{dataText.selectRegion}}</div>
+            </button>            
+          </ion-col> 
+                
+    </ion-row>
+                          
+    </ion-card>    
+
+  </ion-list>
+
+</ion-content>
