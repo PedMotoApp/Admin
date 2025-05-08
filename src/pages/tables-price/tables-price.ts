@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, Platform } from 'ionic-angular';
-import { UiUtilsProvider } from '../../providers/ui-utils/ui-utils'
-import { DataInfoProvider } from '../../providers/data-info/data-info'
+import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { UiUtilsProvider } from '../../providers/ui-utils/ui-utils';
+import { DataInfoProvider } from '../../providers/data-info/data-info';
 import { DatabaseProvider } from '../../providers/database/database';
 import { Observable } from 'rxjs/Observable';
-import { DataTextProvider } from '../../providers/data-text/data-text'
 
 @IonicPage()
 @Component({
@@ -12,102 +11,83 @@ import { DataTextProvider } from '../../providers/data-text/data-text'
   templateUrl: 'tables-price.html',
 })
 export class TablesPricePage {
+  services: Observable<any>;
+  tablesArray: any[] = [];
 
-  services: Observable<any>;  
-  tablesArray = []
-  
-  constructor(public navCtrl: NavController, 
-    public uiUtils: UiUtilsProvider,    
-    public platform: Platform,
-    public dataText: DataTextProvider,  
+  constructor(
+    public navCtrl: NavController,
+    public uiUtils: UiUtilsProvider,
     public dataInfo: DataInfoProvider,
     public db: DatabaseProvider,
-    public navParams: NavParams) {
+    public navParams: NavParams
+  ) {}
+
+  ionViewDidLoad(): void {
+    if (this.dataInfo.isHome) {
+      this.startInterface();
+    } else {
+      this.navCtrl.setRoot('LoginPage');
+    }
   }
 
-  ionViewDidLoad() {    
-
-    if(this.dataInfo.isHome)
-      this.startInterface()
-    else
-      this.navCtrl.setRoot('LoginPage') 
+  startInterface(): void {
+    this.getServices();
   }
 
-  startInterface(){
-    this.getServices()
+  add(): void {
+    this.navCtrl.push('TablesPriceAddPage');
   }
 
-  add(){
-    this.navCtrl.push('TablesPriceAddPage')
+  edit(service: any): void {
+    this.navCtrl.push('TablesPriceAddPage', { payload: service });
   }
 
-  edit(service){  
-    this.navCtrl.push('TablesPriceAddPage', {payload: service})
-  }
+  getServices(): void {
+    const loading = this.uiUtils.showLoading('Carregando...');
+    loading.present();
 
-  getServices(){
-    
-    let loading = this.uiUtils.showLoading(this.dataText.pleaseWait)    
-    loading.present() 
-
-
-    this.services = this.db.getAllTablesPrice()
-
+    this.services = this.db.getAllTablesPrice();
     this.services.subscribe(data => {
-      this.getServicesCallback(data)
-      loading.dismiss() 
-    })
-    
+      this.getServicesCallback(data);
+      loading.dismiss();
+    }, err => {
+      console.error('Erro ao carregar tabelas de preços:', err);
+      loading.dismiss();
+      this.uiUtils.showAlertError('Erro ao carregar tabelas de preços.');
+    });
   }
 
-  getServicesCallback(data){    
-
-    this.tablesArray = []
-    
+  getServicesCallback(data: any[]): void {
+    this.tablesArray = [];
     data.forEach(element => {
-      let info = element.payload.val()
-      info.key = element.payload.key
+      const info = element.payload.val();
+      info.key = element.payload.key;
+      this.tablesArray.push(info);
+    });
+  }
 
-      if(this.dataInfo.userInfo.isAdmin){
-        this.tablesArray.push(info)
-      }
-      else {
-
-        if(info.regiao === this.dataInfo.userInfo.managerRegion){
-          this.tablesArray.push(info)
+  remove(data: any): void {
+    const alert = this.uiUtils.showConfirm('Atenção', 'Tem certeza que deseja remover esta tabela de preços?');
+    alert.then((result) => {
+      if (result) {
+        if (!this.dataInfo.isTest) {
+          this.removeContinue(data);
+        } else {
+          this.uiUtils.showAlertError('Acesso negado em modo de teste.');
         }
       }
     });
   }
 
-  
-  goBack(){
-    this.navCtrl.pop()
-  }
-
-  remove(data){
-
-    let self  = this
-
-    let alert = this.uiUtils.showConfirm(this.dataText.warning, this.dataText.areYouSure)
-    alert.then((result) => {
-
-      if(result){
-        if(!this.dataInfo.isTest)
-          this.removeContinue(data)
-        
-        else 
-          this.uiUtils.showAlertError(this.dataText.accessDenied)                        
-      }    
-    })   
-  }
-
-  removeContinue(data){
-        
+  removeContinue(data: any): void {
     this.db.removeTablesPrice(data.key)
-    .then( () => {
-      this.uiUtils.showAlert(this.dataText.success, this.dataText.removeSuccess)
-    })
+      .then(() => {
+        this.uiUtils.showAlert('Sucesso', 'Tabela removida com sucesso!').present();
+        this.getServices();
+      })
+      .catch(err => {
+        console.error('Erro ao remover tabela:', err);
+        this.uiUtils.showAlertError('Erro ao remover tabela.');
+      });
   }
-
 }

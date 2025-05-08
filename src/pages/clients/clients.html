@@ -1,83 +1,100 @@
-<ion-header>
-  <ion-navbar text-center no-border-bottom>
-    <ion-title>{{ dataText.clients }}</ion-title>
+<ion-header class="bg-theme">
+  <ion-navbar style="background: linear-gradient(90deg, #007bff, #00c4ff);">
+    <ion-title style="color: white; font-size: 16px;">{{dataText.clients}}</ion-title>
     <ion-buttons end>
-      <button ion-button (click)="addClient()" style="color: white;">{{ dataText.addNew }}</button>
+      <button ion-button (click)="addClient()" style="color: white;">
+        {{dataText.addNew}}
+      </button>
     </ion-buttons>
   </ion-navbar>
 </ion-header>
 
-<ion-content padding class="trips detail-bg">
-  <ion-list>
-    <ion-item no-lines>
-      <ion-label stacked>{{ dataText.order }}</ion-label>
-      <ion-select [(ngModel)]="orderType" (ionChange)="reload()">
-        <ion-option value="1">{{ dataText.order1 }}</ion-option>
-        <ion-option value="2">{{ dataText.order2 }}</ion-option>
-        <ion-option value="3">{{ dataText.order3 }}</ion-option>
-        <ion-option value="4">{{ dataText.order4 }}</ion-option>
-      </ion-select>
-    </ion-item>
-
-    <ion-item no-lines>
-      <ion-label stacked>{{ dataText.selectClient }}</ion-label>
-      <ionic-selectable
-        item-content
-        [(ngModel)]="client"
-        [items]="usersArray"
-        itemValueField="name"
-        itemTextField="name"
-        [canSearch]="true"
-        (onChange)="clientChanged($event)">
-      </ionic-selectable>
-    </ion-item>
-
-    <ion-list *ngFor="let worker of usersArray" >
-      <ion-card class="trip card" text-wrap no-lines>
-        <ion-item>
-          <ion-avatar item-start>
-            <img src="./assets/imgs/default-user.png" *ngIf="!worker.photo">
-            <img src="{{ worker.photo }}" *ngIf="worker.photo">
-          </ion-avatar>
-          <h2>{{ worker.name }}</h2>
-          <p *ngIf="worker.prePaid" style="color: green;"><b>{{ dataText.billedClient }}</b></p>
-          <p *ngIf="worker.lastDatetimeStr"><b>{{ dataText.lastAccess }}:</b>{{ worker.lastDatetimeStr }}</p>
-          <p><b>{{ dataText.email }}:</b> {{ worker.email }}</p>
-          <p><b>Ranking:</b>{{ worker.ranking }}</p>
-          <p *ngIf="worker.address"><b>{{ dataText.address }}:</b>{{ worker.address }}</p>
-          <p *ngIf="worker.tel"><b>{{ dataText.phone }}:</b> {{ worker.tel }}</p>
-          <p *ngIf="worker.tablePrice"><b>{{ dataText.tablePrice }}:</b> {{ worker.tablePrice.name }}</p>
-          <p *ngIf="worker.totalWorks"><b>{{ dataText.totalServices }}:</b> {{ worker.totalWorks }}</p>
+<ion-content #content class="trips detail-bg" style="background: #f4f5f8;">
+  <ion-grid style="padding: 10px;">
+    <!-- Filtros -->
+    <ion-row>
+      <ion-col col-12 col-md-6>
+        <ion-item no-lines style="background: white; border-radius: 10px; margin-bottom: 10px;">
+          <ion-label stacked style="font-weight: bold; color: #333;">{{dataText.order}}</ion-label>
+          <ion-select [(ngModel)]="orderType" (ionChange)="reload()" style="width: 100%;">
+            <ion-option value="1">{{dataText.order1}}</ion-option>
+            <ion-option value="2">{{dataText.order2}}</ion-option>
+            <ion-option value="3">{{dataText.order3}}</ion-option>
+            <ion-option value="4">{{dataText.order4}}</ion-option>
+          </ion-select>
         </ion-item>
-  
-        <ion-row>
-          <ion-col style="margin-left: 10px;">
-            <button ion-button icon-start clear small (click)="changeRanking(worker.key)">
-              <ion-icon name="medal" color="gold" *ngIf="worker.ranking === 'Ouro'"></ion-icon>
-              <ion-icon name="medal" color="gray" *ngIf="worker.ranking === 'Prata'"></ion-icon>
-              <ion-icon name="medal" color="bronze" *ngIf="worker.ranking === 'Bronze'"></ion-icon>
-              <ion-icon name="medal" color="bronze" *ngIf="!worker.ranking"></ion-icon>
-              <ion-icon name="md-trophy" color="primary" *ngIf="worker.ranking === 'Star'"></ion-icon>
-              <div> Ranking {{ worker.ranking }}</div>
-            </button>
-          </ion-col>
-          <ion-col>
-            <button ion-button icon-start clear small (click)="changeProfileStatus(worker.key)">
-              <ion-icon name="checkmark-circle" color="primary" *ngIf="worker.status === 'Não verificado'"></ion-icon>
-              <ion-icon name="checkmark-circle" color="secondary" *ngIf="worker.status === 'Perfil verificado'"></ion-icon>
-              <div>{{ worker.status }}</div>
-            </button>
-          </ion-col>
-          <ion-col>
-            <button ion-button icon-start clear small (click)="options(worker)">
-              <ion-icon name="md-clipboard" color="primary"></ion-icon>
-              <div>{{ dataText.options }}</div>
-            </button>
-          </ion-col>
-        </ion-row>
-  
-      </ion-card>
-    </ion-list>
-    
-  </ion-list>
+      </ion-col>
+      <ion-col col-12 col-md-6>
+        <ion-item no-lines style="background: white; border-radius: 10px; margin-bottom: 10px;">
+          <ion-label stacked style="font-weight: bold; color: #333;">{{dataText.selectClient}}</ion-label>
+          <ionic-selectable
+            item-content
+            [(ngModel)]="client"
+            [items]="usersArray"
+            itemValueField="name"
+            itemTextField="name"
+            [canSearch]="true"
+            (onChange)="clientChanged($event)"
+            style="width: 100%;"
+          >
+          </ionic-selectable>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+
+    <!-- Lista de Clientes -->
+    <ion-row>
+      <ion-col col-6 col-sm-4 col-md-3 *ngFor="let worker of usersArray">
+        <ion-card style="border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <ion-item style="padding: 6px;" (click)="toggleDetails(worker)">
+            <ion-avatar item-start>
+              <img src="./assets/imgs/default-user.png" *ngIf="!worker.photo" style="border-radius: 50%; width: 30px; height: 30px;">
+              <img [src]="worker.photo" *ngIf="worker.photo" style="border-radius: 50%; width: 30px; height: 30px;">
+            </ion-avatar>
+            <div style="margin-left: 8px; flex: 1;">
+              <h2 style="font-size: 14px; font-weight: bold; color: #333; margin: 0;">{{worker.name}}</h2>
+              <p style="font-size: 10px; color: #666; margin: 2px 0 0 0;">
+                <b>Ranking:</b> <span [style.color]="worker.ranking === 'Ouro' ? '#FFD700' : worker.ranking === 'Prata' ? '#C0C0C0' : worker.ranking === 'Bronze' ? '#CD7F32' : worker.ranking === 'Star' ? '#007bff' : '#666'">{{worker.ranking || 'Sem ranking'}}</span>
+              </p>
+              <p style="font-size: 10px; color: #666; margin: 2px 0 0 0;"><b>Status:</b> {{worker.status}}</p>
+            </div>
+            <ion-icon [name]="worker.showDetails ? 'chevron-up' : 'chevron-down'" item-end style="color: #666; font-size: 14px;"></ion-icon>
+          </ion-item>
+
+          <!-- Detalhes Expansíveis -->
+          <div *ngIf="worker.showDetails" style="padding: 6px; background: #f9f9f9;">
+            <p *ngIf="worker.prePaid" style="color: #007bff; margin: 2px 0; font-size: 10px;"><b>{{dataText.billedClient}}</b></p>
+            <p *ngIf="worker.isPremium" style="color: #FFD700; margin: 2px 0; font-size: 10px;"><b>Premium</b></p>
+            <p *ngIf="worker.lastDatetimeStr" style="margin: 2px 0; font-size: 10px;"><b>{{dataText.lastAccess}}:</b> {{worker.lastDatetimeStr}}</p>
+            <p style="margin: 2px 0; font-size: 10px;"><b>{{dataText.email}}:</b> {{worker.email}}</p>
+            <p *ngIf="worker.address" style="margin: 2px 0; font-size: 10px;"><b>{{dataText.address}}:</b> {{worker.address}}</p>
+            <p *ngIf="worker.tel" style="margin: 2px 0; font-size: 10px;"><b>{{dataText.phone}}:</b> {{worker.tel}}</p>
+            <p *ngIf="worker.tablePrice" style="margin: 2px 0; font-size: 10px;"><b>{{dataText.tablePrice}}:</b> {{worker.tablePrice.name}}</p>
+            <p *ngIf="worker.totalWorks" style="margin: 2px 0; font-size: 10px;"><b>{{dataText.totalServices}}:</b> {{worker.totalWorks}}</p>
+          </div>
+
+          <ion-row style="padding: 0 6px 6px 6px;">
+            <ion-col>
+              <button ion-button icon-start clear small (click)="changeRanking(worker.key)">
+                <ion-icon name="medal" [color]="worker.ranking === 'Ouro' ? 'gold' : worker.ranking === 'Prata' ? 'gray' : worker.ranking === 'Bronze' ? 'bronze' : worker.ranking === 'Star' ? 'primary' : 'bronze'" style="font-size: 14px;"></ion-icon>
+                <div style="font-size: 10px;">Ranking</div>
+              </button>
+            </ion-col>
+            <ion-col>
+              <button ion-button icon-start clear small (click)="changeProfileStatus(worker.key)">
+                <ion-icon name="checkmark-circle" [color]="worker.status === 'Não verificado' ? 'primary' : 'secondary'" style="font-size: 14px;"></ion-icon>
+                <div style="font-size: 10px;">Status</div>
+              </button>
+            </ion-col>
+            <ion-col>
+              <button ion-button icon-start clear small (click)="options(worker)">
+                <ion-icon name="md-clipboard" color="primary" style="font-size: 14px;"></ion-icon>
+                <div style="font-size: 10px;">{{dataText.options}}</div>
+              </button>
+            </ion-col>
+          </ion-row>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

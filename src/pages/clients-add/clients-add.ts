@@ -1,467 +1,353 @@
-import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController, ActionSheetController, Platform, NavParams, MenuController, Events } from 'ionic-angular';
-import { CameraProvider } from '../../providers/camera/camera'
-import { UiUtilsProvider } from '../../providers/ui-utils/ui-utils'
-import { DataInfoProvider } from '../../providers/data-info/data-info'
+import { Component, OnInit } from '@angular/core';
+import { IonicPage, NavController, ActionSheetController, Platform, NavParams, Events } from 'ionic-angular';
+import { CameraProvider } from '../../providers/camera/camera';
+import { UiUtilsProvider } from '../../providers/ui-utils/ui-utils';
+import { DataInfoProvider } from '../../providers/data-info/data-info';
 import { StorageProvider } from '../../providers/storage/storage';
-import 'rxjs/add/operator/debounceTime';
-import { FormControl } from '@angular/forms';
 import { DatabaseProvider } from '../../providers/database/database';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import * as moment from 'moment';
+import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { AuthProvider } from '../../providers/auth/auth';
-import { Observable } from 'rxjs/Observable';
+import { Observable, Subscription } from 'rxjs';
 import { HttpdProvider } from '../../providers/httpd/httpd';
-import { DataTextProvider } from '../../providers/data-text/data-text'
+import { DataTextProvider } from '../../providers/data-text/data-text';
+import * as moment from 'moment';
 
+interface Client {
+  uid: string;
+  razaoSocial: string;
+  cnpj: string;
+  name: string;
+  lastName: string;
+  address: string;
+  complement: string;
+  numero: string;
+  postCode: string;
+  district: string;
+  tel: string;
+  photo: string;
+  description: string;
+  bank: string;
+  agency: string;
+  account: string;
+  cpf: string;
+  carName: string;
+  carPlate: string;
+  state: string;
+  city: string;
+  prefixo: string;
+  tablePrice: any  
+}
 
+interface TablePrice {
+  key: string;
+  name: string;
+  type: string;
+}
 
 @IonicPage()
 @Component({
   selector: 'page-clients-add',
   templateUrl: 'clients-add.html',
 })
-export class ClientsAddPage {
-
-  @ViewChild('razaoSocialInput') razaoSocialInput;
-  @ViewChild('cnpjInput') cnpjInput;
-  @ViewChild('nameInput') nameInput;
-  @ViewChild('lastNameInput') lastNameInput;
-  @ViewChild('addressInput') addressInput;
-  @ViewChild('complementInput') complementInput;
-  @ViewChild('telInput') telInput;
-  @ViewChild('cpfInput') cpfInput;
-  @ViewChild('plateInput') plateInput;
-  @ViewChild('agencyInput') agencyInput;
-  @ViewChild('accountInput') accountInput;  
-  @ViewChild('prefixoInput') prefixoInput;      
-
-  public formGroup: FormGroup;  
-  
-  public fullname:string = "";
- 	public email:string = "";
-  public password:string = "";
-  public password1:string = "";
-
+export class ClientsAddPage implements OnInit {
+  formGroup: FormGroup;
   base64Image: string = '';
-  selectedPhoto: any;  
-  selectedBank: string = '';
-  agency: string = '';
-  account: string = '';
-  complement: string = '';  
-  uid_: string = ''
-  description: string = '';
-  item: string = ''
-  cnpj: string;
-  prefixo: string  
-  
-  clientInfo: any = []
-  primeiroUso: Boolean = false;
-  photoChanged: Boolean = false
-  
-  searchControl: FormControl;
-  searching: any = false;
-
-  selectedService: string = "Caminhão"
-  plate: string = ""
-
-  services: any = [];  
-
-  state_: string = 'RJ'
-  city_: string = "Rio de Janeiro"
-  citiesArray: any = []
-  payload: any 
-
-  tablesPrices: Observable<any>;  
-  tablePrice: any
-  tableArray: any = []
-
-  ifoodClientId: string = ""
-  ifoodClientSecret: string = ""
+  selectedPhoto: any;
+  payload: Client;
+  tablesPrices: Observable<any>;
+  tableArray: TablePrice[] = [];
+  photoChanged: boolean = false;
+  state_: string = 'RJ';
+  city_: string = 'Rio de Janeiro';
+  citiesArray: any[] = [];
+  uid_: string = '';
+  private subscriptions: Subscription[] = [];
+  private activeLoading: any = null;
 
   constructor(
-    public navCtrl: NavController, 
+    public navCtrl: NavController,
     public platform: Platform,
     public actionsheetCtrl: ActionSheetController,
-    public uiUtils: UiUtilsProvider,    
-    public storage: StorageProvider, 
-    public camera: CameraProvider,    
+    public uiUtils: UiUtilsProvider,
+    public storage: StorageProvider,
+    public camera: CameraProvider,
     public navParams: NavParams,
     public events: Events,
-    public menu: MenuController,
-    public db: DatabaseProvider,    
+    public db: DatabaseProvider,
     private formBuilder: FormBuilder,
     public auth: AuthProvider,
     public httpd: HttpdProvider,
     public dataText: DataTextProvider,
-    public dataInfo: DataInfoProvider) {              
+    public dataInfo: DataInfoProvider
+  ) {}
+
+  ngOnInit(): void {
+    this.initForm();
   }
 
-  ngOnInit() {
-    this.initForm()    
-  }
-
-  ionViewDidLoad() {
-
-    if(this.dataInfo.isHome)
-      this.startInterface()    
-    else
-      this.navCtrl.setRoot('LoginPage')              
-  }
-
-  startInterface(){
-    
-    this.payload = this.navParams.get('payload')    
-    this.clear()
-    this.stateChanged(this.dataInfo.defaultState)
-    this.getServices()
-
-    if(this.payload){      
-      this.loadInfo()
+  ionViewDidLoad(): void {
+    if (this.dataInfo.isHome) {
+      this.startInterface();
+    } else {
+      this.navCtrl.setRoot('LoginPage');
     }
   }
 
-  getServices(){        
-    
-    this.tablesPrices = this.db.getAllTablesPrice()  
-    
-    this.tablesPrices.subscribe(data => {
-      this.getServicesCallback(data)
-    })
+  ionViewDidLeave(): void {
+    if (this.activeLoading) {
+      this.activeLoading.dismiss();
+      this.activeLoading = null;
+    }
   }
 
-  getServicesCallback(data){
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions = [];
+  }
 
-    this.tableArray = []
+  private initForm(): void {
+    this.formGroup = this.formBuilder.group({
+      razaoSocial: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      cnpj: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(40)]],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(40)]],
+      lastName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(40)]],
+      address: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(300)]],
+      complement: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(300)]],
+      postCode: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(8)]],
+      numero: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(5)]],
+      district: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(300)]],
+      cpf: ['', [Validators.required, Validators.minLength(11), Validators.maxLength(11)]],
+      tel: ['', [Validators.required, Validators.minLength(11), Validators.maxLength(11)]],
+      state: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(20)]],
+      city: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(300)]],
+      tablePrice: [''],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      password1: ['', [Validators.required]],      
+    }, { validator: this.passwordMatchValidator });
+  }
 
+  // Validador personalizado para verificar se as senhas coincidem
+  private passwordMatchValidator(control: AbstractControl): { [key: string]: boolean } | null {
+    const password = control.get('password') && control.get('password').value;
+    const password1 = control.get('password1') && control.get('password1').value;
+    return password === password1 ? null : { notMatching: true };
+  }
 
-    data.forEach(element => {
-      
-      let info = element.payload.val()
-      info.key = element.payload.key
+  private startInterface(): void {
+    this.clear();
+    this.payload = this.navParams.get('payload');
+    if (this.formGroup.get('state') && this.dataInfo.defaultState) {
+      this.formGroup.get('state').setValue(this.dataInfo.defaultState);
+      this.stateChanged(this.dataInfo.defaultState);
+    }
+    this.getServices();
 
+    if (this.payload) {
+      this.loadInfo();
+    }
+  }
 
-      if(info.type && info.type === 'Cliente'){
-        this.tableArray.push(info)
-      }      
-      
+  private clear(): void {
+    this.formGroup.reset();
+    if (this.formGroup.get('state') && this.formGroup.get('state').value !== 'RJ') {
+      this.formGroup.get('state').setValue('RJ');
+    }
+    if (this.formGroup.get('city') && this.formGroup.get('city').value !== 'Rio de Janeiro') {
+      this.formGroup.get('city').setValue('Rio de Janeiro');
+    }
+    this.base64Image = '';
+    this.selectedPhoto = null;
+    this.photoChanged = false;
+    this.tableArray = [];
+    this.uid_ = '';
+  }
+
+  private loadInfo(): void {
+    this.formGroup.patchValue({
+      razaoSocial: this.payload.razaoSocial,
+      cnpj: this.payload.cnpj,
+      name: this.payload.name,
+      lastName: this.payload.lastName,
+      address: this.payload.address,
+      state: this.payload.state,
+      city: this.payload.city,
+      cpf: this.payload.cpf,
+      tel: this.payload.tel,
+      district: this.payload.district,
+      numero: this.payload.numero,
+      postCode: this.payload.postCode,
+      complement: this.payload.complement,
+      tablePrice: this.payload.tablePrice || ''      
     });
+
+    this.base64Image = this.payload.photo || '';
+    this.state_ = this.payload.state || 'RJ';
+    this.city_ = this.payload.city || 'Rio de Janeiro';
+    this.stateChanged(this.state_);
+    this.uid_ = this.payload.uid || '';
+  }
+
+  private getServices(): void {
+
     
+    //this.showLoading(this.dataInfo.titleLoadingInformations);
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions = [];
+
+    this.tablesPrices = this.db.getAllTablesPrice();
+    const sub = this.tablesPrices.subscribe({
+      next: (data) => {
+        this.getServicesCallback(data);
+        //this.dismissLoading();
+      },
+      error: (err) => {
+        console.error('Erro ao carregar tabelas de preços:', err);
+        this.uiUtils.showAlertError('Erro ao carregar tabelas de preços.');
+        //this.dismissLoading();
+      }
+    });
+    this.subscriptions.push(sub);
+  }
+
+  private getServicesCallback(data: any[]): void {
+    this.tableArray = data
+      .map(element => {
+        const info: TablePrice = {
+          key: element.payload.key,
+          name: element.payload.val().name,
+          type: element.payload.val().type
+        };
+        return info;
+      })
+      .filter(info => info.type && info.type === 'Cliente');
 
     setTimeout(() => {
-        
-     if(this.payload && this.payload.tablePrice){
-      
-       this.tablePrice = this.payload.tablePrice       
-     }
-
+      if (this.payload && this.payload.tablePrice) {
+        this.formGroup.get('tablePrice') && this.formGroup.get('tablePrice').setValue(this.payload.tablePrice);
+      }
     }, 3000);
   }
 
-
-  razaoSocialInputChanged(){
-    if(this.cnpjInput)
-      this.cnpjInput.setFocus();
-  }
-  
-  cnpjInputChanged(){
-    if(this.nameInput)
-      this.nameInput.setFocus();
-  }
-
-  nameInputChanged(){
-
-    if(this.lastNameInput)
-      this.lastNameInput.setFocus();
-  }
-
-  lastNameInputChanged(){
-    if(this.addressInput)
-      this.addressInput.setFocus();
-  }
-
-  addressInputChanged(){
-    if(this.complementInput)
-    this.complementInput.setFocus();
-  }
-
-  complementInputChanged(){
-    if(this.telInput)
-      this.telInput.setFocus();
-  }
-
-  cepInputChanged(){
-
-  }
-
-  numeroInputChanged(){
-
-  }
-
-  districtChanged(){
-
-  }
-
-  telInputChanged(){
-    if(this.cpfInput)
-      this.cpfInput.setFocus();
-  }
-
-  cpfnputChanged(){
-
-    if(this.dataInfo.userInfo.userType === 1)
-      this.uiUtils.showAlertSuccess("Favor conferir as informações e clicar em 'Salvar'")
-
-    else {
-
-      if(this.prefixoInput)    
-        this.prefixoInput.setFocus();
-
+  // Foca no próximo campo ao pressionar "Enter"
+  focusNext(event: any, nextField: string): void {
+    const input = event.target;
+    const form = input.closest('form');
+    const nextInput = form.querySelector(`[formControlName="${nextField}"]`);
+    if (nextInput) {
+      nextInput.focus();
     }
   }
 
+  save(): void {
+    if (this.formGroup.valid) {
+      this.uiUtils.showConfirm(this.dataText.warning, this.dataInfo.titleAreYouSure).then(result => {
+        if (result) {
+          this.update();
+        }
+      });
+    } else {
+      this.checkErrorField();
+    }
+  }
 
-  initForm() {    
-        
-    this.formGroup = this.formBuilder.group({   
+  signUp(): void {
+    if (this.formGroup.valid) {
+      this.uiUtils.showConfirm(this.dataText.warning, this.dataInfo.titleAreYouSure).then(result => {
+        if (result) {
+          this.signupContinue();
+        }
+      });
+    } else {
+      this.checkErrorField();
+    }
+  }
 
-      
-      razaoSocial: ['',[Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      cnpj: ['',[Validators.required, Validators.minLength(3), Validators.maxLength(40)]],
-      name: ['',[Validators.required, Validators.minLength(3), Validators.maxLength(40)]],
-      lastName: ['',[Validators.required, Validators.minLength(3), Validators.maxLength(40)]],
-      address: ['',[Validators.required, Validators.minLength(3), Validators.maxLength(300)]],
-      complement: ['',[Validators.required, Validators.minLength(3), Validators.maxLength(300)]],
-      postCode: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(8)]],
-      numero: ['',[Validators.required, Validators.minLength(0), Validators.maxLength(5)]],      
-      district: ['',[Validators.required, Validators.minLength(3), Validators.maxLength(300)]],
-      cpf: ['',[Validators.required, Validators.minLength(11), Validators.maxLength(11)]],
-      tel:  ['', [Validators.required, Validators.minLength(11), Validators.maxLength(11)]],
-      state: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(20)]],      
-      city: ['',[Validators.required, Validators.minLength(3), Validators.maxLength(300)]],
+  private signupContinue(): void {
+    if (this.base64Image && this.photoChanged) {
+      this.uploadWithPic();
+    } else {
+      this.uploadFinish(this.base64Image || '');
+    }
+  }
+
+  private update(): void {
+    if (this.base64Image && this.photoChanged) {
+      this.uploadWithPic();
+    } else {
+      this.uploadFinish(this.base64Image || '');
+    }
+  }
+
+  private uploadWithPic(): void {
+    this.showLoading(this.dataInfo.titleUploading);
+    this.storage.uploadPicture(this.base64Image).then(snapshot => {
+      snapshot.ref.getDownloadURL().then(url => {
+        this.uploadFinish(url);
+        this.dismissLoading();
+      }).catch(err => {
+        this.dismissLoading();
+        this.uiUtils.showAlert(this.dataText.warning, err).present();
+      });
+    }).catch(error => {
+      this.dismissLoading();
+      this.uiUtils.showAlert(this.dataText.warning, error).present();
     });
   }
-  
- 
-  loadInfo(){   
-    this.menu.enable(true);
-    this.clear()
-    this.loginInfoUser()   
-  }   
 
-  loginInfoUser(){
-    
-    let payload = this.payload    
-
-    this.formGroup.patchValue({
-      razaoSocial: payload.razaoSocial,
-      cnpj: payload.cnpj,
-      name: payload.name,
-      lastName: payload.lastName,
-      address: payload.address,
-      state: payload.state,
-      city: payload.city,
-      cpf: payload.cpf,
-      tel: payload.tel,
-      district: payload.district,
-      numero: payload.numero,
-      postCode: payload.postCode,
-      complement: payload.complement
-    })    
-
-    this.description = payload.description
-    this.base64Image = payload.photo      
-    this.agency = payload.agency
-    this.prefixo = payload.prefixo
-    this.selectedBank = payload.bank
-    this.account = payload.account
-    this.selectedService = payload.carName
-    this.plate = payload.carPlate 
-    this.cnpj = payload.cnpj    
-    this.state_ = payload.state 
-    this.city_ = payload.city     
-    this.state_ = payload.state
-    this.stateChanged(this.state_)
-    this.uid_ = payload.uid
-
-
-    if(payload.ifoodClientId){
-      this.ifoodClientId = payload.ifoodClientId
-      this.ifoodClientSecret = payload.ifoodClientSecret
+  private uploadFinish(url: string): void {
+    this.showLoading(this.uid_ ? this.dataInfo.titleUploading : this.dataText.pleaseWait);
+    if (this.uid_) {
+      this.updateFinish(url);
+    } else {
+      this.addFinish(url);
     }
-      
-    
-    
-
-
-    
   }
- 
-  save(){
 
-    if(this.formGroup.valid){
+  private addFinish(url: string): void {
+    const data = {
+      email: this.formGroup.value.email,
+      password: this.formGroup.value.password,
+      name: this.formGroup.value.name
+    };
+    this.httpd.apiAddUser(data).subscribe({
+      next: (callback) => {
+        this.dismissLoading();
+        this.addCallback(callback);
+      },
+      error: (err) => {
+        this.dismissLoading();
+        this.uiUtils.showAlertError('Erro ao adicionar usuário via API.');
+      }
+    });
+  }
 
-      this.saveCheck()
-        .then(() => {
-
-          let alert = this.uiUtils.showConfirm(this.dataText.warning, "Tem certeza?")  
-          alert.then((result) => {
-      
-            if(result){              
-              this.update()    
-            }
-              
-              
-          })   
-          .catch((error) => {
-            this.uiUtils.showAlertError(error)
-          })
-        })
-
+  private addCallback(data: any): void {
+    if (data.success) {
+      this.savedOk(data);
+    } else {
+      this.uiUtils.showAlertError(this.dataText.errorRegister);
     }
-    
-        
-      
-    else {            
-      this.uiUtils.showAlertError(this.dataText.checkAllFields)   
-    }
-      
-
   }
 
-  saveCheck(){
-
-    return new Promise<void>((resolve, reject) => {
-
-      if(! this.formGroup.value.name)
-        reject("Favor informar o nome")
-    
-      else if(! this.formGroup.value.lastName)
-        reject("Favor informar o sobrenome")      
-    
-      else if(! this.formGroup.value.address)
-        reject("Favor informar o seu endereço")
-    
-      else if(! this.formGroup.value.tel)
-        reject("Favor informar o seu número para contato")
-    
-    resolve()
-
-    })    
-  }
-
-  finish(){
-    var self = this
-
-    let alert = this.uiUtils.showConfirm(this.dataText.warning, "Tem certeza?")  
-    alert.then((result) => {
-
-      if(result)  
-        self.update()    
-    })    
-  }
-
-  clear(){
-    this.complement = ""       
-    this.selectedBank = "" 
-    this.agency = "" 
-    this.account = ""     
-    this.cnpj = ""     
-    this.plate = ""
-    this.prefixo = ""
-    this.prefixo = ""
-    this.selectedService = ""
-    this.description = ""
-    this.uid_ = ''
-    this.photoChanged = false
-  }
-
-  update(){
-
-    if(this.base64Image){
-
-      if(this.photoChanged)
-        this.uploadWithPic()
-      else 
-        this.uploadFinish(this.base64Image) 
-    }
-      
-    else 
-      this.uploadFinish("")   
-  }
-
-  uploadWithPic(){    
-    let loading = this.uiUtils.showLoading("Carregando")
-    loading.present()
-
-    let datanow = moment().format("YYYYDDMMhhmmss")
-    let path = "/pictures/" + datanow + '/'    
-
-    this.storage.uploadPicture(this.base64Image)
-
-      .then(snapshot => {
-
-        snapshot.ref.getDownloadURL().then(url => {
-          loading.dismiss()
-
-          this.events.publish('userInfo:updatePhoto', url)
-          this.uploadFinish(url)           
-
-        }).catch(err => {
-          loading.dismiss()
-          this.uiUtils.showAlert(this.dataText.warning, err).present()
-          
-        })
-      })
-      .catch( error => {
-        loading.dismiss()
-        this.uiUtils.showAlert(this.dataText.warning, error).present()
-      })        
-  }
-
-  uploadFinish(url: string){
-
-    if(this.payload)  
-        this.updateFinish(url)
-      else
-        this.addFinish(url)
-    
-    
-  }
-
-  updateFinish(url){
-
-    let loading = this.uiUtils.showLoading(this.dataInfo.pleaseWait)
-    loading.present()
-
-    let self = this    
-
-    this.defaultValues()
-    
-
-
-    console.log(typeof(this.tablePrice))
-    console.log(this.tablePrice)
-
-
-          
-    this.db.updateUser(
-
-      this.uid_,
-      this.formGroup.value.razaoSocial, 
-      this.formGroup.value.name, 
-      this.formGroup.value.lastName, 
-      this.formGroup.value.address, 
+  private savedOk(data: any): void {
+    this.showLoading(this.dataText.pleaseWait);
+    this.defaultValues();
+    this.db.addUserStart(
+      data.uid,
+      this.formGroup.value.password,
+      this.formGroup.value.name,
+      this.formGroup.value.lastName,
+      this.formGroup.value.address,
       this.formGroup.value.complement,
       this.formGroup.value.numero,
       this.formGroup.value.postCode,
       this.formGroup.value.district,
-      this.formGroup.value.tel, 
+      this.formGroup.value.tel,
+      '',
+      this.formGroup.value.email,
+      1,
       this.dataText.notInformade,
-      this.dataText.notInformade,
-      this.dataText.notInformade,
-      1, 
-      this.dataText.notInformade, 
       this.dataText.notInformade,
       this.dataText.notInformade,
       this.dataText.notInformade,
@@ -469,232 +355,84 @@ export class ClientsAddPage {
       this.formGroup.value.cnpj,
       this.dataText.notInformade,
       this.dataText.notInformade,
-      this.formGroup.value.state, 
-      this.formGroup.value.city, 
+      this.formGroup.value.state,
+      this.formGroup.value.city,
       this.dataText.notInformade,
-      this.tablePrice,
-      this.ifoodClientId,
-      this.ifoodClientSecret,
-      "")
-
-  .then( () =>{
-    
-      loading.dismiss()
-      self.uiUtils.showAlertSuccess("Atualizações realizadas com sucesso")
-      .then( () => {
-
-        this.navCtrl.pop()     
-        
-      })      
-    })
-
-    .catch( (error) => {      
-      console.log(error)
-
-      loading.dismiss()
-      this.uiUtils.showAlertError(this.dataText.errorRegister9)
-    })
+      '',
+      "",
+      ""
+    ).then(() => {
+      this.dismissLoading();
+      this.navCtrl.pop();
+      this.uiUtils.showAlertSuccess(this.dataText.addedSuccess);
+    }).catch(error => {
+      this.dismissLoading();
+      this.uiUtils.showAlertError(this.dataText.errorRegister);
+    });
   }
 
-  addFinish(url: string){
-
-    let loading = this.uiUtils.showLoading(this.dataText.pleaseWait)
-    loading.present()
-
-    let data = {email: this.email, password: this.password, name: this.formGroup.value.name}
-    console.log(data)
-
-
-    this.httpd.apiAddUser(data)
-    .subscribe((callback) => {
-
-      loading.dismiss()
-
-      this.addCallback(callback)      
-    })
-                      
-  }
-
-  addCallback(data){
-
-    if(data.success)
-      this.savedOk(data)      
-    else
-      this.uiUtils.showAlertError(this.dataText.errorRegister)       
-  } 
-
-  savedOk(data){                    
-
-    let loading = this.uiUtils.showLoading(this.dataText.pleaseWait)
-    loading.present()
-
-    this.defaultValues() 
-
-    this.db.addUserStart(
-      data.uid,
-      this.password,
-      this.formGroup.value.name, 
-      this.formGroup.value.lastName, 
-      this.formGroup.value.address, 
+  private updateFinish(url: string): void {
+    this.defaultValues();
+    this.db.updateUser(
+      this.uid_,
+      this.formGroup.value.razaoSocial,
+      this.formGroup.value.name,
+      this.formGroup.value.lastName,
+      this.formGroup.value.address,
       this.formGroup.value.complement,
       this.formGroup.value.numero,
       this.formGroup.value.postCode,
       this.formGroup.value.district,
-      this.formGroup.value.tel, 
-      "", 
-      this.email,       
-      1, 
-      this.description, 
-      this.selectedBank,
-      this.agency,
-      this.account,
+      this.formGroup.value.tel,
+      this.dataText.notInformade,
+      this.dataText.notInformade,
+      this.dataText.notInformade,
+      1,
+      this.dataText.notInformade,
+      this.dataText.notInformade,
+      this.dataText.notInformade,
+      this.dataText.notInformade,
       this.formGroup.value.cpf,
-      this.cnpj,      
-      this.selectedService,
-      this.plate,
-      this.formGroup.value.state, 
-      this.formGroup.value.city, 
-      this.prefixo,
-      this.tablePrice,
-      this.ifoodClientId,
-      this.ifoodClientSecret)
-
-
-
-      .then(() => {
-        
-        loading.dismiss()
-        this.navCtrl.pop()
-        this.uiUtils.showAlertSuccess(this.dataText.addedSuccess)
-        
-      })
-      .catch((error) => {
-
-        console.log(error)
-
-        loading.dismiss()
-        this.uiUtils.showAlertError(this.dataText.errorRegister)
-
-      })
-    
-    
-    
-  }
-
-
-  defaultValues(){
-    this.description = this.dataInfo.titleCompleteDescription
-
-    if(! this.selectedService  || this.selectedService.length === 0)
-      this.selectedService = this.dataText.notInformade
-
-    if(! this.plate  || this.plate.length === 0)
-      this.plate = this.dataText.notInformade
-
-    if(! this.cnpj || this.cnpj.length === 0)
-      this.cnpj = this.dataText.notInformade   
-
-    if(! this.selectedBank  || this.selectedBank.length === 0)
-      this.selectedBank = this.dataText.notInformade   
-
-    if(! this.agency  || this.agency.length === 0)
-      this.agency = this.dataText.notInformade   
-
-    if(! this.account  || this.account.length === 0)
-      this.account = this.dataText.notInformade            
-
-    if(! this.prefixo  || this.prefixo.length === 0)
-      this.prefixo = this.dataText.notInformade    
-
-    if(!this.tablePrice)    
-      this.tablePrice = ""
-      
-      
-    if(!this.ifoodClientId)
-      this.ifoodClientId = "b37ac194-2522-4c0f-8179-2de0da16a327"
-
-    if(!this.ifoodClientSecret)
-      this.ifoodClientSecret = "4rxsb2ud4q2tuepr00tydl6k5x2mzok3p8lzirkj9qcck8koj9nuhpps9lmyj1syfjp69vd9igmqqykc894nm8pdgp7cu8dezdw"
-  }
-
-  selectPicture(){
-    this.openMenu()
-  }
-
-  openFilePhoto(event){
-      this.base64Image = event.srcElement.files[0];
-  }
-
-  picChange(event: any) {
-
-    if(event.target.files && event.target.files[0]){
-      let reader = new FileReader();
-
-      reader.onload = (event:any) => {
-        this.base64Image = event.target.result;
-        this.photoChanged = true
-      }
-      reader.readAsDataURL(event.target.files[0]);
-    }    
-  }
-
-  grabPicture() {
- 
-    let loading = this.uiUtils.showLoading(this.dataInfo.pleaseWait)      
-    loading.present();
-
-    this.camera.grabPicture().then((imageData) => {
-
-      this.selectedPhoto  = this.dataInfo.dataURItoBlob('data:image/jpeg;base64,' + imageData);                  
-      this.base64Image = 'data:image/jpeg;base64,' + imageData
-      this.photoChanged = true
-      loading.dismiss()
-
-    }, (err) => {
-      loading.dismiss()
+      this.formGroup.value.cnpj,
+      this.dataText.notInformade,
+      this.dataText.notInformade,
+      this.formGroup.value.state,
+      this.formGroup.value.city,
+      this.dataText.notInformade,
+      '',
+      "",
+      "",
+      url
+    ).then(() => {
+      this.dismissLoading();
+      this.uiUtils.showAlertSuccess('Atualizações realizadas com sucesso');
+      this.navCtrl.pop();
+    }).catch(error => {
+      this.dismissLoading();
+      this.uiUtils.showAlertError(this.dataText.errorRegister9);
     });
-   }
-
-    onSuccess = (snapshot) => {        
-    this.base64Image = snapshot.downloadURL;
-  }
-  
-  onError = (error) => {
-   // console.log('error', error);
   }
 
-  accessGallery(){    
-     this.camera.getPicture().then((imageData) => {
-      this.base64Image = 'data:image/jpeg;base64,' + imageData
-      this.photoChanged = true
-
-    }, (err) => {
-     //console.log(err);
+  private defaultValues(): void {
+    const defaultText = this.dataText.notInformade;
+    this.formGroup.patchValue({
+      razaoSocial: this.formGroup.value.razaoSocial || defaultText,
+      cnpj: this.formGroup.value.cnpj || defaultText,
+      tablePrice: this.formGroup.value.tablePrice || ''
     });
-   }
-
-  delPicture(){
-    this.base64Image = ""
-  }      
-
-  handlerCamera(){
-    
-    if(! this.dataInfo.isWeb)
-      this.grabPicture()
-    else
-      this.uiUtils.showAlert(this.dataText.warning, "Disponível apenas no aplicativo mobile").present()
-  }
-
-  handlerGalery(){
-    if(! this.dataInfo.isWeb)
-      this.accessGallery()
-    else
-      this.uiUtils.showAlert(this.dataText.warning, "Disponível apenas no aplicativo mobile").present()
     
   }
-  
-  openMenu() {
-    let actionSheet = this.actionsheetCtrl.create({
+
+  selectPicture(): void {
+    if (this.platform.is('cordova')) {
+      this.openMenu();
+    } else {
+      this.uploadFromWeb();
+    }
+  }
+
+  private openMenu(): void {
+    const actionSheet = this.actionsheetCtrl.create({
       title: this.dataInfo.titleChangePic,
       cssClass: 'action-sheets-basic-page',
       buttons: [
@@ -702,86 +440,127 @@ export class ClientsAddPage {
           text: 'Camera',
           role: 'destructive',
           icon: !this.platform.is('ios') ? 'camera' : null,
-          handler: () => {
-            this.handlerCamera()
-          }
+          handler: () => this.grabPicture()
         },
         {
           text: 'Album',
           icon: !this.platform.is('ios') ? 'albums' : null,
-          handler: () => {
-            this.handlerGalery()
-          }
-        },       
+          handler: () => this.accessGallery()
+        },
         {
           text: this.dataText.cancel,
           role: 'cancel',
           icon: !this.platform.is('ios') ? 'close' : null
         }
       ]
-      
     });
     actionSheet.present();
-  }    
-  
-  stateChanged(event){
-  
-  }
-  
-  passwordInputChanged(){
-
   }
 
+  private grabPicture(): void {
+    this.showLoading(this.dataInfo.pleaseWait);
+    this.camera.grabPicture().then(imageData => {
+      this.selectedPhoto = this.dataInfo.dataURItoBlob('data:image/jpeg;base64,' + imageData);
+      this.base64Image = 'data:image/jpeg;base64,' + imageData;
+      this.photoChanged = true;
+      this.dismissLoading();
+    }).catch(err => {
+      this.dismissLoading();
+      this.uiUtils.showAlert(this.dataText.warning, "Permitir camera").present();
+    });
+  }
 
-  signUp(){
-    if(this.formGroup.valid && this.email && this.password){
+  private accessGallery(): void {
+    this.camera.getPicture().then(imageData => {
+      this.base64Image = 'data:image/jpeg;base64,' + imageData;
+      this.photoChanged = true;
+    }).catch(err => {
+      console.error('Erro ao acessar a galeria:', err);
+      this.uiUtils.showAlert(this.dataText.warning, "Permitir acesso camera").present();
+    });
+  }
 
-      let alert = this.uiUtils.showConfirm(this.dataText.warning, this.dataInfo.titleAreYouSure)  
-      alert.then((result) => {
+  private uploadFromWeb(): void {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (event: any) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          this.base64Image = e.target.result;
+          this.photoChanged = true;
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+    input.click();
+  }
 
-      if(result)  
-        this.signupContinue()    
-       })
+  delPicture(): void {
+    this.base64Image = '';
+    this.selectedPhoto = null;
+    this.photoChanged = false;
+  }
+
+  tableChanged(event: any): void {
+    this.formGroup.get('tablePrice') && this.formGroup.get('tablePrice').setValue(event.value);
+  }
+
+  stateChanged(state: string): void {
+    this.formGroup.get('state') && this.formGroup.get('state').setValue(state);
+    // Aqui você pode adicionar lógica para carregar cidades com base no estado, se necessário
+  }
+
+  private checkErrorField(): void {
+    if (this.formGroup.get('razaoSocial') && this.formGroup.get('razaoSocial').invalid) {
+      this.uiUtils.showAlertError('Favor informar a razão social');
+    } else if (this.formGroup.get('cnpj') && this.formGroup.get('cnpj').invalid) {
+      this.uiUtils.showAlertError('Favor informar o CNPJ');
+    } else if (this.formGroup.get('name') && this.formGroup.get('name').invalid) {
+      this.uiUtils.showAlertError(this.dataText.errorRegister10);
+    } else if (this.formGroup.get('lastName') && this.formGroup.get('lastName').invalid) {
+      this.uiUtils.showAlertError(this.dataText.errorRegister11);
+    } else if (this.formGroup.get('address') && this.formGroup.get('address').invalid) {
+      this.uiUtils.showAlertError(this.dataText.errorRegister12);
+    } else if (this.formGroup.get('complement') && this.formGroup.get('complement').invalid) {
+      this.uiUtils.showAlertError(this.dataText.errorRegister13);
+    } else if (this.formGroup.get('numero') && this.formGroup.get('numero').invalid) {
+      this.uiUtils.showAlertError(this.dataText.errorRegister14);
+    } else if (this.formGroup.get('postCode') && this.formGroup.get('postCode').invalid) {
+      this.uiUtils.showAlertError(this.dataText.errorRegister15);
+    } else if (this.formGroup.get('district') && this.formGroup.get('district').invalid) {
+      this.uiUtils.showAlertError(this.dataText.errorRegister16);
+    } else if (this.formGroup.get('tel') && this.formGroup.get('tel').invalid) {
+      this.uiUtils.showAlertError(this.dataText.errorRegister17);
+    } else if (this.formGroup.get('state') && this.formGroup.get('state').invalid) {
+      this.uiUtils.showAlertError(this.dataText.errorRegister18);
+    } else if (this.formGroup.get('city') && this.formGroup.get('city').invalid) {
+      this.uiUtils.showAlertError(this.dataText.errorRegister19);
+    } else if (!this.uid_ && (
+      (this.formGroup.get('email') && this.formGroup.get('email').invalid) ||
+      (this.formGroup.get('password') && this.formGroup.get('password').invalid) ||
+      (this.formGroup.get('password1') && this.formGroup.get('password1').invalid)
+    )) {
+      this.uiUtils.showAlertError(this.dataText.checkAllFields);
+    } else {
+      this.uiUtils.showAlertError(this.dataText.checkAllFields);
     }
-    
-    else {
-      this.uiUtils.showAlertError(this.dataText.checkAllFields)
-    }    
   }
 
-  signupContinue(){
-    
-    let loading = this.uiUtils.showLoading(this.dataInfo.titleCreatingProfile)    
-    loading.present() 
-
-    if(this.base64Image){
-
-      if(this.photoChanged)
-        this.uploadWithPic()
-      else 
-          this.uploadFinish(this.base64Image) 
+  private showLoading(message: string): void {
+    if (this.activeLoading) {
+      this.activeLoading.dismiss();
     }
-      
-    else 
-      this.uploadFinish("")
-
-
-    loading.dismiss()
-    
+    this.activeLoading = this.uiUtils.showLoading(message);
+    this.activeLoading.present();
   }
 
-  ifoodClientIdChanged(){
-    
+  private dismissLoading(): void {
+    if (this.activeLoading) {
+      this.activeLoading.dismiss();
+      this.activeLoading = null;
+    }
   }
-
-  ifoodClientSecretChanged(){
-
-  }
-
-
-  tableChanged(event){
-    console.log(event)
-  }
-
-
 }

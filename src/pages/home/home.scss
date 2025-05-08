@@ -1,103 +1,88 @@
 page-home {
+  ion-header.bg-theme {
+    background: $theme !important;
+    color: $white !important;
 
-    .bg-theme {	  
-        background: $theme-color !important;
+    ion-navbar {
+      background: $theme !important;
+      color: $white !important;
+
+      .toolbar-background {
+        background: $theme !important;
+      }
+
+      .toolbar-title,
+      ion-title {
+        color: $white !important;
+      }
+
+      button {
+        color: $white !important;
+      }
+
+      ion-icon {
+        color: $white !important;
+      }
+
+      .back-button {
+        color: $white !important;
+
+        .back-button-icon {
+          color: $white !important;
+        }
+
+        ion-icon {
+          color: $white !important;
+        }
+      }
     }
+  }
 
+  .page-home {
+    background: $light-bg;
 
-    .header {
-        &.bg-transparent {
-            .toolbar-background {
-                background: transparent !important;
-            }
-        }
-      
-        &::after {
-            display: none;
-        }
-      
-        .toolbar {
-            .toolbar-background {
-                background-color: $theme-color;
-                border: none !important;
-            }
-      
-            .title {
-                .toolbar-title {
-                    font-size: 1.5rem;
-                    font-weight: 600;
-                    color: $white;
-                    display: flex;
-                    align-items: center;
-                    letter-spacing: .5px !important;
-                    text-transform: uppercase;
-      
-                    ion-icon {
-                        font-size: 2.2rem;
-                    }
-                }
-      
-                .end {
-                    margin-left: auto !important;
-      
-                }
-            }
-            
-        }
-      
+    // Estilo dos cards de navegação
+    .nav-cards {
+      margin: 10px 0;
+      justify-content: flex-end !important; // Alinhar à direita
 
-
-        
-        .bar-buttons {
-            color: $white;
-            z-index: 999;
-        }
-      
-        .back-button {
-            color: $white;
-            z-index: 999;
-      
-            //        .ion-md-arrow-back:before {
-            //            content: "\f3cf";
-            //        }
-        }
-      
-        .toolbar-ios {
-            ion-title {
-                padding: 0 16px;
-                position: unset;
-      
-                .toolbar-title-ios {
-                    text-align: justify;
-                }
-            }
-      
-            .bar-buttons-ios {
-                color: $white;
-            }
-      
-            .back-button-text {
-                display: none;
-            }
-        }
-      
-        .bar-button-default:hover:not(.disable-hover) {
-            color: lighten($gray, 100%);
-        }
+      .nav-card-col {
+        width: 100px; // Largura fixa para os cards
+        padding: 5px;
       }
-      
-      /* button style */
-      
-      ion-card {
-        position: relative;
+
+      .nav-card {
+        background: $white;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin: 0;
+        padding: 0;
         text-align: center;
-        
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+
+        .nav-card-img {
+          width: 100%;
+          height: 60px;
+          object-fit: cover;
+          border-top-left-radius: 8px;
+          border-top-right-radius: 8px;
+        }
+
+        .nav-card-content {
+          background: linear-gradient(90deg, #007bff, #00c4ff);
+          color: $white;
+          font-size: 12px;
+          padding: 5px;
+          border-bottom-left-radius: 8px;
+          border-bottom-right-radius: 8px;
+        }
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
       }
-
-      
-         
-
-      
-
- 
+    }
+  }
 }

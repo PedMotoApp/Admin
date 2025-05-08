@@ -1,62 +1,69 @@
+// ====================
+// DASHBOARD DARK THEME
+// ====================
 
-$font-path: "../assets/fonts";
-$app-direction: ltr;
-
-
+// Fontes e imports originais permanecem…
 @import "ionic.globals";
 @import "ionic.theme.default";
-@import "ionic.ionicons";
-@import "roboto";
-@import "noto-sans";
 
-
+// Definições de cor principais
 $colors: (
-  primary:    #009e19,
-  secondary:  #32db64,  
+  primary:    #007bff,      // verde neon para destaques
+  secondary:  #66ffa6,      // tom mais claro de verde
   success:    #4CAF50,
-  danger:     #f53d3d,
-  tema:     #009e19,  
-  light:      #f4f4f4,
-  dark:       #222,
-  white_:     white,  
+  danger:     #f44336,
+  tema:       #00e676,
+  light:      #2c2f33,      // tom médio para cards
+  dark:       #121212,      // fundo principal
+  white_:     #ffffff,
   gold:       rgb(255,215,0),
   silver:     #C0C0C0,
   bronze:     #CD7F32,
   orange:     #FF9800,
-  white-transparent: rgba(255,255,255, 0.2)
+  "white-transparent": rgba(255,255,255, .2)
 );
 
-$theme-color: #009e19;
+// Tema
+$theme: map-get($colors, primary);
+$theme-color: map-get($colors, primary);
+$secondary-color: map-get($colors, secondary);
 
-$bg-color: #f5f4f4;
-$fb-color: #2553b4;
-$white: #fff;
-$yellow_color: #ffca28;
-$red_color: #ff1e1e;
-$green_color: #4CAF50;
-$gray:#808080;
+// Background geral
+$bg-color: map-get($colors, dark);
+$light-bg: map-get($colors, light);
 
+// Texto
+$text-color: #e0e0e0;
+$text-muted: #999;
 
-$text-input-placeholder-color:               color($colors, white-transparent, base) !default;
-$text-input-md-show-focus-highlight:        false !default;
-$text-input-md-show-valid-highlight:        $text-input-md-show-focus-highlight !default;
-$text-input-md-show-invalid-highlight:      $text-input-md-show-focus-highlight !default;
+// Componentes específicos
+// Definir o gradiente como tema
 
-$text-input-ios-show-focus-highlight:        false !default;
-$text-input-ios-show-valid-highlight:        $text-input-ios-show-focus-highlight !default;
-$text-input-ios-show-invalid-highlight:      $text-input-ios-show-focus-highlight !default;
+// Garantir que o header não seja sobrescrito pelo tema escuro
+$header-color-bg: transparent;
 
+$menu-back-ground-color: $bg-color;     // sidebar escura
+$menu-icon-color: $text-color;
+$menu-font-color: $text-color;
+
+$item-color-bg: $light-bg;               // cards
 $menu-shadow-color: rgba(0,0,0,.7);
-$menu-icon-color: #747474;
-$menu-font-color: #484848;
-$menu-back-ground-color: #FFFFFF;
-
-$item-color-bg: #ccc;
-$header-color-bg: #eee;
-$animation-duration: 0.3s;
 
 $fab-size: 75px;
-$fab-content-margin: 20px;
+$animation-duration: 0.3s;
+
+// Outros tons neutros
+$gray: #888;
+$gray-light: #444;
+$gray-dark: #111;
+
+// Exemplos de uso nas variáveis do Ionic
+$text-input-placeholder-color: color($colors, "white-transparent") !default;
+
+// =================================================================
+// mantenha abaixo tudo o que já existir no seu arquivo sem alterar…
+// =================================================================
+
 
  // ======================= 
 // ======================= varible
@@ -107,22 +114,5 @@ $lot: #eaf8f8;
 $phan: #faecfd;
 
 
+// src/app/app.scss
 
-$shadow-1: 0px 2px 5px 0px rgba(0,0,0,0.05);
-$shadow-2: 0px 5px 10px 0px rgba(0,0,0,0.1);
-$shadow-3: 0px 10px 15px 0px rgba(0,0,0,0.1);
-$shadow-inset-1: inset 0px 2px 5px 0px rgba(0,0,0,0.2);
-$shadow-inset-2: inset 0px 5px 10px 0px rgba(0,0,0,0.2);
-$shadow-inset-3: inset 0px 10px 15px 0px rgba(0,0,0,0.2);
-
-
-$black-opct: rgba(0,0,0,0.3);
-$black-opct-1: rgba(0,0,0,0.6);
-$black-opct-2: rgba(0,0,0,0.9);
-
-$white-opct: rgba(255,255,255,0.3);
-$white-opct-1: rgba(255,255,255,0.6);
-$white-opct-2: rgba(255,255,255,0.9);
-
-$label-ios-text-color: $blue;
-$label-md-text-color: $blue;

@@ -1,160 +1,58 @@
-<ion-header>
-  <ion-navbar text-center no-border-bottom>
-    <ion-title>{{dataText.tablePrice}}</ion-title>      
+<ion-header class="bg-theme">
+  <ion-navbar>
+    <ion-title>Tabela de Preços</ion-title>
   </ion-navbar>
 </ion-header>
-<ion-content class="trips detail-bg">
-  <ion-list padding>  
-      
-    <ion-card class="trip card" text-wrap no-lines  *ngIf="tableType && tableType !== 'Profissional'">          
-      <ion-card-header  class="bg-theme text-white">
-        {{dataText.basicConfiguration}}
-      </ion-card-header>      
-      <ion-item no-lines>
-        <ion-label stacked>Tipo</ion-label>  
-          <ion-select [(ngModel)]="tableType" (ionChange)="typeChanged()">            
-            <ion-option>{{dataText.client}}</ion-option>
-            <ion-option>{{dataText.professional}}</ion-option>
-            <ion-option>{{dataText.region}}</ion-option>
-          </ion-select>                          
-        </ion-item>
-      <ion-item no-lines><ion-label stacked>{{dataText.name}}</ion-label><ion-input type="text" [(ngModel)]="name"></ion-input></ion-item>
-      <ion-item no-lines><ion-label stacked>{{dataText.description}}</ion-label><ion-input type="text" [(ngModel)]="description"></ion-input></ion-item>    
-      <ion-item [class.no-border]="platform.is('core')" no-lines  *ngIf="tableType && tableType === 'Região'">                    
-        <ion-label stacked>{{dataText.selectRegion}}</ion-label>  
-        <ion-select [(ngModel)]="region">
-          <ion-option *ngFor="let reg of regionsArray">{{reg.name}}</ion-option>                                                                              
-        </ion-select>                          
-      </ion-item>            
-      <ion-card-header  class="bg-theme text-white">
-        {{dataText.priceConfiguration}}
-      </ion-card-header>           
-      <ion-grid item-content>                
-      <ion-row>
-        <ion-col ion-item no-lines><ion-label stacked>{{dataText.startValue}}</ion-label><ion-input type="number" [(ngModel)]="valueStart"></ion-input></ion-col>
-        <ion-col ion-item no-lines><ion-label stacked>{{dataText.returnValue}}</ion-label><ion-input type="number" [(ngModel)]="valueReturn"></ion-input></ion-col>      
-        <ion-col ion-item no-lines><ion-label stacked>{{dataText.comission}} Motoboy em %</ion-label><ion-input type="number" [(ngModel)]="workComission"></ion-input></ion-col>
-        <ion-col ion-item no-lines><ion-label stacked>{{dataText.comission}} Motoboy em {{dataText.currency}}</ion-label><ion-input type="number" [(ngModel)]="workComissionMoney"></ion-input></ion-col>
-      </ion-row>
-      <ion-row> 
-          <ion-col ion-item no-lines><ion-label stacked>{{dataText.valueByDropPoint}}</ion-label><ion-input type="number" [(ngModel)]="valuePoint"></ion-input></ion-col>        
-          <ion-col ion-item no-lines><ion-label stacked>{{dataText.valueByKm}}</ion-label><ion-input type="number" [(ngModel)]="valueMeter"></ion-input></ion-col>
-          <ion-col ion-item no-lines><ion-label stacked>{{dataText.valueByHeight}}</ion-label><ion-input type="number" [(ngModel)]="valueHeight"></ion-input></ion-col>
-          <ion-col ion-item no-lines><ion-label stacked>{{dataText.valueByCubic}}</ion-label><ion-input type="number" [(ngModel)]="valueCubic"></ion-input></ion-col>
-        </ion-row>        
-        <ion-row>
-          <ion-col ion-item no-lines><ion-label stacked>{{dataText.onlyStartValueUntil}} </ion-label><ion-input type="number" [(ngModel)]="workFreeMeters"></ion-input></ion-col>          
-          <ion-col ion-item no-lines><ion-label stacked>{{dataText.onlyStartValueUntilPoints}}</ion-label><ion-input type="number" [(ngModel)]="workFreePoints"></ion-input></ion-col>          
-          <ion-col ion-item no-lines><ion-label stacked>{{dataText.freeUntil}} quantos {{dataText.minutes}}?</ion-label><ion-input type="number" [(ngModel)]="workFreeMinutes"></ion-input></ion-col>          
-          <ion-col ion-item no-lines><ion-label stacked>{{dataText.apartir}} {{workFreeMinutes}} {{dataText.minutes}}, {{dataText.chargeFor}} {{dataText.minutes}}? </ion-label><ion-input type="number" [(ngModel)]="workMinuteValue"></ion-input></ion-col>                    
-        </ion-row>        
-      </ion-grid>
-      <ion-card-header  class="bg-theme text-white">
-        Valores condicionais
-      </ion-card-header>
-      <ion-grid item-content>
-        <ion-item no-lines>    
-          <ion-label stacked>{{dataText.whatConditionalType}}</ion-label>  
-          <ion-select [(ngModel)]="distanceValueType" (ionChange)="distanceValueTypeChanged()">
-            <ion-option>{{dataText.conditional1}}</ion-option>
-            <ion-option>{{dataText.conditional2}}</ion-option>            
-          </ion-select>                          
-        </ion-item>
-        <ion-item *ngFor="let att of anArray; let idx = index">
-          <ion-grid item-content>
-            <ion-row>
-              <ion-col col-5>
-                <ion-label stacked>{{dataText.distance}} #{{idx+1}}</ion-label>
-                <ion-input class="right-align-input" type="number" [(ngModel)]="anArray[idx].distance"></ion-input>
-              </ion-col>
-              <ion-col col-5>
-                <ion-label stacked>Valor #{{idx+1}}</ion-label>
-                <ion-input type="number" class="right-align-input" [(ngModel)]="anArray1[idx].distance"></ion-input>
-              </ion-col>                                          
-              <ion-col col-2>
-                <button ion-button item-right (click)="remove(idx)" color="danger">
-                  <ion-icon name="ios-trash" color="light"> </ion-icon>&nbsp;&nbsp;{{dataText.remove}}
-                </button>      
-              </ion-col>
-            </ion-row>
-          </ion-grid>                          
-        </ion-item>                
-        <button ion-button full class="bg-theme mrg-bt-10 text-white" (click)="Add()">{{dataText.addCondition}}</button>        
-      </ion-grid>      
-      <ion-card-header  class="bg-theme text-white">
-        {{dataText.conditionalReturn}}
-      </ion-card-header>
-      <ion-grid item-content>
-        <ion-item no-lines>    
-          <ion-label stacked>{{dataText.whatConditionalType}}</ion-label>                     
-          <ion-select [(ngModel)]="returnValueType" (ionChange)="returnValueTypeChanged()">
-            <ion-option>{{dataText.conditional1}}</ion-option>
-            <ion-option>{{dataText.conditional2}}</ion-option>            
-          </ion-select>                          
-        </ion-item>
-        <ion-item *ngFor="let att of returnArray; let idx = index">
-          <ion-grid item-content>
-            <ion-row>
-              <ion-col col-5>
-                <ion-label stacked>{{dataText.distance}} #{{idx+1}}</ion-label><ion-input type="number" [(ngModel)]="returnArray[idx].distance"></ion-input>
-              </ion-col>
-              <ion-col col-5>
-                <ion-label stacked>Valor #{{idx+1}}</ion-label><ion-input type="number" [(ngModel)]="returnArray1[idx].distance"></ion-input>
-              </ion-col>                                          
-              <ion-col col-2>
-                <button ion-button item-right (click)="removeArrayReturn(idx)" color="danger">
-                  <ion-icon name="ios-trash" color="light"> </ion-icon>&nbsp;&nbsp;{{dataText.remove}}
-                </button>      
-              </ion-col>
-            </ion-row>
-          </ion-grid>                          
-        </ion-item>                
-        <button ion-button full class="bg-theme mrg-bt-10 text-white" (click)="addArrayReturn()">{{dataText.addCondition}}</button>        
-      </ion-grid>
-    </ion-card>
-    <ion-card class="trip card" text-wrap no-lines  *ngIf="tableType && tableType === 'Profissional'">                
-      <ion-card-header  class="bg-theme text-white">
-        {{dataText.basicConfiguration}}
-      </ion-card-header>      
-      <ion-item no-lines><ion-label stacked>{{dataText.name}}</ion-label><ion-input type="text" [(ngModel)]="name"></ion-input></ion-item>
-      <ion-item no-lines><ion-label stacked>{{dataText.description}}</ion-label><ion-input type="text" [(ngModel)]="description"></ion-input></ion-item>              
-      <ion-card-header  class="bg-theme text-white">
-        {{dataText.priceConfiguration}}
-      </ion-card-header>           
-      <ion-grid item-content>                
-      <ion-row>
-        <ion-col ion-item no-lines><ion-label stacked>{{dataText.startValue}}</ion-label><ion-input type="number" [(ngModel)]="valueStart"></ion-input></ion-col>
-        <ion-col ion-item no-lines><ion-label stacked>{{dataText.returnValue}}</ion-label><ion-input type="number" [(ngModel)]="valueReturn"></ion-input></ion-col>              
-        <ion-col ion-item no-lines><ion-label stacked>{{dataText.valueByDropPoint}}</ion-label><ion-input type="number" [(ngModel)]="valuePoint"></ion-input></ion-col>        
-        <ion-col ion-item no-lines><ion-label stacked>{{dataText.valueByKm}}</ion-label><ion-input type="number" [(ngModel)]="valueMeter"></ion-input></ion-col>      
-      </ion-row>
-      <ion-row>
-        <ion-col ion-item no-lines><ion-label stacked>{{dataText.onlyStartValueUntil}} </ion-label><ion-input type="number" [(ngModel)]="workFreeMeters"></ion-input></ion-col>          
-        <ion-col ion-item no-lines><ion-label stacked>{{dataText.onlyStartValueUntilPoints}}</ion-label><ion-input type="number" [(ngModel)]="workFreePoints"></ion-input></ion-col>          
-        <ion-col ion-item no-lines><ion-label stacked>{{dataText.freeUntil}} {{dataText.minutes}}?</ion-label><ion-input type="number" [(ngModel)]="workFreeMinutes"></ion-input></ion-col>          
-        <ion-col ion-item no-lines><ion-label stacked>{{dataText.apartir}} {{workFreeMinutes}} {{dataText.minutes}}, {{dataText.chargeFor}} {{dataText.minutes}}? </ion-label><ion-input type="number" [(ngModel)]="workMinuteValue"></ion-input></ion-col>                    
-      </ion-row>
-      <ion-row>
 
-        <ion-item  no-lines>
-          <ion-label stacked>{{dataText.selectClient}}</ion-label>          
-          <ionic-selectable
-            item-content 
-            [(ngModel)]="clients"
-            [items]="clientsArray"
-            itemValueField="name"
-            itemTextField="name"
-            [canSearch]="true"
-            [isMultiple]="true" 
-            (onChange)="clientChanged($event)">
-          </ionic-selectable>
+<ion-content class="page-tables-price-add">
+  <ion-list>
+    <ion-card>
+      <ion-card-header>
+        <h3 style="color: white;">Configuração da Tabela</h3>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item no-lines>
+          <ion-label stacked>Nome</ion-label>
+          <ion-input type="text" [(ngModel)]="name"></ion-input>
         </ion-item>
-      </ion-row>        
-      </ion-grid>           
+        <ion-item no-lines>
+          <ion-label stacked>Descrição</ion-label>
+          <ion-input type="text" [(ngModel)]="description"></ion-input>
+        </ion-item>
+      </ion-card-content>
+
+      <ion-card-header>
+        <h3  style="color: white;">Configuração de Preços</h3>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              <ion-item no-lines>
+                <ion-label stacked>Preço Base (R$)</ion-label>
+                <ion-input type="number" [(ngModel)]="valueStart"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col>
+              <ion-item no-lines>
+                <ion-label stacked>Valor por KM (R$)</ion-label>
+                <ion-input type="number" [(ngModel)]="valuePerKm"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col>
+              <ion-item no-lines>
+                <ion-label stacked>Taxa de Retorno (R$)</ion-label>
+                <ion-input type="number" [(ngModel)]="valueReturn"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
     </ion-card>
-  </ion-list>   
+  </ion-list>
 </ion-content>
+
 <ion-footer>
-    <button *ngIf="!key" ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="add()">{{dataText.add}}</button>
-    <button *ngIf="key" ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="save()">{{dataText.save}}</button>
+  <button *ngIf="!key" ion-button block (click)="add()">Adicionar</button>
+  <button *ngIf="key" ion-button block (click)="save()">Salvar</button>
 </ion-footer>

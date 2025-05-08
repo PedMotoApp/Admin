@@ -1,15 +1,36 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams, ActionSheetController, Platform } from 'ionic-angular';
-import { UiUtilsProvider } from '../../providers/ui-utils/ui-utils'
-import { DataInfoProvider } from '../../providers/data-info/data-info'
+import { UiUtilsProvider } from '../../providers/ui-utils/ui-utils';
+import { DataInfoProvider } from '../../providers/data-info/data-info';
 import { DatabaseProvider } from '../../providers/database/database';
 import { AuthProvider } from '../../providers/auth/auth';
-import { Observable } from 'rxjs/Observable';
-import { FormControl } from '@angular/forms';
-import "rxjs/add/operator/debounceTime";
 import { HttpdProvider } from '../../providers/httpd/httpd';
-import { DataTextProvider } from '../../providers/data-text/data-text'
+import { DataTextProvider } from '../../providers/data-text/data-text';
+import { Observable, Subscription } from 'rxjs';
 import * as moment from 'moment';
+
+// Interface para tipagem dos dados dos clientes
+interface Client {
+  key: string;
+  name: string;
+  email: string;
+  status: string;
+  ranking: string;
+  photo?: string;
+  tablePrice?: { name: string };
+  datetime?: string;
+  lastDatetime?: string;
+  lastDatetimeStr?: string;
+  address?: string;
+  tel?: string;
+  totalWorks?: number;
+  region?: string;
+  userType?: number;
+  uid?: string;
+  prePaid?: boolean;
+  isPremium?: boolean;
+  showDetails?: boolean; // Adicionado para controlar a expansão dos detalhes
+}
 
 @IonicPage()
 @Component({
@@ -17,197 +38,190 @@ import * as moment from 'moment';
   templateUrl: 'clients.html',
 })
 export class ClientsPage {
-
   usersWorkers: Observable<any>;
-  usersArray: any = []
-  client: any
+  usersArray: Client[] = [];
+  client: Client | null = null;
   searchTerm: string = '';
-  searching: any = false;
-  searchControl: FormControl;
-  orderType: any
+  searching: boolean = false;
+  orderType: string = '1';
+
+  private subscriptions: Subscription[] = [];
+  private activeLoading: any = null; // Para rastrear o loading ativo
 
   constructor(
-    public navCtrl: NavController, 
-    public uiUtils: UiUtilsProvider,    
+    public navCtrl: NavController,
+    public uiUtils: UiUtilsProvider,
     public dataInfo: DataInfoProvider,
     public db: DatabaseProvider,
     public platform: Platform,
     public auth: AuthProvider,
-    public dataText: DataTextProvider,
     public httpd: HttpdProvider,
     public actionsheetCtrl: ActionSheetController,
-    public navParams: NavParams) {
+    public dataText: DataTextProvider,
+    public navParams: NavParams
+  ) {}
 
+  ionViewDidLoad(): void {
+    this.orderType = '1';
+    if (this.dataInfo.isHome) {
+      this.reload();
+    } else {
+      this.navCtrl.setRoot('LoginPage');
+    }
   }
 
-  ionViewDidLoad() {    
-
-    this.orderType = "1"
-
-    if(this.dataInfo.isHome)
-      this.reload()    
-    else
-      this.navCtrl.setRoot('LoginPage')          
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions = [];
+    if (this.activeLoading) {
+      this.activeLoading.dismiss();
+      this.activeLoading = null;
+    }
   }
 
-  reload(){
+  private reload(): void {
+    // Fechar qualquer loading ativo antes de abrir um novo
     
-    let loading = this.uiUtils.showLoading(this.dataInfo.titleLoadingInformations)
-    loading.present()
+    // Cancelar qualquer inscrição anterior para evitar múltiplas inscrições
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions = [];
 
-    this.usersWorkers = this.db.getClients()
+    this.usersWorkers = this.db.getClients();
+    const sub = this.usersWorkers.subscribe({
+      next: (data) => {
+        this.reloadCallback(data);
+        
+      },
+      error: (err) => {
+        console.error('Erro ao carregar clientes:', err);
+        this.uiUtils.showAlertError('Erro ao carregar dados dos clientes.');
+        
+      }
+    });
+    this.subscriptions.push(sub);
+  }
 
-    let sub = this.usersWorkers.subscribe(data => {
+  private reloadCallback(data: any[]): void {
+    this.usersArray = [];
 
-        sub.unsubscribe()
-        this.reloadCallback(data)
-        loading.dismiss()        
+    data.forEach(element => {
+      const payloadVal = element.payload.val();
+      const info: Client = {
+        key: element.payload.key,
+        name: payloadVal.name,
+        email: payloadVal.email,
+        status: payloadVal.status,
+        ranking: payloadVal.ranking,
+        photo: payloadVal.photo,
+        tablePrice: payloadVal.tablePrice,
+        datetime: payloadVal.datetime,
+        lastDatetime: payloadVal.lastDatetime,
+        lastDatetimeStr: payloadVal.lastDatetime
+          ? moment(payloadVal.lastDatetime).format('DD/MM/YYYY hh:mm:ss')
+          : undefined,
+        address: payloadVal.address,
+        tel: payloadVal.tel,
+        totalWorks: payloadVal.totalWorks,
+        region: payloadVal.region,
+        userType: payloadVal.userType,
+        uid: payloadVal.uid,
+        prePaid: payloadVal.prePaid,
+        isPremium: payloadVal.isPremium,
+        showDetails: false // Inicialmente, os detalhes estão ocultos
+      };
+
+      // Definir nome padrão como e-mail se não houver nome
+      if (!info.name) {
+        info.name = info.email;
+      }
+
+      // Filtrar apenas clientes ativos (userType 1, não desativados ou removidos)
+      if (info.userType === 1 && info.status !== 'Desativado' && info.status !== 'Removido') {
+        this.addArray(info);
+      }
+    });
+
+    this.checkOrder();
+  }
+
+  private addArray(info: Client): void {
+    if (this.client && this.client.name === info.name) {
+      this.checkRegion(info);
+    } else {
+      this.checkRegion(info);
+    }
+  }
+
+  private checkRegion(info: Client): void {
+    // Administradores veem todos os clientes
+    if (this.dataInfo.userInfo.isAdmin) {
+      this.usersArray.push(info);
+    }
+    // Gerentes veem apenas clientes da sua região
+    else if (this.dataInfo.userInfo.managerRegion && info.region === this.dataInfo.userInfo.managerRegion) {
+      this.usersArray.push(info);
+    }
+  }
+
+  private checkOrder(): void {
+    switch (this.orderType) {
+      case '1':
+        this.orderAlpha();
+        break;
+      case '2':
+        this.orderAlphaDesc();
+        break;
+      case '3':
+        this.orderDatetime();
+        break;
+      case '4':
+        this.orderAccess();
+        break;
+      default:
+        this.uiUtils.showToast(this.dataText.errorFilter);
+    }
+  }
+
+  private orderAlpha(): void {
+    this.usersArray.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  private orderAlphaDesc(): void {
+    this.usersArray.sort((a, b) => b.name.localeCompare(a.name));
+  }
+
+  private orderDatetime(): void {
+    this.usersArray.sort((a, b) => {
+      if (!a.datetime || !b.datetime) return 0;
+      return new Date(a.datetime).getTime() - new Date(b.datetime).getTime();
     });
   }
 
-  reloadCallback(data){
-    
-    this.usersArray = []
-
-    data.forEach(element => {
-
-      let info = element.payload.val()
-      info.key = element.payload.key
-      info.lastDatetimeStr = moment(info.lastDatetime).format("DD/MM/YYYY hh:mm:ss")    
-
-      if(info.userType === 1 && info.status !== 'Desativado' && info.status !== 'Removido'){
-        this.addArray(info)
-      }              
-    });    
-
-    this.checkOrder()
+  private orderAccess(): void {
+    this.usersArray.sort((a, b) => {
+      if (!a.lastDatetime || !b.lastDatetime) return 0;
+      return new Date(b.lastDatetime).getTime() - new Date(a.lastDatetime).getTime();
+    });
   }
 
-  addArray(info){   
-    
-    if(this.client && this.client.name === info.name)
-      this.checkRegion(info)    
-      
-    else 
-      this.checkRegion(info)
-        
+  toggleDetails(worker: Client): void {
+    worker.showDetails = !worker.showDetails;
   }
 
-  checkRegion(info){
-
-
-    if(this.dataInfo.userInfo.isAdmin)
-      this.usersArray.push(info)
-    
-
-    if(this.dataInfo.userInfo.managerRegion){
-      
-      if(info.region === this.dataInfo.userInfo.managerRegion)
-        this.usersArray.push(info)
-      
-    }
-
-  }
-
-  checkOrder(){
-
-    if(this.orderType === "1"){
-        this.orderAlpha()    
-    }
-    
-    else if(this.orderType === "2"){
-      this.orderAlphaDesc()    
-    }
-
-    else if(this.orderType === "3"){
-      this.orderDatetime()    
-    }
-
-    else if(this.orderType === "4"){
-      this.orderAccess()    
-    }
-
-    else {
-      this.uiUtils.showToast(this.dataText.errorFilter)
-    }
-
-  }
-
-  orderAlpha(){
-
-    let tmp = this.usersArray.sort(function(a,b) {
-
-      if(a.name < b.name) { return -1; }
-      if(a.name > b.name) { return 1; }
-      return 0;
-
-    })    
-
-
-    this.usersArray = tmp
-  }
-
-  orderAlphaDesc(){
-
-    let tmp = this.usersArray.sort(function(a,b) {
-
-      if(a.name > b.name) { return -1; }
-      if(a.name < b.name) { return 1; }
-      return 0;
-
-    })    
-
-
-    this.usersArray = tmp
-  }
-
-  orderDatetime(){
-
-    let tmp = this.usersArray.sort(function(a,b) {
-
-      if(a.datetime < b.datetime) { return -1; }
-      if(a.datetime > b.datetime) { return 1; }
-      return 0;
-
-    })    
-
-
-    this.usersArray = tmp
-  }
-
-
-  orderAccess(){
-
-    let tmp = this.usersArray.sort(function(a,b) {
-
-      
-      if(a.lastDatetime && b.lastDatetime){
-        if(a.lastDatetime > b.lastDatetime) { return -1; }
-        if(a.lastDatetime < b.lastDatetime) { return 1; }
-      }
-      
-      return 0;
-
-    })    
-
-
-    this.usersArray = tmp
-  }
-
-    
-  updateRanking(user, ranking){
-
+  private updateRanking(user: string, ranking: string): void {
     this.db.updateRankingUser(user, ranking)
-    .then( () => {
-
-      this.uiUtils.showAlert(this.dataText.success, this.dataText.savedSuccess).present()
-      this.reload()
-    })
+      .then(() => {
+        this.uiUtils.showAlert(this.dataText.success, this.dataText.savedSuccess).present();
+        this.reload();
+      })
+      .catch(err => {
+        console.error('Erro ao atualizar ranking:', err);
+        this.uiUtils.showAlertError('Erro ao atualizar o ranking do cliente.');
+      });
   }
-    
-  changeRanking(key) {
 
-    let actionSheet = this.actionsheetCtrl.create({
+  changeRanking(key: string): void {
+    const actionSheet = this.actionsheetCtrl.create({
       title: this.dataText.selectRank,
       cssClass: 'action-sheets-basic-page',
       buttons: [
@@ -215,47 +229,36 @@ export class ClientsPage {
           text: 'Ouro',
           role: 'destructive',
           icon: !this.platform.is('ios') ? 'medal' : null,
-          handler: () => {            
-            this.updateRanking(key, this.dataInfo.titleRankingGold)
-          }
+          handler: () => this.updateRanking(key, this.dataInfo.titleRankingGold)
         },
         {
           text: 'Prata',
           icon: !this.platform.is('ios') ? 'medal' : null,
-          handler: () => {
-            this.updateRanking(key, this.dataInfo.titleRankingSilver)
-          }
+          handler: () => this.updateRanking(key, this.dataInfo.titleRankingSilver)
         },
         {
           text: 'Bronze',
           icon: !this.platform.is('ios') ? 'medal' : null,
-          handler: () => {
-            this.updateRanking(key, this.dataInfo.titleRankingBronze)
-          }
+          handler: () => this.updateRanking(key, this.dataInfo.titleRankingBronze)
         },
         {
           text: 'Top',
           icon: !this.platform.is('ios') ? 'md-trophy' : null,
-          handler: () => {
-            this.updateRanking(key, this.dataInfo.titleRankingStar)
-          }
+          handler: () => this.updateRanking(key, this.dataInfo.titleRankingStar)
         },
         {
           text: this.dataText.cancel,
-          role: 'cancel', // will always sort to be on the bottom
+          role: 'cancel',
           icon: !this.platform.is('ios') ? 'star' : null,
-          handler: () => {
-            console.log('Cancel clicked');
-          }
+          handler: () => console.log('Cancel clicked')
         }
       ]
     });
     actionSheet.present();
   }
 
-  changeProfileStatus(key){
-
-    let actionSheet = this.actionsheetCtrl.create({
+  changeProfileStatus(key: string): void {
+    const actionSheet = this.actionsheetCtrl.create({
       title: this.dataText.selectRank,
       cssClass: 'action-sheets-basic-page',
       buttons: [
@@ -263,50 +266,43 @@ export class ClientsPage {
           text: this.dataText.verifiedProfile,
           role: 'destructive',
           icon: !this.platform.is('ios') ? 'checkmark-circle' : null,
-          handler: () => {            
-            this.updateProfileStatus(key, this.dataInfo.titleProfileVerified)
-          }
-        },        
+          handler: () => this.updateProfileStatus(key, this.dataInfo.titleProfileVerified)
+        },
         {
           text: this.dataText.notVerifiedProfile,
           icon: !this.platform.is('ios') ? 'remove-circle' : null,
-          handler: () => {
-            this.updateProfileStatus(key, this.dataInfo.titleStatusNotVerified)
-          }
+          handler: () => this.updateProfileStatus(key, this.dataInfo.titleStatusNotVerified)
         },
         {
           text: this.dataText.cancel,
-          role: 'cancel', // will always sort to be on the bottom
+          role: 'cancel',
           icon: !this.platform.is('ios') ? 'close' : null,
-          handler: () => {
-            console.log('Cancel clicked');
-          }
+          handler: () => console.log('Cancel clicked')
         }
       ]
     });
     actionSheet.present();
-
   }
 
-  addClient(){
-    this.navCtrl.push('ClientsAddPage')
+  addClient(): void {
+    this.navCtrl.push('ClientsAddPage');
   }
 
-  updateProfileStatus(key, status){
-    console.log(key, status)
-
+  private updateProfileStatus(key: string, status: string): void {
+    console.log('Atualizando status do perfil:', key, status);
     this.db.updateProfileStatusUser(key, status)
-    .then(data => {
-      this.uiUtils.showAlert(this.dataText.success, this.dataText.savedSuccess).present()
-      this.reload()
-    })
+      .then(() => {
+        this.uiUtils.showAlert(this.dataText.success, this.dataText.savedSuccess).present();
+        this.reload();
+      })
+      .catch(err => {
+        console.error('Erro ao atualizar status do perfil:', err);
+        this.uiUtils.showAlertError('Erro ao atualizar o status do cliente.');
+      });
   }
 
-  options(payload_){
-
-    let actionSheet = this.actionsheetCtrl.create({
-
-      
+  options(payload: Client): void {
+    const actionSheet = this.actionsheetCtrl.create({
       title: this.dataText.selectOption,
       cssClass: 'action-sheets-basic-page',
       buttons: [
@@ -314,214 +310,190 @@ export class ClientsPage {
           text: this.dataText.edit,
           role: 'destructive',
           icon: !this.platform.is('ios') ? 'checkmark-circle' : null,
-          handler: () => {            
-            this.edit(payload_)
-          }
-        },        
+          handler: () => this.edit(payload)
+        },
         {
           text: 'Resetar senha',
           icon: !this.platform.is('ios') ? 'refresh' : null,
-          handler: () => {
-            this.updateProfilePassword(payload_)
-          }
-        },        
+          handler: () => this.updateProfilePassword(payload)
+        },
         {
           text: this.dataText.disableUser,
           icon: !this.platform.is('ios') ? 'md-close-circle' : null,
-          handler: () => {
-            this.disableUser(payload_)
-          }
-        },                      
+          handler: () => this.disableUser(payload)
+        },
         {
           text: this.dataText.remove,
           icon: !this.platform.is('ios') ? 'md-trash' : null,
-          handler: () => {
-            this.removeUser(payload_)
-          }
-        }, 
+          handler: () => this.removeUser(payload)
+        },
         {
           text: this.dataText.credits,
           role: 'destructive',
           icon: 'cash',
-          handler: () => {            
-            this.credit(payload_)
-          }
-        }, 
+          handler: () => this.credit(payload)
+        },
         {
           text: this.dataText.billed,
           icon: !this.platform.is('ios') ? 'md-cash' : null,
-          handler: () => {
-            
-            this.prePaidUser(payload_)
-          }
-        },        
+          handler: () => this.prePaidUser(payload)
+        },
         {
           text: this.dataText.premiumUser,
           icon: !this.platform.is('ios') ? 'md-medal' : null,
-          handler: () => {
-            
-            this.changePremium(payload_)
-          }
-        },      
+          handler: () => this.changePremium(payload)
+        },
         {
           text: this.dataText.cancel,
           role: 'cancel',
           icon: !this.platform.is('ios') ? 'close' : null,
-          handler: () => {
-            console.log('Cancel clicked');
-          }
+          handler: () => console.log('Cancel clicked')
         }
       ]
     });
     actionSheet.present();
   }
 
-  credit(payload_){
-    this.navCtrl.push('CreditsManualPage', {payload: payload_})
+  credit(payload: Client): void {
+    this.navCtrl.push('CreditsManualPage', { payload });
   }
 
-
-  edit(payload_){
-    this.navCtrl.push('ClientsAddPage', {payload: payload_})
-
+  edit(payload: Client): void {
+    this.navCtrl.push('ClientsAddPage', { payload });
   }
 
-  updateProfilePassword(payload_){
-
-    this.auth.resetPassword(payload_.email)
-    .then(() => {
-      this.uiUtils.showAlertSuccess(this.dataText.weSentYouALink)
-    })
-    .catch(() => {
-      this.uiUtils.showAlertSuccess(this.dataText.errorResetPassword)
-    })
+  updateProfilePassword(payload: Client): void {
+    this.auth.resetPassword(payload.email)
+      .then(() => {
+        this.uiUtils.showAlertSuccess(this.dataText.weSentYouALink);
+      })
+      .catch(() => {
+        this.uiUtils.showAlertSuccess(this.dataText.errorResetPassword);
+      });
   }
 
-  
-
-  removeUser(payload_){
-    
-    let alert = this.uiUtils.showConfirm(this.dataText.warning, this.dataText.areYouVerySure)  
-    alert.then((result) => {
-
-      if(result){
-        this.removeUserContinue(payload_)
-      }    
-    })       
+  removeUser(payload: Client): void {
+    this.uiUtils.showConfirm(this.dataText.warning, this.dataText.areYouVerySure)
+      .then((result) => {
+        if (result) {
+          this.removeUserContinue(payload);
+        }
+      })
+      .catch(err => {
+        console.error('Erro ao confirmar remoção:', err);
+        this.uiUtils.showAlertError('Erro ao processar a confirmação de remoção.');
+      });
   }
 
-  removeUserContinue(payload_){  
-    
-    let loading = this.uiUtils.showLoading(this.dataInfo.titleLoadingInformations)
-    loading.present()
+  private removeUserContinue(payload: Client): void {
+    const loading = this.uiUtils.showLoading(this.dataInfo.titleLoadingInformations);
+    loading.present();
 
-    if(!payload_.uid)
-      payload_.uid = payload_.key
-                     
-    this.httpd.apiRemoveUser({uid: payload_.uid})
-      .subscribe((result) => {              
-
-        loading.dismiss()
-        this.uiUtils.showAlertSuccess(this.dataText.removeSuccess)
-
-        this.db.updateUserStatus(payload_.uid, 'Removido')
-        .then(() => {
-
-
-          this.reload()
-        })        
-      })    
+    const uid = payload.uid || payload.key;
+    this.httpd.apiRemoveUser({ uid })
+      .subscribe({
+        next: (result) => {
+          console.log('Resultado da API de remoção:', result);
+          this.uiUtils.showAlertSuccess(this.dataText.removeSuccess);
+          this.db.updateUserStatus(uid, 'Removido')
+            .then(() => {
+              this.reload();
+            })
+            .catch(err => {
+              console.error('Erro ao atualizar status do usuário:', err);
+              this.uiUtils.showAlertError('Erro ao atualizar o status do cliente.');
+            });
+        },
+        error: (err) => {
+          console.error('Erro na API de remoção:', err);
+          this.uiUtils.showAlertError('Erro ao remover o cliente via API.');
+        },
+        complete: () => {
+          loading.dismiss();
+        }
+      });
   }
 
-  disableUser(payload_){
-
-    let alert = this.uiUtils.showConfirm(this.dataText.warning, this.dataText.doYouWantDisableUser)  
-    alert.then((result) => {
-
-      if(result){
-        this.inativate(payload_)
-      }    
-    })       
+  disableUser(payload: Client): void {
+    this.uiUtils.showConfirm(this.dataText.warning, this.dataText.doYouWantDisableUser)
+      .then((result) => {
+        if (result) {
+          this.inativate(payload);
+        }
+      })
+      .catch(err => {
+        console.error('Erro ao confirmar desativação:', err);
+        this.uiUtils.showAlertError('Erro ao processar a confirmação de desativação.');
+      });
   }
 
-  inativate(payload_){
-
-    this.db.updateUserStatus(payload_.uid, 'Desativado')
-    .then(() => {
-      this.reload()
-    })      
-
-    
-
+  private inativate(payload: Client): void {
+    const uid = payload.uid || payload.key;
+    this.db.updateUserStatus(uid, 'Desativado')
+      .then(() => {
+        this.reload();
+      })
+      .catch(err => {
+        console.error('Erro ao desativar cliente:', err);
+        this.uiUtils.showAlertError('Erro ao desativar o cliente.');
+      });
   }
 
-
-  
-  prePaidUser(payload_){
-
-    let msg = this.dataText.billedOn      
-
-    if(payload_.prePaid)        
-        msg = this.dataText.billedOff      
-
-    let alert = this.uiUtils.showConfirm(this.dataText.warning, msg)  
-    alert.then((result) => {
-
-      if(result){
-        this.prePaidUserContinue(payload_)
-      }    
-    })       
+  prePaidUser(payload: Client): void {
+    const msg = payload.prePaid ? this.dataText.billedOff : this.dataText.billedOn;
+    this.uiUtils.showConfirm(this.dataText.warning, msg)
+      .then((result) => {
+        if (result) {
+          this.prePaidUserContinue(payload);
+        }
+      })
+      .catch(err => {
+        console.error('Erro ao confirmar alteração de pré-pago:', err);
+        this.uiUtils.showAlertError('Erro ao processar a confirmação de pré-pago.');
+      });
   }
 
-  prePaidUserContinue(payload_){               
-
-    payload_.prePaid = !payload_.prePaid
-
-    this.db.updatePrePaid(payload_.key, payload_.prePaid)
-
-    .then(() => {              
-
-      this.uiUtils.showAlertSuccess(this.dataText.savedSuccess)
-      this.reload()      
-    })    
+  private prePaidUserContinue(payload: Client): void {
+    payload.prePaid = !payload.prePaid;
+    this.db.updatePrePaid(payload.key, payload.prePaid)
+      .then(() => {
+        this.uiUtils.showAlertSuccess(this.dataText.savedSuccess);
+        this.reload();
+      })
+      .catch(err => {
+        console.error('Erro ao atualizar status de pré-pago:', err);
+        this.uiUtils.showAlertError('Erro ao atualizar o status de pré-pago do cliente.');
+      });
   }
 
-
-
-  changePremium(payload_){
-
-    let msg = this.dataText.premiumOn      
-
-    if(payload_.isPremium)        
-        msg = this.dataText.premiumOff      
-
-    let alert = this.uiUtils.showConfirm(this.dataText.warning, msg)  
-    alert.then((result) => {
-
-      if(result){
-        this.changeValuesContinue(payload_)
-      }    
-    })       
+  changePremium(payload: Client): void {
+    const msg = payload.isPremium ? this.dataText.premiumOff : this.dataText.premiumOn;
+    this.uiUtils.showConfirm(this.dataText.warning, msg)
+      .then((result) => {
+        if (result) {
+          this.changeValuesContinue(payload);
+        }
+      })
+      .catch(err => {
+        console.error('Erro ao confirmar alteração de premium:', err);
+        this.uiUtils.showAlertError('Erro ao processar a confirmação de premium.');
+      });
   }
 
-  changeValuesContinue(payload_){               
-
-    payload_.isPremium = !payload_.isPremium
-
-    this.db.updateCanChangeFinalValue(payload_.key, payload_.isPremium)
-
-    .then(() => {              
-
-      this.uiUtils.showAlertSuccess(this.dataText.savedSuccess)
-      this.reload()      
-    })    
+  private changeValuesContinue(payload: Client): void {
+    payload.isPremium = !payload.isPremium;
+    this.db.updateCanChangeFinalValue(payload.key, payload.isPremium)
+      .then(() => {
+        this.uiUtils.showAlertSuccess(this.dataText.savedSuccess);
+        this.reload();
+      })
+      .catch(err => {
+        console.error('Erro ao atualizar status de premium:', err);
+        this.uiUtils.showAlertError('Erro ao atualizar o status de premium do cliente.');
+      });
   }
 
-  clientChanged(event){
-    this.reload()
-
+  clientChanged(event: any): void {
+    this.reload();
   }
-  
-
-
 }

@@ -1,935 +1,627 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { IonicPage, NavController, NavParams, Platform } from 'ionic-angular';
-import { Observable } from 'rxjs/Observable';
-import { UiUtilsProvider } from '../../providers/ui-utils/ui-utils'
-import { DataInfoProvider } from '../../providers/data-info/data-info'
+import { Observable, Subscription } from 'rxjs';
+import { UiUtilsProvider } from '../../providers/ui-utils/ui-utils';
+import { DataInfoProvider } from '../../providers/data-info/data-info';
 import { DatabaseProvider } from '../../providers/database/database';
-import * as moment from 'moment';
-import { Subscription } from 'rxjs/Subscription'
 import { InAppBrowser } from '@ionic-native/in-app-browser';
-import { DataTextProvider } from '../../providers/data-text/data-text'
+import { DataTextProvider } from '../../providers/data-text/data-text';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import * as moment from 'moment';
+
+interface Work {
+  key: string;
+  createdAt: string;
+  datetime: string;
+  finalizedAt: string;
+  cancellationReason?: string;
+  cancelledAt?: string;
+  status: string;
+  user: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    photo: string;
+    uid: string;
+  };
+  driver: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    uid: string;
+  };
+  servicesPrices: {
+    driverEarnings: number;
+    totalDistance: number;
+    totalPrice: string;
+    totalTime: number;
+  };
+  dropPoints: {
+    description: string;
+    arrivedAt?: string;
+    completedAt?: string;
+    distanceFromPrevious?: number;
+    timeFromPrevious?: number;
+    distanceToNext?: string;
+    timeToNext?: string;
+    startPoint?: boolean;
+    status: string;
+  }[];
+  expand: boolean;
+}
+
+interface Report {
+  key: string;
+  data: string;
+  dataEnd: string;
+  datetimeStart: string;
+  datetimeEnd: string;
+  totalJobs: number;
+  totalComission: string;
+  totalPrePaid: string;
+  totalCard: string;
+  totalMoney: string;
+  totalFinal: string;
+  url: string;
+  directLink: string;
+}
 
 @IonicPage()
 @Component({
   selector: 'page-history',
   templateUrl: 'history.html',
 })
-export class HistoryPage {
-
-  private worksSubscription: Subscription;  
-
+export class HistoryPage implements OnInit {
+  private worksSubscription: Subscription;
+  formGroup: FormGroup;
   works: Observable<any>;
-  worksArray: any = []
-  reportsArray: any = []
-  usersWorkersArray: any = []
-  clientsWorkersArray: any = []
-  usersWorkers: any = []  
-  client: any
-  worker: any
-  selectedDate: string
-  selectedDateEnd: string  
-    
-  totalJobs: number = 0
-  totalMoney: number = 0
-  totalMoneyStr: string
-  
-  totalPrePaid: number = 0  
-  totalPrePaidStr: string
+  worksArray: Work[] = [];
+  reportsArray: Report[] = [];
+  usersWorkersArray: any[] = [];
+  clientsWorkersArray: any[] = [];
+  totalJobs: number = 0;
+  totalDistance: number = 0;
+  totalTime: number = 0;
+  totalPrice: number = 0;
+  isReportOpen: boolean = false;
+  textHeader: string = 'Relatórios';
+  private subscriptions: Subscription[] = [];
+  private activeLoading: any = null;
 
-  totalCard: number = 0  
-  totalCardStr: string
-
-  totalComission: number = 0  
-  totalComissionStr: string  
-
-  totalFinal: number = 0
-  totalFinalStr: string  
-  
-  isReportOpen: Boolean = false
-  textHeader: string = "Relatórios"
-  
-  tablePrice: any  
-  status: string = "" 
-
-  constructor(public navCtrl: NavController, 
-    public uiUtils: UiUtilsProvider,    
-    public dataInfo: DataInfoProvider,    
+  constructor(
+    public navCtrl: NavController,
+    public uiUtils: UiUtilsProvider,
+    public dataInfo: DataInfoProvider,
     public db: DatabaseProvider,
     public platform: Platform,
     private iab: InAppBrowser,
     public dataText: DataTextProvider,
-    public navParams: NavParams) {
+    public navParams: NavParams,
+    private formBuilder: FormBuilder
+  ) {}
+
+  ngOnInit(): void {
+    this.initForm();
   }
 
-  ionViewDidLoad() {    
-    if(this.dataInfo.isHome)
-      this.startInterface()
-    else
-      this.navCtrl.setRoot('LoginPage')
-  }
-
-  
-  ngOnDestroy() {
-   if(this.worksSubscription)
-    this.worksSubscription.unsubscribe()
-  }  
-
-  startInterface(){
-
-    this.isReportOpen = false
-    this.status = "Finalizado"    
-    let statustmp = this.navParams.get('status')
-
-    if(statustmp)
-      this.status = statustmp    
-    
-    this.tablePrice = this.dataInfo.tablePrice   
-
-    this.selectedDateEnd = moment().format() 
-    this.selectedDate = moment().startOf('month').format() 
-    
-    this.usersWorkers = []
-    this.getWorkers()
-    this.getClients()
-  
-
-
-  }
-
-  getClients(){
-    
-    this.db.getClients()
-    .subscribe(data => {
-        this.getClientsCallback(data)
-    })
-  }
-
-  getClientsCallback(data){
-
-    this.clientsWorkersArray = []
-    
-
-    data.forEach(element => {
-
-      let info = element.payload.val()
-      info.key = element.payload.key
-      
-      if(info.status !== 'Desativado')
-        this.checkRegionClient(info)                                                          
-              
-    });
-
-  }
-
-  checkRegionClient(info){
-
-    if(this.dataInfo.userInfo.isAdmin)
-      this.clientsWorkersArray.push(info)
-    
-    if(this.dataInfo.userInfo.managerRegion)
-      
-      if(info.region === this.dataInfo.userInfo.managerRegion)
-        this.clientsWorkersArray.push(info)          
-
-    else 
-      if(info.uid === this.dataInfo.userInfo.uid){
-        this.clientsWorkersArray.push(info)                
-      }
-
-  }
-
-
-  getWorkers(){
-
-    this.db.getWorkers()
-    .subscribe(data => {
-        this.getWorkersCallback(data)
-    })
-  }
-
-  getWorkersCallback(data){
-
-    this.usersWorkersArray = []
-
-    data.forEach(element => {
-
-      let info = element.payload.val()
-      info.key = element.payload.key
-
-      if(info.status !== 'Desativado')            
-        this.checkRegionWorker(info)      
-    });
-
-  }
-
-
-
-  
-
-  checkRegionWorker(info){
-
-    if(this.dataInfo.userInfo.isAdmin)
-      this.usersWorkersArray.push(info)
-    
-    if(this.dataInfo.userInfo.managerRegion)
-      
-      if(info.region === this.dataInfo.userInfo.managerRegion)
-        this.usersWorkersArray.push(info)          
-  }
-
-
-  workersChanged(event){    
-
-    console.log('modificado')
-    console.log(event)
-
-
-    //this.get()
-  }
-
-  clientChange(event){    
-
-    console.log('modificado: ')
-    console.log(event.value.uid)
-
-    // this.get()
-  }
-
-  clear(){    
-    this.client = ""
-    this.worker = ""
-    this.status = "Todos"
-   
-    this.worksArray= []    
-    this.reportsArray = []    
-
-    this.clearMoney()
-    
-  }
-
-  clearMoney(){
-    this.totalMoney = 0
-    this.totalComission = 0
-    this.totalPrePaid = 0
-    this.totalCard = 0
-    this.totalFinal = 0   
-    this.totalCardStr = "0.00"
-    this.totalComissionStr = "0.00"
-    this.totalFinalStr = "0.00"
-    this.totalJobs = 0
-    this.totalMoneyStr = "0.00"
-    this.totalPrePaidStr = "0.00" 
-  }
-
-  showReport(){
-    this.isReportOpen = true
-    this.textHeader = "Relatórios"
-    this.showReports()
-  }
-
-
-  showHistory(){   
-
-    if(moment(this.selectedDate).isAfter(moment(this.selectedDateEnd)), 'days'){
-
-
-      if(moment(this.selectedDate).diff(moment(this.selectedDateEnd)) > 30 )
-        this.uiUtils.showAlertError("Limite de 30 dias excedido!")
-      
-      else         
-          this.backHistory()                
-
-    }
-
-    else {
-      this.uiUtils.showAlertError("Data final não pode ser anterior a data inicial")
-    }
-    
-  }
-
-
-  backHistory(){
-
-    this.isReportOpen = false
-    this.textHeader = "Histórico"
-    this.getHistory()
-  }
-
-  getHistory(){
-
-
-    let loading = this.uiUtils.showLoading(this.dataText.loading)
-    loading.present()    
-
-    this.clearMoney()
-    this.totalJobs = 0    
-    this.worksArray= []    
-    this.reportsArray = []                  
-    let totalm = moment(this.selectedDateEnd).diff(this.selectedDate, 'months')
-    
-    if(totalm > 0){
-
-      loading.dismiss()    
-
-      for (let index = 0; index < totalm; index++) {
-      
-        let tmp = this.selectedDate.replace("-03:00", "")    
-        let dateYear = moment(tmp).add(index, 'month').format('YYYY')  
-        let dateMonth = moment(tmp).add(index, 'month').format('MM')  
-  
-        this.workGet(dateMonth, dateYear)          
-      }
-
+  ionViewDidLoad(): void {
+    if (this.dataInfo.isHome) {
+      this.startInterface();
     } else {
-
-      loading.dismiss()    
-
-      let tmp = this.selectedDate.replace("-03:00", "")    
-      let dateYear = moment(tmp).format('YYYY')  
-      let dateMonth = moment(tmp).format('MM')  
-    
-      this.workGet(dateMonth, dateYear)          
-
-
-
+      this.navCtrl.setRoot('LoginPage');
     }
-
-    
-  }  
-
-  workGet(month, year){    
-
-    let loading = this.uiUtils.showLoading(this.dataText.loading)
-    loading.present()    
-
-    this.works = this.db.getAllWorksAcceptedsDate(year, month)
-      
-    this.worksSubscription = this.works.subscribe( data => {
-      this.worksCallback(data)      
-      loading.dismiss()    
-    })
   }
 
-    
-  worksCallback(data){   
-    
-    this.worksArray = []
-    
-    data.forEach(element => {
-
-      let info = element.payload.val()
-      info.key = element.payload.key       
-      info.showIfood = false
-
-      this.checkRegionJob(info)                              
-    });    
-
-
-    this.organizaFila()
-
+  ionViewDidLeave(): void {
+    if (this.activeLoading && this.activeLoading.dismiss) {
+      this.activeLoading.dismiss();
+      this.activeLoading = null;
+    }
   }
 
-
-  checkRegionJob(info){
-
-    if(this.dataInfo.userInfo.isAdmin){
-      this.checkArray(info)
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    if (this.worksSubscription && this.worksSubscription.unsubscribe) {
+      this.worksSubscription.unsubscribe();
     }
-          
-    else if(this.dataInfo.userInfo.managerRegion){
+  }
 
-      if(info.region === this.dataInfo.userInfo.managerRegion)
-        this.checkArray(info)          
+  private initForm(): void {
+    this.formGroup = this.formBuilder.group({
+      status: ['Todos', Validators.required],
+      client: [''],
+      worker: [''],
+      selectedDate: [moment().startOf('month').format('YYYY-MM-DD'), Validators.required],
+      selectedDateEnd: [moment().format('YYYY-MM-DD'), Validators.required]
+    });
+  }
 
+  private startInterface(): void {
+    this.isReportOpen = false;
+    const statustmp = this.navParams.get('status');
+    if (statustmp && this.formGroup.get('status')) {
+      this.formGroup.get('status').setValue(statustmp);
     }
-    else {
 
-      if(info.uid === this.dataInfo.userInfo.uid){
-        this.checkArray(info)          
+    this.usersWorkersArray = [];
+    this.clientsWorkersArray = [];
+    this.getWorkers();
+    this.getClients();
+    this.getHistory();
+  }
+
+  private getClients(): void {
+    this.showLoading(this.dataText.loading);
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions = [];
+
+    const sub = this.db.getClients().subscribe({
+      next: (data) => {
+        this.clientsWorkersArray = data.map(element => {
+          const info = element.payload.val();
+          info.key = element.payload.key;
+          return info;
+        });
+        this.dismissLoading();
+      },
+      error: (err) => {
+        console.error('Erro ao carregar clientes:', err);
+        this.uiUtils.showAlertError('Erro ao carregar dados dos clientes.');
+        this.dismissLoading();
       }
-    }            
+    });
+    this.subscriptions.push(sub);
   }
+
+  private getWorkers(): void {
+    this.showLoading(this.dataText.loading);
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions = [];
+
+    const sub = this.db.getWorkers().subscribe({
+      next: (data) => {
+        this.usersWorkersArray = data.map(element => {
+          const info = element.payload.val();
+          info.key = element.payload.key;
+          return info;
+        });
+        this.dismissLoading();
+      },
+      error: (err) => {
+        console.error('Erro ao carregar profissionais:', err);
+        this.uiUtils.showAlertError('Erro ao carregar dados dos profissionais.');
+        this.dismissLoading();
+      }
+    });
+    this.subscriptions.push(sub);
+  }
+
+  updateFilters(): void {
+    if (this.isReportOpen) {
+      this.showReports();
+    } else {
+      this.getHistory();
+    }
+  }
+
+  clear(): void {
+    this.formGroup.reset({
+      status: 'Todos',
+      client: '',
+      worker: '',
+      selectedDate: moment().startOf('month').format('YYYY-MM-DD'),
+      selectedDateEnd: moment().format('YYYY-MM-DD')
+    });
+    this.worksArray = [];
+    this.reportsArray = [];
+    this.clearTotals();
+  }
+
+  clearTotals(): void {
+    this.totalJobs = 0;
+    this.totalDistance = 0;
+    this.totalTime = 0;
+    this.totalPrice = 0;
+  }
+
+  showReport(): void {
+    this.isReportOpen = true;
+    this.textHeader = 'Relatórios';
+    this.showReports();
+  }
+
+  showHistory(): void {
+    const startDate = moment(this.formGroup.value.selectedDate, 'YYYY-MM-DD', true);
+    const endDate = moment(this.formGroup.value.selectedDateEnd, 'YYYY-MM-DD', true);
+
+    if (!startDate.isValid() || !endDate.isValid()) {
+      this.uiUtils.showAlertError('Datas inválidas. Por favor, verifique os valores inseridos.');
+      return;
+    }
+
+    const diffDays = endDate.diff(startDate, 'days');
+
+    if (startDate.isAfter(endDate)) {
+      this.uiUtils.showAlertError('Data final não pode ser anterior à data inicial');
+    } else if (diffDays > 30) {
+      this.uiUtils.showAlertError('Limite de 30 dias excedido!');
+    } else {
+      this.getHistory();
+    }
+  }
+
+  backHistory(): void {
+    this.isReportOpen = false;
+    this.textHeader = 'Histórico';
+    this.getHistory();
+  }
+
+  getHistory(): void {
+    this.showLoading(this.dataText.loading);
+    this.clearTotals();
+    this.worksArray = [];
+    this.reportsArray = [];
+
+    if (this.worksSubscription && this.worksSubscription.unsubscribe) {
+      this.worksSubscription.unsubscribe();
+    }
+
+    this.works = this.db.getAllWorksAcceptedsDate();
+    this.worksSubscription = this.works.subscribe({
+      next: (data) => {
+        this.processWorks(data);
+        this.dismissLoading();
+      },
+      error: (err) => {
+        console.error('Erro ao carregar trabalhos:', err);
+        this.uiUtils.showAlertError('Erro ao carregar dados dos trabalhos.');
+        this.dismissLoading();
+      }
+    });
+  }
+
+  processWorks(data: any[]): void {
+    const startDate = moment(this.formGroup.value.selectedDate, 'YYYY-MM-DD', true);
+    const endDate = moment(this.formGroup.value.selectedDateEnd, 'YYYY-MM-DD', true);
+    const statusFilter = this.formGroup.value.status;
+    const clientFilter = this.formGroup.value.client && this.formGroup.value.client.uid ? this.formGroup.value.client.uid : '';
+    const workerFilter = this.formGroup.value.worker && this.formGroup.value.worker.uid ? this.formGroup.value.worker.uid : '';
   
-
-  checkArray(info){
-
-    let same = moment(info.datetime).isBetween(moment(this.selectedDate).startOf('day'), moment(this.selectedDateEnd).endOf('day'), 'day') || 
-                moment(info.datetime).isSame(moment(this.selectedDate), 'day') || 
-                moment(info.datetime).isSame(moment(this.selectedDateEnd), 'day')
-
-
-
-           
-    if(same) {
-
-
-      let cliente = ""
-      let cliente1 = ""
-
-      let profissional = ""
-      let profissional1 = ""
-      
-      if(this.client){
-        cliente = this.client.uid
-      }
-        
-
-      if(info.uid){
-        cliente1 = info.uid     
-      }
-        
-             
-      if(this.worker){
-        profissional = this.worker.uid        
-      }
-        
-
-      if(info.workerInfo && info.workerInfo.uid){
-        profissional1 = info.workerInfo.uid
-
-      }
-
-
-
-                      
-      if(cliente.length > 0 && profissional.length === 0){        
-
-        if(cliente === cliente1){
-          this.checkStatusAndAdd(info)
-        }
-        
-      }
-                    
-
-      else if(profissional.length > 0 && cliente.length === 0){
-
-        if(profissional === profissional1){
-          this.checkStatusAndAdd(info)        
-        }
-        
-      }
-        
-
-
-      else if(cliente.length > 0 && profissional.length > 0){        
-
-        if(profissional === profissional1 && cliente === cliente1){          
-          this.checkStatusAndAdd(info)         
-        }
-          
-
-      }
-              
-
-      else if(cliente.length === 0 && profissional.length === 0){        
-        this.checkStatusAndAdd(info) 
-      }
-
-
-    }
-    
-  }
-
-  checkStatusAndAdd(info){
-
-    if(this.status === "Todos")
-      this.workAddArray(info)
-
-    else if(this.status && this.status === info.status)
-      this.workAddArray(info)
-           
-  }
-
-  workAddArray(info){
-
-    
-    if(info.carInfo && info.status === 'Finalizado'){      
-
-       
-
-      if(info.carInfo.total){
-
-        this.totalJobs++            
-        
-
-        if(isNaN(info.carInfo.total))
-          info.carInfo.total = 0
-
-
-        this.totalFinal += Number(info.carInfo.total)
-
-        if(info.workComission){                
-    
-          if(isNaN(info.workComission))
-            info.workComission = 0
+    console.log('Filtros aplicados:', {
+      startDate: startDate.format('DD/MM/YYYY'),
+      endDate: endDate.format('DD/MM/YYYY'),
+      statusFilter,
+      clientFilter,
+      workerFilter
+    });
   
-          this.totalComission += Number(info.workComission)
+    this.worksArray = data.map(element => {
+      const info: Work = element.payload.val();
+      info.key = element.payload.key;
+      info.expand = false;
   
-          this.totalComissionStr =  this.totalComission.toFixed(2)                  
-        }     
-
-
+      // Usar cancelledAt como fallback para datetime
+      const dateToUse = info.datetime || info.cancelledAt;
+      if (dateToUse && moment(dateToUse, ['YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD/MM/YYYY HH:mm:ss']).isValid()) {
+        info.datetime = moment(dateToUse, ['YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD/MM/YYYY HH:mm:ss']).format('DD/MM/YYYY HH:mm:ss');
       }
-        
-
-      this.totalFinalStr =  this.totalFinal.toFixed(2)  
-
-      if(info.carInfo.paymentMethod){
-
-          if(info.carInfo.paymentMethod === "Dinheiro"){
-
-            if(info.carInfo.total)
-              this.totalMoney += Number(info.carInfo.total)
-
-            this.totalMoneyStr =  this.totalMoney.toFixed(2)                  
-
+  
+      if (info.createdAt && moment(info.createdAt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').isValid()) {
+        info.createdAt = moment(info.createdAt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').format('DD/MM/YYYY HH:mm:ss');
+      }
+      if (info.finalizedAt && moment(info.finalizedAt, ['YYYY-MM-DD HH:mm:ss', 'YYYY-MM-DDTHH:mm:ss.SSSZ']).isValid()) {
+        info.finalizedAt = moment(info.finalizedAt, ['YYYY-MM-DD HH:mm:ss', 'YYYY-MM-DDTHH:mm:ss.SSSZ']).format('DD/MM/YYYY HH:mm:ss');
+      }
+      if (info.dropPoints && Array.isArray(info.dropPoints)) {
+        info.dropPoints.forEach(point => {
+          if (point.arrivedAt && moment(point.arrivedAt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').isValid()) {
+            point.arrivedAt = moment(point.arrivedAt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').format('DD/MM/YYYY HH:mm:ss');
           }
-
-          if(info.carInfo.paymentMethod === "Faturado"){
-
-            if(info.carInfo.total)
-              this.totalPrePaid += Number(info.carInfo.total)
-
-
-            this.totalPrePaidStr =  this.totalPrePaid.toFixed(2)                  
-            
+          if (point.completedAt && moment(point.completedAt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').isValid()) {
+            point.completedAt = moment(point.completedAt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').format('DD/MM/YYYY HH:mm:ss');
           }
-
-          if(info.carInfo.paymentMethod === "Cartão"){
-            
-            if(info.carInfo.total)
-              this.totalCard += Number(info.carInfo.total)
-
-
-            this.totalCardStr =  this.totalCard.toFixed(2)                                
-          }
-
+        });
+      } else {
+        // Garantir que dropPoints seja um array vazio se não existir ou não for um array
+        info.dropPoints = [];
       }
-
-    }
-
-    info.expand = false
-    info.vencido = false  
-    info.totalTimeWaiting = 0    
-    info.totalRun = 0
-
-    if(info.carInfo && info.carInfo.total)
-      info.totalRun = Number(info.carInfo.total)
-
-    let timeLimit = moment(info.datetime).add(15, 'minutes').format()
-    
-    if(info.status === 'Criado')
-      info.vencido = moment().isBefore(timeLimit)        
-
-    if(info.datetime){        
-        info.datetime = moment(info.datetime).format("DD/MM/YYYY HH:mm:ss")
+      return info;
+    }).filter(info => {
+      const workDate = moment(info.datetime, 'DD/MM/YYYY HH:mm:ss', true);
+      if (!workDate.isValid()) {
+        console.log('Data inválida para o serviço:', info);
+        return false;
       }
-
-    if(info.datetimeStart){      
-      info.datetimeStart = moment(info.datetimeStart).format("DD/MM/YYYY HH:mm:ss")
-    }
-
-    if(info.datetimeFinish){      
-      info.datetimeFinish = moment(info.datetimeFinish).format("DD/MM/YYYY HH:mm:ss")       
-    }
-        
-    if(info.workComission){
-
-      if(typeof(info.workComission) === 'number')
-        info.workComission = info.workComission.toFixed(2)
-      
-      else 
-        info.workComission = Number(info.workComission).toFixed(2)                    
-    }                           
-
-    if(info.dropPoints){
-
-      info.dropPoints.forEach(element => {          
-
-
-        if(element.arrived && element.datetimeEnd){
-
-          if(moment(element.arrived).isValid() && moment(element.datetimeEnd).isValid()){
-
-            element.totalWait = moment(element.datetimeEnd).diff(element.arrived, "minutes")
-
-            if(element.totalWait === 0)        
-              element.totalWait = moment(element.datetimeEnd).diff(element.arrived, "seconds") + " segundo(s)"
-              
-            else 
-                element.totalWait = moment(element.datetimeEnd).diff(element.arrived, "minutes") + " minuto(s)"                      
-
-            let minutes = moment(element.datetimeEnd).diff(element.arrived, "minutes")            
-            info.totalTimeWaiting += minutes
-                        
-
-          }
-
-          
-
-        }
-
-        this.tablePrice = info.tablePrice
-
-        
-
-        if(this.tablePrice){
-
-          if(info.totalTimeWaiting && info.totalTimeWaiting > Number(this.tablePrice.workFreeMinutes)){
-
-            let valueNow = Number(info.total)
-            let totalTimeWaiting = ( Number(this.tablePrice.workMinuteValue) * info.totalTimeWaiting)
-            totalTimeWaiting = Number(totalTimeWaiting.toFixed(2))
-            valueNow += Number(totalTimeWaiting.toFixed(2))
   
-            info.totalWaitMoney = Number(totalTimeWaiting.toFixed(2))
-            info.totalWaitHowMuch = Number(this.tablePrice.workMinuteValue)
-            info.total = valueNow.toFixed(2)                              
-          } 
-                    
-
-        }
-      
-        if(info.status === 'Criado')
-          info.vencido = moment().isBefore(timeLimit)   
-      
-        if(element.datetime){
-          element.datetime = moment(element.datetime).format("DD/MM/YYYY HH:mm:ss")
-        }
-        
-        if(element.datetimeEnd){
-          element.datetimeEnd = moment(element.datetimeEnd).format("DD/MM/YYYY HH:mm:ss")
-        }
-
-        if(element.arrived){
-          element.arrived = moment(element.arrived).format("DD/MM/YYYY HH:mm:ss")  
-        }
-
-                          
-        
-      });
-    }
-
-    if(info.totalWaitMoney)
-      info.totalRun += Number(info.totalWaitMoney)
-
-    this.worksArray.push(info)
-  }
-
-  organizaFila(){    
-           
-    this.worksArray.sort((a, b) => {
-
-      let date1 = moment(a.datetime, "DD/MM/YYYY hh:mm:ss").format()
-      let date2 = moment(b.datetime, "DD/MM/YYYY hh:mm:ss").format()
-      
-      let isBefore = moment(date1).isBefore(date2)      
-
-      return isBefore ? 1 : -1;
-      
-    })
-
-  }
-
-  organizaFilaRelatorios(){    
-
-    this.reportsArray.sort((a, b) => {
-
-      let date1 = moment(a.datetime).format()
-      let date2 = moment(b.datetime).format()
-      
-      let isBefore = moment(date1).isBefore(date2)      
-
-      return isBefore ? 1 : -1;
-      
-    })
-  }
+      const matchesDate = workDate.isSameOrAfter(startDate) && workDate.isSameOrBefore(endDate);
+      const matchesStatus = statusFilter === 'Todos' || info.status === statusFilter;
+      const matchesClient = !clientFilter || (info.user && info.user.uid && info.user.uid === clientFilter);
+      const matchesWorker = !workerFilter || (info.driver && info.driver.uid && info.driver.uid === workerFilter);
   
-  downloadExcel(){
-
-
-    let alert = this.uiUtils.showConfirm(this.dataText.warning, "Deseja realizar o download via excel?")  
-    alert.then((result) => {
-
-      if(result){
-        this.downloadExcelContinue()      
-      }        
-    })       
-  }
+      if (!matchesDate) {
+        console.log(`Serviço fora do intervalo de datas: ${info.datetime}`);
+      }
+      if (!matchesStatus) {
+        console.log(`Serviço não corresponde ao status: ${info.status}`);
+      }
+      if (!matchesClient) {
+        console.log(`Serviço não corresponde ao cliente: ${info.user && info.user.uid}`);
+      }
+      if (!matchesWorker) {
+        console.log(`Serviço não corresponde ao profissional: ${info.driver && info.driver.uid}`);
+      }
   
-  downloadExcelContinue(){
+      return matchesDate && matchesStatus && matchesClient && matchesWorker;
+    });
+  
+    this.calculateTotals();
+    this.organizaFila();
+  }
 
-    let loading = this.uiUtils.showLoading(this.dataText.loading)
-    loading.present()        
+  calculateTotals(): void {
+    this.totalJobs = this.worksArray.length;
+    this.totalDistance = this.worksArray.reduce((sum, work) => {
+      return sum + (work.servicesPrices && work.servicesPrices.totalDistance ? work.servicesPrices.totalDistance : 0);
+    }, 0);
+    this.totalTime = this.worksArray.reduce((sum, work) => {
+      return sum + (work.servicesPrices && work.servicesPrices.totalTime ? work.servicesPrices.totalTime : 0);
+    }, 0);
+    this.totalPrice = this.worksArray.reduce((sum, work) => {
+      return sum + (work.servicesPrices && work.servicesPrices.totalPrice ? parseFloat(work.servicesPrices.totalPrice) : 0);
+    }, 0);
+  }
 
+  organizaFila(): void {
+    this.worksArray.sort((a: Work, b: Work) => {
+      const date1 = moment(a.datetime, 'DD/MM/YYYY HH:mm:ss', true);
+      const date2 = moment(b.datetime, 'DD/MM/YYYY HH:mm:ss', true);
+      if (!date1.isValid() || !date2.isValid()) return 0;
+      return date1.isBefore(date2) ? 1 : -1;
+    });
+  }
+
+  organizaFilaRelatorios(): void {
+    this.reportsArray.sort((a: Report, b: Report) => {
+      const date1 = moment(a.datetimeStart, 'DD/MM/YYYY', true);
+      const date2 = moment(b.datetimeStart, 'DD/MM/YYYY', true);
+      if (!date1.isValid() || !date2.isValid()) return 0;
+      return date1.isBefore(date2) ? 1 : -1;
+    });
+  }
+
+  downloadExcel(): void {
+    this.uiUtils.showConfirm(this.dataText.warning, 'Deseja realizar o download via excel?').then((result) => {
+      if (result) {
+        this.downloadExcelContinue();
+      }
+    });
+  }
+
+  downloadExcelContinue(): void {
+    this.showLoading(this.dataText.loading);
     this.db.addReport(
-      this.selectedDate, 
-          this.selectedDateEnd,       
-          this.totalJobs, 
-          this.totalComissionStr, 
-          this.totalPrePaidStr, 
-          this.totalCardStr, 
-          this.totalMoneyStr, 
-          this.totalFinalStr,
-          this.client,
-          this.worker)
-
-
-    .then(() => {
-
-      loading.dismiss()
-      this.uiUtils.showAlertSuccess("Favor aguarde. Estamos processando seu relatório")
-      this.showReports()
-    })
+      this.formGroup.value.selectedDate,
+      this.formGroup.value.selectedDateEnd,
+      this.totalJobs,
+      '0.00', // totalComissionStr
+      '0.00', // totalPrePaidStr
+      '0.00', // totalCardStr
+      '0.00', // totalMoneyStr
+      this.totalPrice.toFixed(2), // totalFinalStr
+      this.formGroup.value.client,
+      this.formGroup.value.worker
+    ).then(() => {
+      this.dismissLoading();
+      this.uiUtils.showAlertSuccess('Favor aguarde. Estamos processando seu relatório');
+      this.showReports();
+    }).catch(err => {
+      console.error('Erro ao adicionar relatório:', err);
+      this.dismissLoading();
+      this.uiUtils.showAlertError('Erro ao processar o relatório.');
+    });
   }
 
-  showReports(){
-
-    let loading = this.uiUtils.showLoading(this.dataText.loading)
-    loading.present()
-    
-    this.db.getReports()
-    .subscribe((data => {
-
-      this.showReportsContinue(data)
-      loading.dismiss()
-
-    }))
+  showReports(): void {
+    this.showLoading(this.dataText.loading);
+    const sub = this.db.getReports().subscribe({
+      next: (data) => {
+        this.showReportsContinue(data);
+        this.dismissLoading();
+      },
+      error: (err) => {
+        console.error('Erro ao carregar relatórios:', err);
+        this.uiUtils.showAlertError('Erro ao carregar relatórios.');
+        this.dismissLoading();
+      }
+    });
+    this.subscriptions.push(sub);
   }
 
+  showReportsContinue(data: any[]): void {
+    this.reportsArray = [];
+    this.worksArray = [];
 
-  showReportsContinue(data){
-
-    this.reportsArray = []
-    this.worksArray = []
-
-    data.forEach(element => {
-
-      let info = element.payload.val()
-
-      info.key = element.payload.key
-      info.data = moment(info.data).format("MM/YYYY")
-      info.dataEnd = moment(info.dataEnd).format("DD/MM/YYYY")            
-      info.datetimeStart = moment(info.datetimeStart).format("DD/MM/YYYY")
-      info.datetimeEnd = moment(info.datetimeEnd).format("DD/MM/YYYY")
-      
-      this.reportsArray.push(info)
+    this.reportsArray = data.map(element => {
+      const info: Report = element.payload.val();
+      info.key = element.payload.key;
+      info.data = info.data && moment(info.data).isValid() ? moment(info.data).format('MM/YYYY') : '';
+      info.dataEnd = info.dataEnd && moment(info.dataEnd, 'YYYY-MM-DD').isValid() ? moment(info.dataEnd, 'YYYY-MM-DD').format('DD/MM/YYYY') : '';
+      info.datetimeStart = info.datetimeStart && moment(info.datetimeStart, 'YYYY-MM-DD').isValid() ? moment(info.datetimeStart, 'YYYY-MM-DD').format('DD/MM/YYYY') : '';
+      info.datetimeEnd = info.datetimeEnd && moment(info.datetimeEnd, 'YYYY-MM-DD').isValid() ? moment(info.datetimeEnd, 'YYYY-MM-DD').format('DD/MM/YYYY') : '';
+      return info;
     });
 
-    this.organizaFilaRelatorios()
-    
-  }
-  
-  expand(work){
-    work.expand = !work.expand    
+    this.organizaFilaRelatorios();
   }
 
-  expandIfood(work){
-    work.showIfood = !work.showIfood
+  expand(work: Work): void {
+    work.expand = !work.expand;
   }
 
-  open(data){        
+  open(data: Report): void {
     this.iab.create(data.url);
   }
 
-  removeReport(report){
-
-    console.log('Remover: ')
-    console.log(report)
-
-
-    let alert = this.uiUtils.showConfirm(this.dataText.warning, this.dataInfo.titleAreYouSure)  
-    alert.then((result) => {
-
-        if(result){
-
-          this.db.removeReports(report.key)
-          .then(() => {
-  
-            this.uiUtils.showAlertSuccess("Relatório removido com sucesso")
-            this.showReports()
-
-
-          })
-
-
-        }
-
-    })
-
-
-    
+  removeReport(report: Report): void {
+    this.uiUtils.showConfirm(this.dataText.warning, this.dataInfo.titleAreYouSure).then((result) => {
+      if (result) {
+        this.db.removeReports(report.key).then(() => {
+          this.uiUtils.showAlertSuccess('Relatório removido com sucesso');
+          this.showReports();
+        }).catch(err => {
+          console.error('Erro ao remover relatório:', err);
+          this.uiUtils.showAlertError('Erro ao remover relatório.');
+        });
+      }
+    });
   }
-  
-  openDirect(data){  
-      
-    let options = 'location=no';
 
-    if(data.directLink){
-
-      if(this.dataInfo.isWeb)
-        this.iab.create(data.directLink, '_blank', options);    
-      else 
+  openDirect(data: Report): void {
+    const options = 'location=no';
+    if (data.directLink) {
+      if (this.dataInfo.isWeb) {
+        this.iab.create(data.directLink, '_blank', options);
+      } else {
         this.iab.create(encodeURI(data.directLink), '_system', options);
-
-    }            
-  }  
-
-  get(){
-    this.getHistory()
-  }
-
-
-  removeWork(work){
-    let alert = this.uiUtils.showConfirm(this.dataText.warning, "Deseja realmente remover?")  
-    alert.then((result) => {
-
-      if(result)  
-        this.removeWorkContinue(work)
-    })  
-  }
-
-  removeWorkContinue(work){  
-
-    this.db.removeWorkRequest(work.key)
-    .then( () => {
-        this.uiUtils.showAlert(this.dataText.warning, this.dataText.removeSuccess)
-        this.get()
-    })
-  }  
-
-  cancelWork(work){
-    let alert = this.uiUtils.showConfirm(this.dataText.warning, this.dataText.doYouWantCancel)  
-    alert.then((result) => {
-
-      if(result)  
-        this.cancelWorkContinue(work)
-    })  
-  }
-
-  cancelWorkContinue(work){  
-
-    let msg = "Cancelado pelo painel às " + moment().format("DD/MM/YYYY hh:mm:ss")
-
-    this.db.cancelWork(work.key, msg)
-
-    .then( () => {
-        this.uiUtils.showAlert(this.dataText.warning, "Cancelado com sucesso!")
-        this.get()
-    })
-  }  
-
-  finishWorkDelivery(work){
-
-    let alert = this.uiUtils.showConfirm(this.dataText.warning, this.dataText.doYouWantFinish)  
-    alert.then((result) => {
-
-      if(result)  
-        this.finishDeliveryContinue(work)
-    })  
-  }
-
-  finishDeliveryContinue(work){  
-
-    this.db.changeStatus(work.key, "Finalizado")
-
-    .then( () => {
-
-        this.uiUtils.showAlert(this.dataText.warning, this.dataText.finishedSuccess)        
-        this.get()
-    })
-  }  
-
-  restartWork(work){
-
-    let alert = this.uiUtils.showConfirm(this.dataText.warning, this.dataText.doYouWantRestart)  
-    alert.then((result) => {
-
-      if(result)  
-        this.restartWorkContinue(work)
-    })  
-
-  }
-
-  restartWorkContinue(work){   
-               
-
-    this.db.restartWork(work)
-
-    .then( () => {
-
-        this.uiUtils.showAlert(this.dataText.warning, this.dataText.restartOk)                  
-        this.get()
-    })
-  }  
-
-
-
-  edit(work){    
-   this.navCtrl.push('SearchDeliveryPage', {payload: work})    
-  }  
-  
-
-  recovery(work){
-
-    this.db.getUserUid(work.uid)
-    .subscribe((data) => {
-
-      this.recoveryClientContinue(data, work)
-
-    })
-
-    if(work.workerInfo.uid){
-
-      this.db.getUserUid(work.workerInfo.uid)      
-
-      .subscribe((data1) => {
-        this.recoveryWorkerContinue(data1, work)
-
-      })
-
+      }
     }
-       
   }
 
-  recoveryClientContinue(data, work){
-
-    data.forEach(element => {
-
-      let info = element.payload.val()
-      work.name = info.name
-      
+  removeWork(work: Work): void {
+    this.uiUtils.showConfirm(this.dataText.warning, 'Deseja realmente remover?').then((result) => {
+      if (result) {
+        this.removeWorkContinue(work);
+      }
     });
-
-    this.db.updateClientInfo(work.key, work.name)
-    .then(() => {
-
-      
-
-    })
-
-
-    this.uiUtils.showToast("Informações atualizadas com sucesso")
-    
   }
 
-
-  recoveryWorkerContinue(data, work){
-
-    data.forEach(element => {
-
-      let info = element.payload.val()
-      work.workerInfo.name = info.name
-      
+  removeWorkContinue(work: Work): void {
+    this.db.removeWorkRequest(work.key).then(() => {
+      this.uiUtils.showAlert(this.dataText.warning, this.dataText.removeSuccess);
+      this.getHistory();
+    }).catch(err => {
+      console.error('Erro ao remover trabalho:', err);
+      this.uiUtils.showAlertError('Erro ao remover o trabalho.');
     });
-
-
-    this.db.updateWorkerInfo(work.key, work.workerInfo, work.driverUid)
-    .then(() => {      
-
-    })
   }
-  
 
+  cancelWork(work: Work): void {
+    this.uiUtils.showConfirm(this.dataText.warning, this.dataText.doYouWantCancel).then((result) => {
+      if (result) {
+        this.cancelWorkContinue(work);
+      }
+    });
+  }
 
+  cancelWorkContinue(work: Work): void {
+    const msg = 'Cancelado pelo painel às ' + moment().format('DD/MM/YYYY HH:mm:ss');
+    this.db.cancelWork(work.key, msg).then(() => {
+      this.uiUtils.showAlert(this.dataText.warning, 'Cancelado com sucesso!');
+      this.getHistory();
+    }).catch(err => {
+      console.error('Erro ao cancelar trabalho:', err);
+      this.uiUtils.showAlertError('Erro ao cancelar o trabalho.');
+    });
+  }
+
+  finishWorkDelivery(work: Work): void {
+    this.uiUtils.showConfirm(this.dataText.warning, this.dataText.doYouWantFinish).then((result) => {
+      if (result) {
+        this.finishDeliveryContinue(work);
+      }
+    });
+  }
+
+  finishDeliveryContinue(work: Work): void {
+    this.db.changeStatus(work.key, 'Finalizado').then(() => {
+      this.uiUtils.showAlert(this.dataText.warning, this.dataText.finishedSuccess);
+      this.getHistory();
+    }).catch(err => {
+      console.error('Erro ao finalizar trabalho:', err);
+      this.uiUtils.showAlertError('Erro ao finalizar o trabalho.');
+    });
+  }
+
+  restartWork(work: Work): void {
+    this.uiUtils.showConfirm(this.dataText.warning, this.dataText.doYouWantRestart).then((result) => {
+      if (result) {
+        this.restartWorkContinue(work);
+      }
+    });
+  }
+
+  restartWorkContinue(work: Work): void {
+    this.db.restartWork(work).then(() => {
+      this.uiUtils.showAlert(this.dataText.warning, this.dataText.restartOk);
+      this.getHistory();
+    }).catch(err => {
+      console.error('Erro ao reiniciar trabalho:', err);
+      this.uiUtils.showAlertError('Erro ao reiniciar o trabalho.');
+    });
+  }
+
+  edit(work: Work): void {
+    this.navCtrl.push('SearchDeliveryPage', { payload: work });
+  }
+
+  recovery(work: Work): void {
+    const clientSub = this.db.getUserUid(work.user.uid).subscribe({
+      next: (data) => {
+        this.recoveryClientContinue(data, work);
+        clientSub.unsubscribe();
+      },
+      error: (err) => {
+        console.error('Erro ao recuperar cliente:', err);
+        this.uiUtils.showAlertError('Erro ao recuperar informações do cliente.');
+      }
+    });
+    this.subscriptions.push(clientSub);
+
+    if (work.driver && work.driver.uid) {
+      const workerSub = this.db.getUserUid(work.driver.uid).subscribe({
+        next: (data) => {
+          this.recoveryWorkerContinue(data, work);
+          workerSub.unsubscribe();
+        },
+        error: (err) => {
+          console.error('Erro ao recuperar profissional:', err);
+          this.uiUtils.showAlertError('Erro ao recuperar informações do profissional.');
+        }
+      });
+      this.subscriptions.push(workerSub);
+    }
+  }
+
+  recoveryClientContinue(data: any[], work: Work): void {
+    data.forEach(element => {
+      const info = element.payload.val();
+      if (work.user) {
+        work.user.email = info.email && info.email.length > 0 ? info.email : this.dataText.notInformade;
+      }
+    });
+  }
+
+  recoveryWorkerContinue(data: any[], work: Work): void {
+    data.forEach(element => {
+      const info = element.payload.val();
+      if (work.driver) {
+        work.driver.email = info.email && info.email.length > 0 ? info.email : this.dataText.notInformade;
+      }
+    });
+  }
+
+  private showLoading(message: string): void {
+    if (this.activeLoading && this.activeLoading.dismiss) {
+      this.activeLoading.dismiss();
+    }
+    this.activeLoading = this.uiUtils.showLoading(message);
+    this.activeLoading.present();
+  }
+
+  private dismissLoading(): void {
+    if (this.activeLoading && this.activeLoading.dismiss) {
+      this.activeLoading.dismiss();
+      this.activeLoading = null;
+    }
+  }
 }

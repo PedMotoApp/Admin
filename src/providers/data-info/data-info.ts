@@ -18,6 +18,8 @@ export class DataInfoProvider {
   appCreditWorkValue: number = 1  
   
   userTotalCreditsRun: number = 0
+  dateYear: string
+  dateMonth: string
   
   defaultState: string = 'DF' 
 
@@ -101,6 +103,9 @@ export class DataInfoProvider {
     }
 
     moment.locale('pt-br');    
+
+    this.dateYear = moment().format("YYYY")
+    this.dateMonth = moment().format("M")
   }
   
   getToken(){

@@ -1,398 +1,203 @@
-
-<ion-header>
-    <ion-navbar text-center no-border-bottom>
-        <ion-title>{{textHeader}}</ion-title>                
-    </ion-navbar>       
+<ion-header class="bg-theme">
+  <ion-navbar>
+    <ion-title style="color: white; font-size: 16px;">
+      {{ textHeader }}
+    </ion-title>
+  </ion-navbar>
 </ion-header>
-    
-  <ion-content padding>
 
-    
-    <ion-list no-lines>
-
+<ion-content class="page-history" style="background: #f4f5f8;">
+  <ion-grid style="padding: 10px;">
+    <!-- Filtros -->
+    <form [formGroup]="formGroup" novalidate>
       <ion-row>
-        <ion-col>
-          <ion-item [class.no-border]="platform.is('core')" no-lines>
-            <ion-label stacked>{{dataText.startDate}}</ion-label>
-            <ion-datetime displayFormat="DD/MM/YYYY" min="2020-01-01" doneText="OK" cancelText="{{dataText.cancel}}" [(ngModel)] ="selectedDate"></ion-datetime>        
-          </ion-item>                
+        <!-- Status -->
+        <ion-col col-12 col-md-6>
+          <ion-item no-lines style="background: white; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <ion-label stacked style="font-weight: bold; color: #333;">Status</ion-label>
+            <ion-select formControlName="status" (ionChange)="updateFilters()">
+              <ion-option value="Todos">Todos</ion-option>
+              <ion-option value="Criado">Criado</ion-option>
+              <ion-option value="Aceito">Aceito</ion-option>
+              <ion-option value="Finalizado">Finalizado</ion-option>
+              <ion-option value="Cancelado">Cancelado</ion-option>
+            </ion-select>
+          </ion-item>
         </ion-col>
 
-        <ion-col>
-          <ion-item [class.no-border]="platform.is('core')" no-lines>
-            <ion-label stacked>{{dataText.endDate}}</ion-label>
-            <ion-datetime displayFormat="DD/MM/YYYY" min="2020-01-01" doneText="OK" cancelText="{{dataText.cancel}}" [(ngModel)] ="selectedDateEnd"></ion-datetime>        
-          </ion-item>    
-        </ion-col> 
-        
-      </ion-row>
-      
-      <ion-row>
-
-        <ion-col>
-          
-        
-          <ion-item  no-lines>
-            
-            <ion-label>{{dataText.clients}}</ion-label>
+        <!-- Cliente -->
+        <ion-col col-12 col-md-6>
+          <ion-item no-lines style="background: white; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <ion-label stacked style="font-weight: bold; color: #333;">{{dataText.selectClient}}</ion-label>
             <ionic-selectable
-              item-content 
-              [(ngModel)]="client"
+              item-content
+              formControlName="client"
               [items]="clientsWorkersArray"
-              itemValueField="uid"              
-              itemTextField="name"
+              itemValueField="uid"
+              itemTextField="email"
               [canSearch]="true"
-              (onChange)="clientChange($event)">
+              (onChange)="updateFilters()"
+            >
             </ionic-selectable>
           </ion-item>
-          
-    
         </ion-col>
 
-        <ion-col>
-
-          <ion-item  no-lines>
-            <ion-label>{{dataText.professionals}}</ion-label>
+        <!-- Profissional -->
+        <ion-col col-12 col-md-6>
+          <ion-item no-lines style="background: white; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <ion-label stacked style="font-weight: bold; color: #333;">{{dataText.selectProfessional}}</ion-label>
             <ionic-selectable
-            
-              item-content 
-              [(ngModel)]="worker"
+              item-content
+              formControlName="worker"
               [items]="usersWorkersArray"
               itemValueField="uid"
-              itemTextField="name"
+              itemTextField="email"
               [canSearch]="true"
-              (onChange)="workersChanged($event)">
+              (onChange)="updateFilters()"
+            >
             </ionic-selectable>
           </ion-item>
-
-        </ion-col>     
-
-      </ion-row>
-
-      <ion-row>
-        <ion-col>
-          
-          <ion-item [class.no-border]="platform.is('core')" no-lines>
-            
-            <ion-label stacked>{{dataText.selectStatus}}</ion-label>  
-
-            <ion-select [(ngModel)]="status" (ionChange)="getHistory()">
-              <ion-option *ngFor="let statuss of dataInfo.workStatus">{{statuss}}</ion-option>                                                                              
-            </ion-select>                          
-          </ion-item>
-
         </ion-col>
-        
-      </ion-row>          
 
-    </ion-list> 
-
-    <ion-list *ngIf="reportsArray.length > 0">           
-    
-      <ion-card class="trip card" text-wrap *ngFor="let report of reportsArray" no-lines padding>
-        
-        <p><b>{{dataText.dateRequest}}:</b> {{report.datetime}} </p>
-        <p><b>{{dataText.datetime}}:</b> {{report.data}} </p>        
-        <p><b>{{dataText.status}}:</b> {{report.statusReport}} </p>
-
-        <ion-row>
-          <ion-col>
-            <button ion-button full icon-start text-uppercase (click)="open(report)" color="secondary"  [disabled]="report.statusReport !== 'Finalizado'">
-              <ion-icon name="md-clipboard"></ion-icon>
-              <div>{{dataText.openReport}}</div></button>
-          </ion-col>
-             
-
-          
-          <ion-col>            
-            <button ion-button full icon-start text-uppercase (click)="removeReport(report)"  color="danger"  [disabled]="report.statusReport === 'Finalizado'"> 
-                <ion-icon name="trash"></ion-icon>
-              <div>{{dataText.remove}}</div>
-            </button>
-          </ion-col> 
-          
-      </ion-row>  
-
-      </ion-card>
-    </ion-list>
-
-    <ion-list *ngIf="worksArray.length > 0"> 
-
-      <ion-list-header class="bg-theme text-white" *ngIf="worksArray && worksArray.length > 0">{{dataText.resumeServices}}</ion-list-header>
-
-       <ion-row>
-          <ion-col><p><b>{{dataText.totalServices}}:</b> {{totalJobs}} </p></ion-col>
-          <ion-col><p><b>{{dataText.totalComission}}:</b> {{dataText.currency}} {{totalComissionStr}} </p></ion-col>
-          <ion-col><p><b>{{dataText.totalBilled}}:</b> {{dataText.currency}} {{totalPrePaidStr}} </p></ion-col>          
-       </ion-row>       
-
-       <ion-row>        
-        <ion-col><p><b>{{dataText.totalCard}}:</b> {{dataText.currency}} {{totalCardStr}} </p></ion-col>
-        <ion-col><p><b>{{dataText.totalMoney}}:</b> {{dataText.currency}} {{totalMoneyStr}} </p></ion-col>          
-        <ion-col><p><b>{{dataText.totalFinal}}:</b> {{dataText.currency}} {{totalFinalStr}} </p></ion-col>          
-     </ion-row>       
-                        
-      <ion-card class="trip card" text-wrap no-lines *ngIf="worksArray && worksArray.length > 0">
-
-      </ion-card>
-
-            
-      <ion-list-header class="bg-theme text-white">{{dataText.results}}</ion-list-header>
-    
-      <ion-card class="trip card" text-wrap *ngFor="let work of worksArray" no-lines>
-
-        <ion-item>
-            <ion-avatar item-start>
-              <img src="./assets/imgs/default-user.png" *ngIf="! work.photo">
-              <img src="{{work.photo}}" *ngIf="work.photo">
-            </ion-avatar>
-
-            <p><b>{{dataText.key}}:</b> {{work.key}} </p>
-            <p *ngIf="work.workerInfo"><b>{{dataText.professional}}:</b> {{work.workerInfo.name}} </p>
-            <p><b>{{dataText.clients}}:</b> {{work.name}} </p>
-            <p *ngIf="work.cnpj"><b>{{dataText.cnpj}}:</b> {{work.cnpj}} </p>
-            <p><b>{{dataText.status}}:</b> {{work.status}} </p>
-
-            <p *ngIf="work.datetime"><b>{{dataText.dateRequest}}:</b> {{work.datetime}} </p>             
-            <p *ngIf="work.datetimeStart"><b>{{dataText.dateArrived}}:</b> {{work.datetimeStart}} </p>
-            <p *ngIf="work.datetimeFinish"><b>{{dataText.dateFinished}}:</b> {{work.datetimeFinish}} </p>              
-            <p *ngIf="work.totalTimeWaiting"><b>{{dataText.estimatedTime}}:</b> {{work.totalTimeWaiting}} {{dataText.minutes}}</p>                                                
-            
-            <p  *ngIf="work.carInfo && work.carInfo.paymentMethod"><b>{{dataText.paymentMethod}}: </b> {{work.carInfo.paymentMethod}} </p>
-
-            <p *ngIf="work.carInfo"><b>{{dataText.jobValue}}: </b> {{dataText.currency}} {{work.carInfo.total}} </p>
-            <p *ngIf="work.workComission"><b>{{dataText.comission}}: </b> {{dataText.currency}} {{work.workComission}} </p>            
-            <p *ngIf="work.totalWaitMoney"><b>{{dataText.valueTimeWaited}}:</b> {{dataText.currency}} {{work.totalWaitMoney}}</p>            
-            <p *ngIf="work.totalWaitMoney"><b>{{dataText.jobValue}}: </b> {{dataText.currency}} {{work.totalRun}} </p>
-            <p *ngIf="work.carInfo && work.carInfo.paymentChange"><b>{{dataText.changeFor}}: </b> {{dataText.currency}} {{work.carInfo.paymentChange}} </p>                                  
-
+        <!-- Data Inicial -->
+        <ion-col col-12 col-md-6>
+          <ion-item no-lines style="background: white; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <ion-label stacked style="font-weight: bold; color: #333;">Data Inicial</ion-label>
+            <ion-datetime
+              formControlName="selectedDate"
+              displayFormat="DD/MM/YYYY"
+              (ionChange)="updateFilters()"
+            ></ion-datetime>
           </ion-item>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('selectedDate') && formGroup.get('selectedDate').invalid && formGroup.get('selectedDate').touched">
+            {{dataText.requestdField}}
+          </ion-note>
+        </ion-col>
 
-          <ion-card-content style="margin-top: 10px;" *ngIf="work.expand">                    
-
-            <p *ngIf="work.dropPoints"><b>{{dataText.pickUp}}:</b> {{work.dropPoints[0].description}} </p>
-            <p *ngIf="work.totalTime"><b>{{dataText.estimatedTime}}:</b> {{work.totalTime}} </p>                                                
-            <p *ngIf="!work.msgFinish && work.msgCancel"><b>{{dataText.messageCanceled}}:</b> {{work.msgCancel}} </p>
-            <p *ngIf="work.msgFinish"><b>{{dataText.messageFinished}}:</b> {{work.msgFinish}} </p>     
-
-            <p><b>{{dataText.dropPoints}}</b></p>
-            
-            <ion-item *ngFor="let point of work.dropPoints">
-
-              <p><b>{{dataText.address}}:</b> {{point.description}} </p>
-              <p><b>{{dataText.status}}:</b> {{point.status}} </p>
-            
-              <p *ngIf="point.responsible"><b>{{dataText.responsible}}:</b> {{point.responsible}}</p>
-              <p *ngIf="point.instructions"><b>{{dataText.instructions}}:</b> {{point.instructions}}</p>
-              <p *ngIf="point.obs"><b>{{dataText.obs}}:</b> {{point.obs}}</p>
-              <p *ngIf="point.datetime"><b>{{dataText.startDate}}:</b> {{point.datetime}} </p>
-              <p *ngIf="point.arrived"><b>{{dataText.dateArrived}}:</b> {{point.arrived}} </p>
-              <p *ngIf="point.datetimeEnd"><b>{{dataText.dateFinished}}:</b> {{point.datetimeEnd}} </p>
-              <p *ngIf="point.totalWait"><b>{{dataText.totalWaitTime}}:</b> {{point.totalWait}} </p>
-              <p *ngIf="point.signedBy"><b>{{dataText.signedBy}}:</b> {{point.signedBy}} </p>
-
-              <button ion-button icon-start clear small (click)="open(point)" color="danger" *ngIf="point.url">  
-                <ion-icon name="ios-image"></ion-icon>                        
-                {{dataText.attachment}}
-            </button>                            
-
-            <button ion-button icon-start clear small (click)="openDirect(point)" color="danger" *ngIf="point.url">  
-              <ion-icon name="md-link"></ion-icon>                        
-              {{dataText.directLink}}
-          </button>
-              
-        </ion-item>                                 
-
-        </ion-card-content>
-
-        <ion-card-content *ngIf="work.ifood && work.showIfood">
-
-
-          <ion-list-header color="danger" style="margin-top: 10px; margin-bottom: 10px;">
-            {{dataText.ifoodInfo}}
-          </ion-list-header>
-
-          <ion-item no-lines> 
-              
-            <p><b>{{dataText.ifoodId}}: # </b>{{work.ifood.orderId}}</p>
-            <p><b>{{dataText.created}}:</b> {{work.ifood.createdAtStr}}</p>
-            <p *ngIf="work.ifood.details && work.ifood.details.delivery"><b>{{dataText.dateOrder}}:</b> {{work.ifood.details.delivery.deliveryDateTimeStr}}</p>                        
-            <p><b>{{dataText.status}}:</b> {{work.ifood.fullCodeStr}}</p>     
-    
-            <p *ngIf="work.ifood.details && work.ifood.details.customer && work.ifood.details.customer.name"><b>{{dataText.clients}}:</b> {{work.ifood.details.customer.name}}</p>
-            <p *ngIf="work.ifood.details && work.ifood.details.customer && work.ifood.details.customer.phone"><b>{{dataText.phone}}:</b> {{work.ifood.details.customer.phone.number}}</p>          
-            <p *ngIf="work.ifood.details && work.ifood.details.deliveryAddress"><b>{{dataText.address}}:</b> {{work.ifood.details.deliveryAddress.formattedAddress}}</p>
-            <p *ngIf="work.ifood.details && work.ifood.details.total"><b>{{dataText.total}}:</b> {{dataText.currency}} {{work.ifood.details.total.subTotal}}</p>
-            <p *ngIf="work.ifood.details && work.ifood.details.total"><b>{{dataText.deliveryFees}}:</b> {{dataText.currency}} {{work.ifood.details.total.deliveryFee}}</p>            
-            <p *ngIf="work.ifood.details && work.ifood.details.payments && work.ifood.details.payments.methods[0].method ==='CASH'"><b>{{dataText.paymentMethod}}:</b> {{dataText.money}} </p>
-            <p *ngIf="work.ifood.details && work.ifood.details.payments && work.ifood.details.payments.methods[0].method !=='CASH'"><b>{{dataText.paymentMethod}}:</b> {{dataText.card}} </p>        
-            <p *ngIf="work.ifood.details && work.ifood.details.payments && work.ifood.details.payments.methods[0].cash && work.ifood.details.payments.methods[0].cash.changeFor"><b>{{dataText.changeFor}}:</b> {{dataText.currency}} {{work.ifood.details.payments.methods[0].cash.changeFor}} </p>
-    
-
-            <ion-item *ngIf="work.ifood.details && work.ifood.details.items" no-lines>                              
-    
-              <ion-list-header color="danger" style="margin-top: 10px; margin-bottom: 10px;">
-                {{dataText.orderDetails}}
-              </ion-list-header>
-    
-    
-
-              <ion-item *ngFor="let item of work.ifood.details.items" no-lines>                       
-                <p> 
-                  <b> {{item.name}} </b> - {{item.quantity}} - {{item.unit}} - {{dataText.currency}} {{item.totalPrice}}            
-                  <br>
-                  
-                  <b *ngIf="item.observations">Observação: {{item.observations}}</b>              
-                  <b *ngIf="item.options">Extras: </b>
-    
-                  <ion-item *ngFor="let option of item.options" >                       
-                    <p> {{option.name}} - {{option.quantity}} - {{option.unit}} - {{dataText.currency}} {{option.unitPrice}}</p>
-                    
-                  </ion-item>
-    
-    
-                </p>    
-                
-                
-    
-              </ion-item>
-              
-            </ion-item>
-
+        <!-- Data Final -->
+        <ion-col col-12 col-md-6>
+          <ion-item no-lines style="background: white; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <ion-label stacked style="font-weight: bold; color: #333;">Data Final</ion-label>
+            <ion-datetime
+              formControlName="selectedDateEnd"
+              displayFormat="DD/MM/YYYY"
+              (ionChange)="updateFilters()"
+            ></ion-datetime>
           </ion-item>
+          <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('selectedDateEnd') && formGroup.get('selectedDateEnd').invalid && formGroup.get('selectedDateEnd').touched">
+            {{dataText.requestdField}}
+          </ion-note>
+        </ion-col>
+      </ion-row>
+    </form>
 
-
-        </ion-card-content>
-
-
-            <ion-row>        
-              
-              <ion-col>
-
-                <button ion-button icon-start clear small (click)="recovery(work)"  color="danger"> 
-                    <ion-icon name="clipboard"></ion-icon>
-                  <div>{{dataText.recovery}}</div>
-                </button>
-              </ion-col> 
-
-
-              <ion-col *ngIf="! work.expand">
-                  <button ion-button icon-start clear small (click)="expand(work)">
-                      <ion-icon name="arrow-down"></ion-icon>
-                      {{dataText.expand}} 
-                  </button>
-              </ion-col>      
-
-              <ion-col *ngIf="work.expand">
-                <button ion-button icon-start clear small (click)="expand(work)" color="danger">                                                                            
-                    <ion-icon name="arrow-up"></ion-icon>                        
-                    {{dataText.less}}
-                </button>
-              </ion-col>
-
-                <ion-col *ngIf="!work.showIfood">
-                    <button ion-button icon-start clear small (click)="expandIfood(work)">
-                        <ion-icon name="arrow-down"></ion-icon>
-                        {{dataText.expand}} Ifood
-                    </button>
-                </ion-col>        
-
-                <ion-col *ngIf="work.showIfood">
-                  <button ion-button icon-start clear small (click)="expandIfood(work)" color="danger">                                                                            
-                      <ion-icon name="arrow-up"></ion-icon>                        
-                      {{dataText.less}} Ifood
-                  </button>
-                </ion-col>
-                 
-
-              <ion-col *ngIf="work.status === 'Criado' || work.status === 'Aceito' || work.status === 'Iniciado'">
-
-                <button ion-button icon-start clear small (click)="edit(work)"  color="danger"> 
-                    <ion-icon name="trash"></ion-icon>
-                  <div>{{dataText.edit}}</div>
-                </button>
-              </ion-col> 
-    
-              
-              <ion-col>
-                <button ion-button icon-start clear small (click)="removeWork(work)"  color="danger" [disabled]="!dataInfo.userInfo.isAdmin"> 
-                    <ion-icon name="trash"></ion-icon>
-                  <div>{{dataText.remove}}</div>
-                </button>
-              </ion-col> 
-    
-
-              <ion-col *ngIf="work.status !== 'Cancelado'">
-
-                <button ion-button icon-start clear small (click)="cancelWork(work)"  color="danger"> 
-                    <ion-icon name="md-checkbox-outline"></ion-icon>
-                  <div>{{dataText.cancel}}</div>
-                </button>
-              </ion-col> 
-
-    
-              <ion-col *ngIf="work.status === 'Criado' || work.status === 'Aceito' || work.status === 'Iniciado'">
-                <button ion-button icon-start clear small (click)="finishWorkDelivery(work)"  color="danger"> 
-                    <ion-icon name="md-checkbox-outline"></ion-icon>
-                  <div>{{dataText.finish}}</div>
-                </button>
-              </ion-col> 
-    
-
-              <ion-col *ngIf="work.status === 'Criado' || work.status === 'Cancelado' || work.status === 'Vencida'">
-                <button ion-button icon-start clear small (click)="restartWork(work)"> 
-                    <ion-icon name="md-refresh"></ion-icon>
-                  <div>{{dataText.restart}}</div>
-                </button>
-              </ion-col> 
-              
-          </ion-row>  
-
-                                  
-        </ion-card>
-
-    </ion-list>
-      
-  </ion-content>
-
-  <ion-footer>
-
-    <ion-row>          
-
-      <ion-col *ngIf="!isReportOpen">
-
-        <button ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="showReport()">
-          <ion-icon name="folder-open" item-start style="margin-right: 15px;"></ion-icon>          
-          {{dataText.reportsGenerated}}
+    <!-- Botões de Ação -->
+    <ion-row>
+      <ion-col col-12 col-md-6>
+        <button ion-button block class="btn-action" (click)="showHistory()" *ngIf="!isReportOpen">
+          Mostrar Histórico
+        </button>
+        <button ion-button block class="btn-action" (click)="showReport()" *ngIf="isReportOpen">
+          Mostrar Relatórios
         </button>
       </ion-col>
-
-      <ion-col *ngIf="isReportOpen">
-        <button ion-button block class="btn bg-theme mrg-bt-10 text-white" (click)="backHistory()">
-          <ion-icon name="md-search" item-start style="margin-right: 15px;"></ion-icon>
-          {{dataText.newSearch}}
-        </button> 
-      </ion-col>
-      
-      <ion-col *ngIf="!isReportOpen">
-        <button ion-button full text-uppercase (click)="showHistory()" class="btn bg-theme mrg-bt-10 text-white ">
-            <ion-icon name="md-search" style="margin-right: 10px;"></ion-icon> {{dataText.search}}
+      <ion-col col-12 col-md-6>
+        <button ion-button block class="btn-action" (click)="downloadExcel()" *ngIf="!isReportOpen">
+          Baixar Excel
+        </button>
+        <button ion-button block class="btn-action" (click)="backHistory()" *ngIf="isReportOpen">
+          Voltar ao Histórico
         </button>
       </ion-col>
-
-      <ion-col>
-        <button ion-button full text-uppercase (click)="clear()" class="btn bg-theme mrg-bt-10 text-white ">
-            <ion-icon name="md-trash" style="margin-right: 10px;"></ion-icon> {{dataText.clear}}
-        </button>
-      </ion-col>  
-
-      <ion-col>
-        <button ion-button full text-uppercase (click)="downloadExcel()" [disabled]="worksArray.length === 0" class="btn bg-theme mrg-bt-10 text-white ">
-          <ion-icon name="md-download"  style="margin-right: 10px;"></ion-icon> Download
-        </button>  
-      </ion-col>
-
     </ion-row>
 
+    <!-- Totais -->
+    <ion-row *ngIf="!isReportOpen && worksArray && worksArray.length > 0">
+      <ion-col col-12>
+        <ion-card style="border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <ion-item style="padding: 8px;">
+            <div style="margin-left: 10px; flex: 1;">
+              <h2 style="font-size: 16px; font-weight: bold; color: #333; margin: 0;">Totais</h2>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Total de Jobs:</b> {{totalJobs}}</p>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Distância Total:</b> {{totalDistance.toFixed(2)}} km</p>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Tempo Total:</b> {{totalTime.toFixed(2)}} min</p>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Preço Total:</b> R$ {{totalPrice.toFixed(2)}}</p>
+            </div>
+          </ion-item>
+        </ion-card>
+      </ion-col>
+    </ion-row>
 
-  </ion-footer>
+    <!-- Histórico -->
+    <ion-row *ngIf="!isReportOpen">
+      <ion-col col-12 col-md-6 *ngFor="let work of worksArray">
+        <ion-card style="border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <ion-item style="padding: 8px;" (click)="expand(work)">
+            <ion-avatar item-start>
+              <img src="./assets/imgs/default-user.png" *ngIf="!work.user?.photo" style="border-radius: 50%; width: 40px; height: 40px;">
+              <img [src]="work.user?.photo" *ngIf="work.user?.photo" style="border-radius: 50%; width: 40px; height: 40px;">
+            </ion-avatar>
+            <div style="margin-left: 10px; flex: 1;">
+              <h2 style="font-size: 14px; font-weight: bold; color: #333; margin: 0;">{{work.user?.email || dataText.notInformade}}</h2>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Data:</b> {{work.datetime}}</p>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Status:</b> {{work.status}}</p>
+            </div>
+            <ion-icon [name]="work.expand ? 'chevron-up' : 'chevron-down'" item-end style="color: #666; font-size: 14px;"></ion-icon>
+          </ion-item>
+
+          <!-- Detalhes Expansíveis -->
+          <div *ngIf="work.expand" style="padding: 8px; background: #f9f9f9;">
+            <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Profissional:</b> {{work.driver?.email || dataText.notInformade}}</p>
+            <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Criado em:</b> {{work.createdAt}}</p>
+            <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Finalizado em:</b> {{work.finalizedAt || dataText.notInformade}}</p>
+            <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;" *ngIf="work.cancellationReason"><b>Motivo do Cancelamento:</b> {{work.cancellationReason}}</p>
+            <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Distância Total:</b> {{work.servicesPrices?.totalDistance || 0}} km</p>
+            <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Tempo Total:</b> {{work.servicesPrices?.totalTime || 0}} min</p>
+            <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Preço Total:</b> R$ {{work.servicesPrices?.totalPrice || '0.00'}}</p>
+            <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;" *ngIf="work.dropPoints && work.dropPoints.length > 0"><b>Pontos de Entrega:</b></p>
+            <div *ngFor="let point of work.dropPoints">
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 10px;"><b>Endereço:</b> {{point.description || dataText.notInformade}}</p>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 10px;"><b>Chegada:</b> {{point.arrivedAt || dataText.notInformade}}</p>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 10px;"><b>Conclusão:</b> {{point.completedAt || dataText.notInformade}}</p>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 10px;"><b>Distância do Anterior:</b> {{point.distanceFromPrevious || 0}} km</p>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 10px;"><b>Tempo do Anterior:</b> {{point.timeFromPrevious || 0}} min</p>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 10px;" *ngIf="point.distanceToNext"><b>Distância até o Próximo:</b> {{point.distanceToNext}}</p>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 10px;" *ngIf="point.timeToNext"><b>Tempo até o Próximo:</b> {{point.timeToNext}}</p>
+            </div>
+          </div>          
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <!-- Relatórios -->
+    <ion-row *ngIf="isReportOpen">
+      <ion-col col-12 col-md-6 *ngFor="let report of reportsArray">
+        <ion-card style="border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <ion-item style="padding: 8px;">
+            <div style="margin-left: 10px; flex: 1;">
+              <h2 style="font-size: 14px; font-weight: bold; color: #333; margin: 0;">Relatório</h2>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Data Início:</b> {{report.datetimeStart}}</p>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Data Fim:</b> {{report.datetimeEnd}}</p>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Total Jobs:</b> {{report.totalJobs}}</p>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Total Final:</b> R$ {{report.totalFinal}}</p>
+            </div>
+          </ion-item>
+          <ion-row style="padding: 0 8px 8px 8px;">
+            <ion-col>
+              <button ion-button icon-start clear small (click)="openDirect(report)">
+                <ion-icon name="download" color="primary"></ion-icon>
+                <div>Baixar</div>
+              </button>
+            </ion-col>
+            <ion-col>
+              <button ion-button icon-start clear small (click)="removeReport(report)">
+                <ion-icon name="trash" color="danger"></ion-icon>
+                <div>Remover</div>
+              </button>
+            </ion-col>
+          </ion-row>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

@@ -1,109 +1,111 @@
 page-clients {
-
-     
-    .header {
-        &.bg-transparent {
-            .toolbar-background {
-                background: transparent !important;
-            }
+    ion-header.bg-theme {
+      background: linear-gradient(90deg, #007bff, #00c4ff) !important;
+      color: #fff !important;
+  
+      ion-navbar {
+        background: linear-gradient(90deg, #007bff, #00c4ff) !important;
+        color: #fff !important;
+  
+        .toolbar-background {
+          background: linear-gradient(90deg, #007bff, #00c4ff) !important;
         }
-      
-        &::after {
-            display: none;
+  
+        .toolbar-title,
+        ion-title {
+          color: #fff !important;
         }
-      
-        .toolbar {
-            .toolbar-background {
-                background-color: $theme-color;
-                border: none !important;
-            }
-      
-            .title {
-                .toolbar-title {
-                    font-size: 1.5rem;
-                    font-weight: 600;
-                    color: $white;
-                    display: flex;
-                    align-items: center;
-                    letter-spacing: .5px !important;
-                    text-transform: uppercase;
-      
-                    ion-icon {
-                        font-size: 2.2rem;
-                    }
-                }
-      
-                .end {
-                    margin-left: auto !important;
-      
-                }
-            }
-            
-
-
-            
+  
+        button {
+          color: #fff !important;
         }
-      
-        .bar-buttons {
-            color: $white;
-            z-index: 999;
+  
+        ion-icon {
+          color: #fff !important;
         }
-      
+  
         .back-button {
-            color: $white;
-            z-index: 999;
-      
-            //        .ion-md-arrow-back:before {
-            //            content: "\f3cf";
-            //        }
+          color: #fff !important;
+  
+          .back-button-icon {
+            color: #fff !important;
+          }
+  
+          ion-icon {
+            color: #fff !important;
+          }
         }
-      
-        .toolbar-ios {
-            ion-title {
-                padding: 0 16px;
-                position: unset;
-      
-                .toolbar-title-ios {
-                    text-align: justify;
+      }
+    }
+  
+    .trips.detail-bg {
+      background: #f4f5f8;
+  
+      ion-grid {
+        padding: 10px;
+  
+        ion-row {
+          // Garantir que os cards sejam bem distribuídos
+          display: flex;
+          flex-wrap: wrap;
+  
+          ion-col {
+            padding: 5px;
+            min-width: 150px; // Largura mínima para legibilidade
+          }
+  
+          ion-card {
+            border-radius: 10px;
+            margin: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  
+            ion-item {
+              padding: 6px !important;
+  
+              ion-avatar {
+                img {
+                  width: 30px !important;
+                  height: 30px !important;
                 }
+              }
+  
+              h2 {
+                font-size: 14px !important;
+              }
+  
+              p {
+                font-size: 10px !important;
+                margin: 2px 0 !important;
+              }
+  
+              ion-icon {
+                font-size: 14px !important;
+              }
             }
-      
-            .bar-buttons-ios {
-                color: $white;
+  
+            .expanded-details {
+              padding: 6px;
+              background: #f9f9f9;
+  
+              p {
+                font-size: 10px !important;
+                margin: 2px 0 !important;
+              }
             }
-      
-            .back-button-text {
-                display: none;
+  
+            ion-row {
+              padding: 0 6px 6px 6px !important;
+  
+              button {
+                font-size: 10px !important;
+  
+                ion-icon {
+                  font-size: 14px !important;
+                }
+              }
             }
-        }
-      
-        .bar-button-default:hover:not(.disable-hover) {
-            color: lighten($gray, 100%);
+          }
         }
       }
-      
-      /* button style */
-
-
-      action-sheets-basic-page {
-
-
-        
-        .ion-md-share {
-          color: #ED4248;
-        }
-        .ion-md-arrow-dropright-circle {
-          color: #508AE4;
-        }
-        .ion-md-heart-outline {
-          color: #31D55F;
-        }
-        .action-sheet-cancel ion-icon,
-        .action-sheet-destructive ion-icon {
-          color: #757575;
-        }
-      }
-      
-
-
-}
+    }
+  }

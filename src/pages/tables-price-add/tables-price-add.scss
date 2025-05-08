@@ -1,94 +1,128 @@
 page-tables-price-add {
-
-    .bg-theme {	  
-        background: $theme-color !important;
-    }
-
-    
-    .header {
-        &.bg-transparent {
-            .toolbar-background {
-                background: transparent !important;
-            }
+    ion-header.bg-theme {
+      background: linear-gradient(90deg, #007bff, #00c4ff) !important;
+      color: #fff !important;
+  
+      ion-navbar {
+        background: linear-gradient(90deg, #007bff, #00c4ff) !important;
+        color: #fff !important;
+  
+        .toolbar-background {
+          background: linear-gradient(90deg, #007bff, #00c4ff) !important;
         }
-      
-        &::after {
-            display: none;
+  
+        .toolbar-title,
+        ion-title {
+          color: #fff !important;
+          font-size: 1.5rem !important;
+          font-weight: 600 !important;
+          display: flex !important;
+          align-items: center !important;
+          letter-spacing: 0.5px !important;
+          text-transform: uppercase !important;
         }
-      
-        .toolbar {
-            .toolbar-background {
-                background-color: $theme-color;
-                border: none !important;
-            }
-      
-            .title {
-                .toolbar-title {
-                    font-size: 1.5rem;
-                    font-weight: 600;
-                    color: $white;
-                    display: flex;
-                    align-items: center;
-                    letter-spacing: .5px !important;
-                    text-transform: uppercase;
-      
-                    ion-icon {
-                        font-size: 2.2rem;
-                    }
-                }
-      
-                .end {
-                    margin-left: auto !important;
-      
-                }
-            }
-            
+  
+        button {
+          color: #fff !important;
         }
-      
-        .bar-buttons {
-            color: $white;
-            z-index: 999;
+  
+        ion-icon {
+          color: #fff !important;
+          font-size: 2.2rem !important;
         }
-      
+  
         .back-button {
-            color: $white;
-            z-index: 999;
-      
-            //        .ion-md-arrow-back:before {
-            //            content: "\f3cf";
-            //        }
+          color: #fff !important;
+  
+          .back-button-icon {
+            color: #fff !important;
+          }
+  
+          ion-icon {
+            color: #fff !important;
+          }
         }
-      
-        .toolbar-ios {
-            ion-title {
-                padding: 0 16px;
-                position: unset;
-      
-                .toolbar-title-ios {
-                    text-align: justify;
+      }
+    }
+  
+    .page-tables-price-add {
+      background: #f4f5f8;
+  
+      ion-list {
+        padding: 10px;
+  
+        ion-card {
+          border-radius: 10px;
+          margin: 10px 0;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  
+          ion-card-header {
+            background: linear-gradient(90deg, #007bff, #00c4ff) !important;
+            color: #fff !important;
+            border-top-left-radius: 10px !important;
+            border-top-right-radius: 10px !important;
+            padding: 15px !important;
+  
+            h3 {
+              font-size: 16px !important;
+              margin: 0 !important;
+              font-weight: 500 !important;
+            }
+          }
+  
+          ion-card-content {
+            padding: 15px;
+  
+            ion-item {
+              background: white;
+              border-radius: 10px;
+              margin-bottom: 10px;
+              padding: 6px !important;
+  
+              ion-label {
+                font-weight: bold !important;
+                color: #333 !important;
+                font-size: 14px !important;
+              }
+  
+              ion-input {
+                font-size: 14px !important;
+                color: #333 !important;
+              }
+  
+              ion-select {
+                font-size: 14px !important;
+                color: #333 !important;
+              }
+            }
+  
+            ion-grid {
+              padding: 0;
+  
+              ion-row {
+                display: flex;
+                flex-wrap: wrap;
+  
+                ion-col {
+                  padding: 5px;
+                  min-width: 150px;
                 }
+              }
             }
-      
-            .bar-buttons-ios {
-                color: $white;
-            }
-      
-            .back-button-text {
-                display: none;
-            }
-        }
-      
-        .bar-button-default:hover:not(.disable-hover) {
-            color: lighten($gray, 100%);
+          }
         }
       }
-      
-      /* button style */
-      
-      .right-align-input {
-        text-align: right;        
+    }
+  
+    ion-footer {
+      padding: 10px;
+  
+      button {
+        background: linear-gradient(90deg, #007bff, #00c4ff) !important;
+        color: white !important;
+        font-size: 14px !important;
+        text-transform: uppercase !important;
+        font-weight: 600 !important;
       }
-
-      
-
-}
+    }
+  }

@@ -1,91 +1,225 @@
-<ion-header class="bg-theme text-white">
-    <ion-navbar text-center no-border-bottom>      
-      <ion-title  *ngIf="dataInfo.userInfo.isAdmin"> Painel {{dataInfo.appName}} {{dataInfo.defaultState}} </ion-title>
-      <ion-title  *ngIf="!dataInfo.userInfo.isAdmin && dataInfo.userInfo.manager"> {{dataInfo.appName}} {{dataInfo.userInfo.managerRegion}} </ion-title>
-      <ion-title  *ngIf="!dataInfo.userInfo.isAdmin && ! dataInfo.userInfo.manager"> Painel {{dataInfo.appName}}  </ion-title>              
-      <ion-buttons end>                             
-        <button ion-button style="color: white" (click)="logout()" class="mrg-bt-10">                  
-          <ion-icon name="md-exit"  item-start style="margin-right: 15px;"></ion-icon>        
-          {{dataText.exit}}
-        </button>
-      </ion-buttons>  
-  </ion-navbar>    
-</ion-header>  
-<ion-content padding>
-  <ion-list padding no-lines>
+<ion-header class="bg-theme">
+  <ion-navbar style="background: linear-gradient(90deg, #007bff, #00c4ff);">
+    <ion-title>PedMoto</ion-title>
+    <ion-buttons end>
+      <button ion-button (click)="centerMap()" *ngIf="dataInfo.userInfo && dataInfo.userInfo.isAdmin">
+        Centralizar Mapa
+      </button>
+      <button ion-button (click)="fit()" *ngIf="dataInfo.userInfo && dataInfo.userInfo.isAdmin">
+        Ajustar Zoom
+      </button>
+      <button ion-button (click)="showProfessionalsOnline()" *ngIf="dataInfo.userInfo && dataInfo.userInfo.isAdmin">
+        Profissionais Online {{ totalOnline }}
+      </button>
+      <button ion-button (click)="showClientsOnline()" *ngIf="dataInfo.userInfo && dataInfo.userInfo.isAdmin">
+        Clientes Online {{ totalOnlineClients }}
+      </button>
+      <button ion-button icon-only (click)="logout()">
+        <ion-icon name="md-exit"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+</ion-header>
+
+<ion-content #content class="page-home" style="background: #f4f5f8;">
+  <!-- Boas-vindas -->
+  <div style="background: linear-gradient(90deg, #007bff, #00c4ff); padding: 20px; color: white; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+    <h1 style="font-size: 24px; margin: 0 0 5px 0;">Bem-vindo(a), {{ dataInfo.userInfo && dataInfo.userInfo.name ? dataInfo.userInfo.name : 'Usuário' }}</h1>
+    <p style="font-size: 14px; margin: 0;">Confira suas corridas recentes e o status atual</p>
+  </div>
+
+  <!-- Seção de Navegação -->
+  <ion-grid style="padding: 10px;">
+    <ion-row class="nav-cards" style="justify-content: flex-end;">
+      <ion-col class="nav-card-col">
+        <ion-card class="nav-card" (click)="goPageClients()">
+          <img src="./assets/imgs/clientes.jpg" class="nav-card-img" />
+          <div class="nav-card-content">Clientes</div>
+        </ion-card>
+      </ion-col>
+      <ion-col class="nav-card-col">
+        <ion-card class="nav-card" (click)="goPagProfessionals()">
+          <img src="./assets/imgs/profissionais.jpg" class="nav-card-img" />
+          <div class="nav-card-content">Profissionais</div>
+        </ion-card>
+      </ion-col>
+      <ion-col class="nav-card-col">
+        <ion-card class="nav-card" (click)="goPageHistory()">
+          <img src="./assets/imgs/relatorios.jpg" class="nav-card-img" />
+          <div class="nav-card-content">Histórico</div>
+        </ion-card>
+      </ion-col>
+      <ion-col class="nav-card-col">
+        <ion-card class="nav-card" (click)="goPageTablePrice  ()">
+          <img src="./assets/imgs/tabela.jpg" class="nav-card-img" />
+          <div class="nav-card-content">Tabelas de Preços</div>
+        </ion-card>
+      </ion-col>
+      <ion-col class="nav-card-col">
+        <ion-card class="nav-card" (click)="logout()">
+          <img src="./assets/imgs/manager.jpg" class="nav-card-img" />
+          <div class="nav-card-content">Sair</div>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- Resto do Conteúdo -->
+  <ion-grid style="padding: 10px;">
     <ion-row>
-      <ion-col col-6 col-md-4 col-lg-3 col-xl-2>
-        <ion-card (click)="goPageWorks()">
-          <img src="../../assets/imgs/central.jpg" />
-          <ion-card-content>
-            <ion-card-title>
-              {{dataText.central}}
-            </ion-card-title>
+      <!-- Esquerda: KPIs e Últimas Corridas -->
+      <ion-col col-12 col-md-6>
+        <!-- Linha de KPIs -->
+        <ion-row>
+          <ion-col col-12 col-sm-6>
+            <ion-card class="dashboard-card" style="border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin: 10px 0;">                            
+              <ion-card-content style="padding: 15px;">
+                <h2 style="font-size: 24px; color: #007bff; margin: 0 0 5px 0; padding-left: 10px; padding-top: 10px;">{{ runningCount }}</h2>
+                <p style="font-size: 12px; color: #777; margin: 0; padding-left: 10px;">Corridas em Andamento</p>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+          <ion-col col-12 col-sm-6>
+            <ion-card class="dashboard-card" style="border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin: 10px 0;">              
+              <ion-card-content style="padding: 15px;">
+                <h2 style="font-size: 24px; color: #007bff; margin: 0 0 5px 0; padding-left: 10px; padding-top: 10px;">R$ {{ dailyEarnings.toFixed(2) }}</h2>
+                <p style="font-size: 12px; color: #777; margin: 0; padding-left: 10px;">Ganhos Hoje</p>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+
+        <!-- Últimas Corridas Concluídas -->
+        <ion-card class="dashboard-card" style="border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin: 10px 0;">
+          <ion-card-header style="padding: 15px;">
+            <h3 style="font-size: 16px; color: white; margin: 0;">Últimas Corridas</h3>
+          </ion-card-header>
+          <ion-card-content style="padding: 15px;">
+            <ion-list no-lines>
+              <ion-item *ngFor="let h of orderHistory" style="padding: 10px 0; --padding-start: 0;">
+                <ion-avatar item-start>
+                  <img src="./assets/imgs/default-user.png" style="border-radius: 50%; width: 40px; height: 40px;" *ngIf="!h.driver.photo">
+                  <img [src]="h.driver.photo" style="border-radius: 50%; width: 40px; height: 40px;" *ngIf="h.driver.photo">
+                </ion-avatar>
+                <div style="flex: 1;">
+                  <h5 style="font-size: 14px; color: #333; margin: 0 0 5px 0;">
+                    Profissional: {{ h.driver.firstName }} {{ h.driver.lastName }}
+                  </h5>
+                  <p style="font-size: 12px; color: #777; margin: 0;">
+                    Cliente: {{ h.user && h.user.firstName ? h.user.firstName : 'Não informado' }} {{ h.user && h.user.lastName ? h.user.lastName : '' }}
+                  </p>
+                  <p class="sub" style="font-size: 12px; color: #777; margin: 0;">
+                    {{ h.dropPoints && h.dropPoints[0] ? h.dropPoints[0].description : 'Não informado' }} • {{ h.finalizedAt ? (h.finalizedAt | date:'dd/MM HH:mm') : 'Não informado' }}
+                  </p>
+                </div>
+                <p slot="end" style="font-size: 14px; color: #007bff; margin: 0;" *ngIf="h && h.servicesPrices">
+                  R$ {{ h.servicesPrices && h.servicesPrices.totalPrice ? h.servicesPrices.totalPrice : '0.00' }}
+                </p>
+              </ion-item>
+              <ion-item *ngIf="orderHistory.length === 0" style="padding: 10px 0; --padding-start: 0;">
+                <p style="font-size: 14px; color: #777;">Nenhuma corrida concluída.</p>
+              </ion-item>
+            </ion-list>
           </ion-card-content>
         </ion-card>
       </ion-col>
-      <ion-col col-6 col-md-4 col-lg-3 col-xl-2>
-        <ion-card (click)="goPageClients()">
-          <img src="../../assets/imgs/clientes.jpg" />
-          <ion-card-content>
-            <ion-card-title>
-              {{dataText.clients}}
-            </ion-card-title>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-      <ion-col col-6 col-md-4 col-lg-3 col-xl-2>
-        <ion-card (click)="goPagProfessionals()">
-          <img src="../../assets/imgs/profissionais.jpg" />
-          <ion-card-content>
-            <ion-card-title>
-              Profissionais
-            </ion-card-title>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-      
-      <!--<ion-col col-6 col-md-4 col-lg-3 col-xl-2 *ngIf="dataInfo.userInfo.isAdmin">
-        <ion-card (click)="goPageServicess()">
-          <img src="../../assets/imgs/servicos.jpg" />
-          <ion-card-content>
-            <ion-card-title>
-              {{dataText.services}}
-            </ion-card-title>
-          </ion-card-content>
-        </ion-card>
-      </ion-col> -->
-      <ion-col col-6 col-md-4 col-lg-3 col-xl-2 *ngIf="!dataInfo.userInfo.isAdmin">
-        <ion-card (click)="suporte()">
-          <img src="../../assets/imgs/marcas.jpg" />
-          <ion-card-content>
-            <ion-card-title>
-              {{dataText.help}}
-            </ion-card-title>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-      <!--<ion-col col-6 col-md-4 col-lg-3 col-xl-2 *ngIf="dataInfo.userInfo.isAdmin">
-        <ion-card (click)="goPageManager()">
-          <img src="../../assets/imgs/manager.jpg" />
-          <ion-card-content>
-            <ion-card-title>
-              {{dataText.managers}}
-            </ion-card-title>
-          </ion-card-content>
-        </ion-card>
-      </ion-col> -->
-      <ion-col col-6 col-md-4 col-lg-3 col-xl-2>
-        <ion-card (click)="showRedMine()">
-          <img src="../../assets/imgs/help.jpg" />
-          <ion-card-content>
-            <ion-card-title>
-              {{dataText.support}}
-            </ion-card-title>
+
+      <!-- Direita: Mapa e Lista de Corridas em Tempo Real -->
+      <ion-col col-12 col-md-6 *ngIf="dataInfo.userInfo && dataInfo.userInfo.isAdmin">
+        <ion-card class="dashboard-card" style="border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin: 10px 0; height: 100%;">
+          <ion-card-header style="padding: 15px;">
+            <h3 style="font-size: 16px; color: white; margin: 0;">Monitoramento em Tempo Real</h3>
+          </ion-card-header>
+          <ion-card-content style="padding: 15px; display: flex; flex-direction: column; height: calc(100% - 60px);">
+            <ion-row style="flex: 1; height: 100%;">
+              <ion-col col-4 style="height: 100%; overflow-y: auto;">
+                <ion-list no-lines>
+                  <ion-searchbar
+                    [(ngModel)]="searchTerm"
+                    (ionInput)="setFilteredItems()"
+                    placeholder="Procurar..."
+                    style="padding: 0 10px;">
+                  </ion-searchbar>
+                </ion-list>
+
+                <!-- Lista de Corridas em Andamento -->
+                <ion-list *ngIf="requestType === 'Serviço'">
+                  <ion-item *ngFor="let work of allJobs" style="padding: 10px 0; --padding-start: 0;">
+                    <div style="flex: 1;">
+                      <p style="font-size: 12px; color: #333; margin: 0;"><b>Cliente:</b> {{ work.name || 'Não informado' }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="work.workerInfo"><b>Profissional:</b> {{ work.workerInfo.name || 'Não informado' }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;"><b>Status:</b> {{ work.status || 'Não informado' }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;"><b>Origem:</b> {{ work.dropPoints && work.dropPoints[0] ? work.dropPoints[0].description : 'Não informado' }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="work.carInfo"><b>Valor:</b> R$ {{ work.carInfo.finalValue || work.servicesPrices?.totalPrice || '0.00' }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="work.workerInfo && work.workerInfo.latitude"><b>Latitude:</b> {{ work.workerInfo.latitude }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="work.workerInfo && work.workerInfo.longitude"><b>Longitude:</b> {{ work.workerInfo.longitude }}</p>
+                    </div>
+                    <ion-row style="margin-top: 10px;">
+                      <ion-col>
+                        <button ion-button icon-start clear small (click)="edit(work)">
+                          <ion-icon name="clipboard" style="color: #007bff;"></ion-icon>
+                          Editar
+                        </button>
+                      </ion-col>
+                      <ion-col *ngIf="work.status !== 'Finalizado' && work.status !== 'Cancelado'">
+                        <button ion-button icon-start clear small (click)="finishWorkDelivery(work)">
+                          <ion-icon name="md-flag" style="color: #28a745;"></ion-icon>
+                          Finalizar
+                        </button>
+                      </ion-col>
+                      <ion-col *ngIf="work.status !== 'Finalizado' && work.status !== 'Cancelado'">
+                        <button ion-button icon-start clear small (click)="cancelWorkDelivery(work)">
+                          <ion-icon name="trash" style="color: #dc3545;"></ion-icon>
+                          Cancelar
+                        </button>
+                      </ion-col>
+                    </ion-row>
+                  </ion-item>
+                  <ion-item *ngIf="allJobs.length === 0" style="padding: 10px 0; --padding-start: 0;">
+                    <p style="font-size: 14px; color: #777;">Nenhuma corrida em andamento.</p>
+                  </ion-item>
+                </ion-list>
+
+                <!-- Lista de Profissionais Online -->
+                <ion-list *ngIf="requestType === 'Todos'">
+                  <ion-item *ngFor="let work of allOnline" style="padding: 10px 0; --padding-start: 0;">
+                    <div style="flex: 1;">
+                      <p style="font-size: 12px; color: #333; margin: 0;"><b>Profissional:</b> {{ work.name || 'Não informado' }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;"><b>Telefone:</b> {{ work.tel || 'Não informado' }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="work.latitude"><b>Latitude:</b> {{ work.latitude }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="work.longitude"><b>Longitude:</b> {{ work.longitude }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="!work.latitude && !work.longitude"><b>Localização não disponível</b></p>
+                    </div>
+                  </ion-item>
+                  <ion-item *ngIf="allOnline.length === 0" style="padding: 10px 0; --padding-start: 0;">
+                    <p style="font-size: 14px; color: #777;">Nenhum profissional online.</p>
+                  </ion-item>
+                </ion-list>
+
+                <!-- Lista de Clientes Online -->
+                <ion-list *ngIf="requestType === 'Cliente'">
+                  <ion-item *ngFor="let work of allClientsOnline" style="padding: 10px 0; --padding-start: 0;">
+                    <div style="flex: 1;">
+                      <p style="font-size: 12px; color: #333; margin: 0;"><b>Cliente:</b> {{ work.name || 'Não informado' }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;"><b>Telefone:</b> {{ work.tel || 'Não informado' }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="work.latitude"><b>Latitude:</b> {{ work.latitude }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="work.longitude"><b>Longitude:</b> {{ work.longitude }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="!work.latitude && !work.longitude"><b>Localização não disponível</b></p>
+                    </div>
+                  </ion-item>
+                  <ion-item *ngIf="allClientsOnline.length === 0" style="padding: 10px 0; --padding-start: 0;">
+                    <p style="font-size: 14px; color: #777;">Nenhum cliente online.</p>
+                  </ion-item>
+                </ion-list>
+              </ion-col>
+
+              <ion-col col-8 style="height: 100%;">
+                <div #mapwatch id="mapwatch" style="width: 100%; height: 100%; min-height: 400px;"></div>
+              </ion-col>
+            </ion-row>
           </ion-card-content>
         </ion-card>
       </ion-col>
     </ion-row>
-  </ion-list>
+  </ion-grid>
 </ion-content>
-  
