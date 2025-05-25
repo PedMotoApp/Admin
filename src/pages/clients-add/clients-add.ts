@@ -11,6 +11,9 @@ import { Observable, Subscription } from 'rxjs';
 import { HttpdProvider } from '../../providers/httpd/httpd';
 import { DataTextProvider } from '../../providers/data-text/data-text';
 import * as moment from 'moment';
+import * as firebase from 'firebase/app';
+import 'firebase/auth';
+import { firebaseConfig } from '../../assets/configs/firebase';
 
 interface Client {
   uid: string;
@@ -35,7 +38,7 @@ interface Client {
   state: string;
   city: string;
   prefixo: string;
-  tablePrice: any  
+  tablePrice: any;
 }
 
 interface TablePrice {
@@ -63,6 +66,7 @@ export class ClientsAddPage implements OnInit {
   uid_: string = '';
   private subscriptions: Subscription[] = [];
   private activeLoading: any = null;
+  private secondaryAuth: firebase.auth.Auth;
 
   constructor(
     public navCtrl: NavController,
@@ -79,7 +83,10 @@ export class ClientsAddPage implements OnInit {
     public httpd: HttpdProvider,
     public dataText: DataTextProvider,
     public dataInfo: DataInfoProvider
-  ) {}
+  ) {
+    const secondaryApp = firebase.initializeApp(firebaseConfig, 'secondary');
+    this.secondaryAuth = secondaryApp.auth();
+  }
 
   ngOnInit(): void {
     this.initForm();
@@ -123,11 +130,10 @@ export class ClientsAddPage implements OnInit {
       tablePrice: [''],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      password1: ['', [Validators.required]],      
+      password1: ['', [Validators.required]],
     }, { validator: this.passwordMatchValidator });
   }
 
-  // Validador personalizado para verificar se as senhas coincidem
   private passwordMatchValidator(control: AbstractControl): { [key: string]: boolean } | null {
     const password = control.get('password') && control.get('password').value;
     const password1 = control.get('password1') && control.get('password1').value;
@@ -164,34 +170,38 @@ export class ClientsAddPage implements OnInit {
   }
 
   private loadInfo(): void {
+    // Adicionar log para depurar o valor de payload.state
+    console.log('Valor de payload.state ao carregar:', this.payload.state);
+
+    // Garantir que o valor seja uma string
+    const stateValue = typeof this.payload.state === 'string' ? this.payload.state : 'RJ';
+    const cityValue = typeof this.payload.city === 'string' ? this.payload.city : 'Rio de Janeiro';
+
     this.formGroup.patchValue({
       razaoSocial: this.payload.razaoSocial,
       cnpj: this.payload.cnpj,
       name: this.payload.name,
       lastName: this.payload.lastName,
       address: this.payload.address,
-      state: this.payload.state,
-      city: this.payload.city,
+      state: stateValue,
+      city: cityValue,
       cpf: this.payload.cpf,
       tel: this.payload.tel,
       district: this.payload.district,
       numero: this.payload.numero,
       postCode: this.payload.postCode,
       complement: this.payload.complement,
-      tablePrice: this.payload.tablePrice || ''      
+      tablePrice: this.payload.tablePrice || ''
     });
 
     this.base64Image = this.payload.photo || '';
-    this.state_ = this.payload.state || 'RJ';
-    this.city_ = this.payload.city || 'Rio de Janeiro';
+    this.state_ = stateValue;
+    this.city_ = cityValue;
     this.stateChanged(this.state_);
     this.uid_ = this.payload.uid || '';
   }
 
   private getServices(): void {
-
-    
-    //this.showLoading(this.dataInfo.titleLoadingInformations);
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.subscriptions = [];
 
@@ -199,12 +209,10 @@ export class ClientsAddPage implements OnInit {
     const sub = this.tablesPrices.subscribe({
       next: (data) => {
         this.getServicesCallback(data);
-        //this.dismissLoading();
       },
       error: (err) => {
         console.error('Erro ao carregar tabelas de preços:', err);
         this.uiUtils.showAlertError('Erro ao carregar tabelas de preços.');
-        //this.dismissLoading();
       }
     });
     this.subscriptions.push(sub);
@@ -229,7 +237,6 @@ export class ClientsAddPage implements OnInit {
     }, 3000);
   }
 
-  // Foca no próximo campo ao pressionar "Enter"
   focusNext(event: any, nextField: string): void {
     const input = event.target;
     const form = input.closest('form');
@@ -305,21 +312,19 @@ export class ClientsAddPage implements OnInit {
   }
 
   private addFinish(url: string): void {
-    const data = {
-      email: this.formGroup.value.email,
-      password: this.formGroup.value.password,
-      name: this.formGroup.value.name
-    };
-    this.httpd.apiAddUser(data).subscribe({
-      next: (callback) => {
+    const email = this.formGroup.value.email;
+    const password = this.formGroup.value.password;
+    this.showLoading(this.dataText.pleaseWait);
+    this.secondaryAuth.createUserWithEmailAndPassword(email, password)
+      .then(userCredential => {
         this.dismissLoading();
-        this.addCallback(callback);
-      },
-      error: (err) => {
+        this.addCallback({ success: true, uid: userCredential.user.uid });
+      })
+      .catch(err => {
         this.dismissLoading();
-        this.uiUtils.showAlertError('Erro ao adicionar usuário via API.');
-      }
-    });
+        console.error('Erro ao criar usuário no Firebase Auth:', err);
+        this.uiUtils.showAlertError(this.dataText.errorRegister + ': ' + err.message);
+      });
   }
 
   private addCallback(data: any): void {
@@ -335,7 +340,7 @@ export class ClientsAddPage implements OnInit {
     this.defaultValues();
     this.db.addUserStart(
       data.uid,
-      this.formGroup.value.password,
+      this.formGroup.value.razaoSocial,
       this.formGroup.value.name,
       this.formGroup.value.lastName,
       this.formGroup.value.address,
@@ -353,20 +358,20 @@ export class ClientsAddPage implements OnInit {
       this.dataText.notInformade,
       this.formGroup.value.cpf,
       this.formGroup.value.cnpj,
-      this.dataText.notInformade,
-      this.dataText.notInformade,
       this.formGroup.value.state,
       this.formGroup.value.city,
-      this.dataText.notInformade,
-      '',
-      "",
-      ""
+      this.formGroup.value.tablePrice,      
     ).then(() => {
+      return this.db.updateUserStatus(data.uid, 'Perfil não verificado');
+    }).then(() => {
+      return this.db.updateRankingUser(data.uid, 'Bronze');
+    }).then(() => {
       this.dismissLoading();
       this.navCtrl.pop();
       this.uiUtils.showAlertSuccess(this.dataText.addedSuccess);
     }).catch(error => {
       this.dismissLoading();
+      console.error('Erro ao salvar perfil do usuário:', error);
       this.uiUtils.showAlertError(this.dataText.errorRegister);
     });
   }
@@ -384,9 +389,9 @@ export class ClientsAddPage implements OnInit {
       this.formGroup.value.postCode,
       this.formGroup.value.district,
       this.formGroup.value.tel,
-      this.dataText.notInformade,
-      this.dataText.notInformade,
-      this.dataText.notInformade,
+      url,
+      this.dataInfo.latitude,
+      this.dataInfo.longitude,
       1,
       this.dataText.notInformade,
       this.dataText.notInformade,
@@ -394,18 +399,12 @@ export class ClientsAddPage implements OnInit {
       this.dataText.notInformade,
       this.formGroup.value.cpf,
       this.formGroup.value.cnpj,
-      this.dataText.notInformade,
-      this.dataText.notInformade,
       this.formGroup.value.state,
       this.formGroup.value.city,
-      this.dataText.notInformade,
-      '',
-      "",
-      "",
-      url
+      this.formGroup.value.tablePrice,      
     ).then(() => {
       this.dismissLoading();
-      this.uiUtils.showAlertSuccess('Atualizações realizadas com sucesso');
+      this.uiUtils.showAlertSuccess(this.dataText.savedSuccess);
       this.navCtrl.pop();
     }).catch(error => {
       this.dismissLoading();
@@ -420,7 +419,6 @@ export class ClientsAddPage implements OnInit {
       cnpj: this.formGroup.value.cnpj || defaultText,
       tablePrice: this.formGroup.value.tablePrice || ''
     });
-    
   }
 
   selectPicture(): void {
@@ -508,9 +506,39 @@ export class ClientsAddPage implements OnInit {
     this.formGroup.get('tablePrice') && this.formGroup.get('tablePrice').setValue(event.value);
   }
 
-  stateChanged(state: string): void {
-    this.formGroup.get('state') && this.formGroup.get('state').setValue(state);
-    // Aqui você pode adicionar lógica para carregar cidades com base no estado, se necessário
+  stateChanged(event: any): void {
+    // No Ionic 3, o valor do <ion-input> está em event.value
+    const stateValue = event.value || (typeof event === 'string' ? event : 'RJ');
+    this.formGroup.get('state') && this.formGroup.get('state').setValue(stateValue);
+  }
+
+  fillRandomValues(): void {
+    const randomString = (length: number) => Math.random().toString(36).substring(2, 2 + length);
+    const randomNumber = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const randomCPF = () => Array(11).fill(0).map(() => randomNumber(0, 9)).join('');
+    const randomCNPJ = () => Array(14).fill(0).map(() => randomNumber(0, 9)).join('');
+    const randomPhone = () => `119${randomNumber(10000000, 99999999)}`;
+    const randomEmail = () => `test${randomString(5)}@example.com`;
+
+    this.formGroup.patchValue({
+      razaoSocial: 'Empresa ' + randomString(5),
+      cnpj: randomCNPJ(),
+      name: 'Cliente' + randomString(5),
+      lastName: 'Sobrenome' + randomString(5),
+      address: 'Rua Exemplo ' + randomNumber(100, 999),
+      complement: 'Apto ' + randomNumber(1, 100),
+      postCode: '12345678',
+      numero: randomNumber(1, 9999).toString(),
+      district: 'Bairro Teste',
+      cpf: randomCPF(),
+      state: 'RJ',
+      city: 'Rio de Janeiro',
+      tel: randomPhone(),
+      tablePrice: this.tableArray[0] || '',
+      email: randomEmail(),
+      password: '123456',
+      password1: '123456'
+    });
   }
 
   private checkErrorField(): void {

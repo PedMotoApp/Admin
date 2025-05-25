@@ -1,6 +1,6 @@
 <ion-header class="bg-theme">
   <ion-navbar style="background: linear-gradient(90deg, #007bff, #00c4ff);">
-    <ion-title>PedMoto</ion-title>
+    
     <ion-buttons end>
       <button ion-button (click)="centerMap()" *ngIf="dataInfo.userInfo && dataInfo.userInfo.isAdmin">
         Centralizar Mapa
@@ -8,12 +8,12 @@
       <button ion-button (click)="fit()" *ngIf="dataInfo.userInfo && dataInfo.userInfo.isAdmin">
         Ajustar Zoom
       </button>
-      <button ion-button (click)="showProfessionalsOnline()" *ngIf="dataInfo.userInfo && dataInfo.userInfo.isAdmin">
+      <!--<button ion-button (click)="showProfessionalsOnline()" *ngIf="dataInfo.userInfo && dataInfo.userInfo.isAdmin">
         Profissionais Online {{ totalOnline }}
       </button>
       <button ion-button (click)="showClientsOnline()" *ngIf="dataInfo.userInfo && dataInfo.userInfo.isAdmin">
         Clientes Online {{ totalOnlineClients }}
-      </button>
+      </button> -->
       <button ion-button icon-only (click)="logout()">
         <ion-icon name="md-exit"></ion-icon>
       </button>
@@ -50,7 +50,7 @@
         </ion-card>
       </ion-col>
       <ion-col class="nav-card-col">
-        <ion-card class="nav-card" (click)="goPageTablePrice  ()">
+        <ion-card class="nav-card" (click)="goPageTablePrice()">
           <img src="./assets/imgs/tabela.jpg" class="nav-card-img" />
           <div class="nav-card-content">Tabelas de Preços</div>
         </ion-card>
@@ -91,8 +91,8 @@
 
         <!-- Últimas Corridas Concluídas -->
         <ion-card class="dashboard-card" style="border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin: 10px 0;">
-          <ion-card-header style="padding: 15px;">
-            <h3 style="font-size: 16px; color: white; margin: 0;">Últimas Corridas</h3>
+          <ion-card-header style="padding: 15px; background: linear-gradient(90deg, #007bff, #00c4ff);">
+            <h3 style="font-size: 16px; color: white; margin: 0;">Últimas Corridas Concluídas</h3>
           </ion-card-header>
           <ion-card-content style="padding: 15px;">
             <ion-list no-lines>
@@ -107,6 +107,9 @@
                   </h5>
                   <p style="font-size: 12px; color: #777; margin: 0;">
                     Cliente: {{ h.user && h.user.firstName ? h.user.firstName : 'Não informado' }} {{ h.user && h.user.lastName ? h.user.lastName : '' }}
+                  </p>
+                  <p style="font-size: 12px; color: #777; margin: 0;">
+                    Solicitado em: {{ h.createdAt | date:'dd/MM/yyyy HH:mm' }}
                   </p>
                   <p class="sub" style="font-size: 12px; color: #777; margin: 0;">
                     {{ h.dropPoints && h.dropPoints[0] ? h.dropPoints[0].description : 'Não informado' }} • {{ h.finalizedAt ? (h.finalizedAt | date:'dd/MM HH:mm') : 'Não informado' }}
@@ -127,7 +130,7 @@
       <!-- Direita: Mapa e Lista de Corridas em Tempo Real -->
       <ion-col col-12 col-md-6 *ngIf="dataInfo.userInfo && dataInfo.userInfo.isAdmin">
         <ion-card class="dashboard-card" style="border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin: 10px 0; height: 100%;">
-          <ion-card-header style="padding: 15px;">
+          <ion-card-header style="padding: 15px; background: linear-gradient(90deg, #007bff, #00c4ff);">
             <h3 style="font-size: 16px; color: white; margin: 0;">Monitoramento em Tempo Real</h3>
           </ion-card-header>
           <ion-card-content style="padding: 15px; display: flex; flex-direction: column; height: calc(100% - 60px);">
@@ -146,29 +149,30 @@
                 <ion-list *ngIf="requestType === 'Serviço'">
                   <ion-item *ngFor="let work of allJobs" style="padding: 10px 0; --padding-start: 0;">
                     <div style="flex: 1;">
-                      <p style="font-size: 12px; color: #333; margin: 0;"><b>Cliente:</b> {{ work.name || 'Não informado' }}</p>
-                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="work.workerInfo"><b>Profissional:</b> {{ work.workerInfo.name || 'Não informado' }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;"><b>Cliente:</b> {{ work.user?.firstName || 'Não informado' }} {{ work.user?.lastName || '' }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="work.driver"><b>Profissional:</b> {{ work.driver.firstName || 'Não informado' }} {{ work.driver.lastName || '' }}</p>
                       <p style="font-size: 12px; color: #333; margin: 0;"><b>Status:</b> {{ work.status || 'Não informado' }}</p>
                       <p style="font-size: 12px; color: #333; margin: 0;"><b>Origem:</b> {{ work.dropPoints && work.dropPoints[0] ? work.dropPoints[0].description : 'Não informado' }}</p>
-                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="work.carInfo"><b>Valor:</b> R$ {{ work.carInfo.finalValue || work.servicesPrices?.totalPrice || '0.00' }}</p>
-                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="work.workerInfo && work.workerInfo.latitude"><b>Latitude:</b> {{ work.workerInfo.latitude }}</p>
-                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="work.workerInfo && work.workerInfo.longitude"><b>Longitude:</b> {{ work.workerInfo.longitude }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;"><b>Solicitado em:</b> {{ work.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="work.servicesPrices"><b>Valor:</b> R$ {{ work.servicesPrices.totalPrice || '0.00' }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="work.driver?.latitude"><b>Latitude:</b> {{ work.driver.latitude }}</p>
+                      <p style="font-size: 12px; color: #333; margin: 0;" *ngIf="work.driver?.longitude"><b>Longitude:</b> {{ work.driver.longitude }}</p>
                     </div>
                     <ion-row style="margin-top: 10px;">
-                      <ion-col>
+                      <ion-col *ngIf="work.status === 'Finalizado' || work.status === 'Cancelado'">
                         <button ion-button icon-start clear small (click)="edit(work)">
                           <ion-icon name="clipboard" style="color: #007bff;"></ion-icon>
                           Editar
                         </button>
                       </ion-col>
                       <ion-col *ngIf="work.status !== 'Finalizado' && work.status !== 'Cancelado'">
-                        <button ion-button icon-start clear small (click)="finishWorkDelivery(work)">
+                        <button ion-button icon-start clear small (click)="confirmFinish(work)">
                           <ion-icon name="md-flag" style="color: #28a745;"></ion-icon>
                           Finalizar
                         </button>
                       </ion-col>
                       <ion-col *ngIf="work.status !== 'Finalizado' && work.status !== 'Cancelado'">
-                        <button ion-button icon-start clear small (click)="cancelWorkDelivery(work)">
+                        <button ion-button icon-start clear small (click)="confirmCancel(work)">
                           <ion-icon name="trash" style="color: #dc3545;"></ion-icon>
                           Cancelar
                         </button>

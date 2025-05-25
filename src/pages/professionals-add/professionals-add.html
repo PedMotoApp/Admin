@@ -28,6 +28,15 @@
       </ion-col>
     </ion-row>
 
+    <!-- Botão Dev: Preencher Valores Aleatórios -->
+    <!-- <ion-row style="justify-content: center; margin-bottom: 10px;">
+      <ion-col col-12 style="text-align: center;">
+        <button ion-button small (click)="fillRandomValues()" style="background: linear-gradient(90deg, #ff4500, #ff6347); color: white;">
+          Fill Random (Dev)
+        </button>
+      </ion-col>
+    </ion-row> -->
+
     <!-- Formulário -->
     <form [formGroup]="formGroup" novalidate>
       <ion-row>
@@ -175,38 +184,12 @@
         <ion-col col-12 col-md-6>
           <ion-item no-lines style="background: white; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
             <ion-label stacked>{{dataText.cnpj}}</ion-label>
-            <ion-input type="text" formControlName="cnpj" maxlength="14" (keyup.enter)="focusNext($event, 'selectedService')"></ion-input>
+            <ion-input type="text" formControlName="cnpj" maxlength="14" (keyup.enter)="focusNext($event, 'selectedBank')"></ion-input>
           </ion-item>
           <ion-note margin-left ion-text color="danger" *ngIf="formGroup.get('cnpj').invalid && formGroup.get('cnpj').touched">
             <span *ngIf="formGroup.get('cnpj').errors?.required">{{dataText.requestdField}}</span>
             <span *ngIf="formGroup.get('cnpj').errors?.minlength || formGroup.get('cnpj').errors?.maxlength">{{dataText.errorRegisterCNPJ}}</span>
           </ion-note>
-        </ion-col>
-
-        <!-- Serviços -->
-        <ion-col col-12 col-md-6>
-          <ion-item no-lines style="background: white; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <ion-label stacked>{{dataText.professionalsServices}}</ion-label>
-            <ion-select formControlName="selectedService" multiple="true">
-              <ion-option *ngFor="let service of dataInfo.services">{{service.name}}</ion-option>
-            </ion-select>
-          </ion-item>
-        </ion-col>
-
-        <!-- Modelo -->
-        <ion-col col-12 col-md-6>
-          <ion-item no-lines style="background: white; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <ion-label stacked>{{dataText.models}}</ion-label>
-            <ion-input type="text" formControlName="prefixo" (keyup.enter)="focusNext($event, 'plate')"></ion-input>
-          </ion-item>
-        </ion-col>
-
-        <!-- Placa -->
-        <ion-col col-12 col-md-6>
-          <ion-item no-lines style="background: white; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <ion-label stacked>{{dataText.plate}}</ion-label>
-            <ion-input type="text" formControlName="plate" (keyup.enter)="focusNext($event, 'selectedBank')"></ion-input>
-          </ion-item>
         </ion-col>
 
         <!-- Banco -->
@@ -243,24 +226,7 @@
           </ion-item>
         </ion-col>
 
-        <!-- Tabela de Preços -->
-        <ion-col col-12 col-md-6>
-          <ion-item no-lines style="background: white; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <ion-label stacked>{{dataText.selectTablePrice}}</ion-label>
-            <ionic-selectable
-              item-content
-              formControlName="tablePrice"
-              [items]="tableArray"
-              itemValueField="name"
-              itemTextField="name"
-              [canSearch]="true"
-              [isMultiple]="false"
-              (onChange)="tableChanged($event)"
-            >
-            </ionic-selectable>
-          </ion-item>
-        </ion-col>
-
+        
         <!-- Experiência Profissional -->
         <ion-col col-12>
           <ion-item no-lines style="background: white; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">

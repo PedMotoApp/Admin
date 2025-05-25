@@ -852,10 +852,13 @@ export class RegisterPage  implements OnInit {
         cpf: "Erro no registro: CPF é obrigatório",
     };
     
-    for (const [field, errorMessage] of Object.entries(errorMappings)) {
-        if (!this.formGroup.value[field] || this.formGroup.value[field].length === 0) {
-            this.uiUtils.showAlertError(errorMessage);
-            return;
+    for (const field in errorMappings) {
+        if (errorMappings.hasOwnProperty(field)) {
+            const errorMessage = errorMappings[field];
+            if (!this.formGroup.value[field] || this.formGroup.value[field].length === 0) {
+                this.uiUtils.showAlertError(errorMessage);
+                return;
+            }
         }
     }
 

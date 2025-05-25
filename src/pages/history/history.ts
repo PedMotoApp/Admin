@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { IonicPage, NavController, NavParams, Platform } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, Platform, AlertController } from 'ionic-angular';
 import { Observable, Subscription } from 'rxjs';
 import { UiUtilsProvider } from '../../providers/ui-utils/ui-utils';
 import { DataInfoProvider } from '../../providers/data-info/data-info';
@@ -8,6 +8,8 @@ import { InAppBrowser } from '@ionic-native/in-app-browser';
 import { DataTextProvider } from '../../providers/data-text/data-text';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import * as moment from 'moment';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 interface Work {
   key: string;
@@ -17,26 +19,26 @@ interface Work {
   cancellationReason?: string;
   cancelledAt?: string;
   status: string;
-  user: {
+  user?: {
     email: string;
     firstName: string;
     lastName: string;
     photo: string;
     uid: string;
   };
-  driver: {
+  driver?: {
     email: string;
     firstName: string;
     lastName: string;
     uid: string;
   };
-  servicesPrices: {
+  servicesPrices?: {
     driverEarnings: number;
     totalDistance: number;
     totalPrice: string;
     totalTime: number;
   };
-  dropPoints: {
+  dropPoints?: {
     description: string;
     arrivedAt?: string;
     completedAt?: string;
@@ -97,7 +99,8 @@ export class HistoryPage implements OnInit {
     private iab: InAppBrowser,
     public dataText: DataTextProvider,
     public navParams: NavParams,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private alertCtrl: AlertController
   ) {}
 
   ngOnInit(): void {
@@ -132,7 +135,7 @@ export class HistoryPage implements OnInit {
       client: [''],
       worker: [''],
       selectedDate: [moment().startOf('month').format('YYYY-MM-DD'), Validators.required],
-      selectedDateEnd: [moment().format('YYYY-MM-DD'), Validators.required]
+      selectedDateEnd: [moment().add(1, 'day').format('YYYY-MM-DD'), Validators.required]
     });
   }
 
@@ -210,7 +213,7 @@ export class HistoryPage implements OnInit {
       client: '',
       worker: '',
       selectedDate: moment().startOf('month').format('YYYY-MM-DD'),
-      selectedDateEnd: moment().format('YYYY-MM-DD')
+      selectedDateEnd: moment().add(1, 'day').format('YYYY-MM-DD')
     });
     this.worksArray = [];
     this.reportsArray = [];
@@ -286,7 +289,7 @@ export class HistoryPage implements OnInit {
     const statusFilter = this.formGroup.value.status;
     const clientFilter = this.formGroup.value.client && this.formGroup.value.client.uid ? this.formGroup.value.client.uid : '';
     const workerFilter = this.formGroup.value.worker && this.formGroup.value.worker.uid ? this.formGroup.value.worker.uid : '';
-  
+
     console.log('Filtros aplicados:', {
       startDate: startDate.format('DD/MM/YYYY'),
       endDate: endDate.format('DD/MM/YYYY'),
@@ -294,18 +297,18 @@ export class HistoryPage implements OnInit {
       clientFilter,
       workerFilter
     });
-  
+
     this.worksArray = data.map(element => {
       const info: Work = element.payload.val();
       info.key = element.payload.key;
       info.expand = false;
-  
+
       // Usar cancelledAt como fallback para datetime
       const dateToUse = info.datetime || info.cancelledAt;
       if (dateToUse && moment(dateToUse, ['YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD/MM/YYYY HH:mm:ss']).isValid()) {
         info.datetime = moment(dateToUse, ['YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD/MM/YYYY HH:mm:ss']).format('DD/MM/YYYY HH:mm:ss');
       }
-  
+
       if (info.createdAt && moment(info.createdAt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').isValid()) {
         info.createdAt = moment(info.createdAt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').format('DD/MM/YYYY HH:mm:ss');
       }
@@ -322,7 +325,6 @@ export class HistoryPage implements OnInit {
           }
         });
       } else {
-        // Garantir que dropPoints seja um array vazio se não existir ou não for um array
         info.dropPoints = [];
       }
       return info;
@@ -332,12 +334,12 @@ export class HistoryPage implements OnInit {
         console.log('Data inválida para o serviço:', info);
         return false;
       }
-  
+
       const matchesDate = workDate.isSameOrAfter(startDate) && workDate.isSameOrBefore(endDate);
       const matchesStatus = statusFilter === 'Todos' || info.status === statusFilter;
       const matchesClient = !clientFilter || (info.user && info.user.uid && info.user.uid === clientFilter);
       const matchesWorker = !workerFilter || (info.driver && info.driver.uid && info.driver.uid === workerFilter);
-  
+
       if (!matchesDate) {
         console.log(`Serviço fora do intervalo de datas: ${info.datetime}`);
       }
@@ -350,10 +352,10 @@ export class HistoryPage implements OnInit {
       if (!matchesWorker) {
         console.log(`Serviço não corresponde ao profissional: ${info.driver && info.driver.uid}`);
       }
-  
+
       return matchesDate && matchesStatus && matchesClient && matchesWorker;
     });
-  
+
     this.calculateTotals();
     this.organizaFila();
   }
@@ -390,7 +392,7 @@ export class HistoryPage implements OnInit {
   }
 
   downloadExcel(): void {
-    this.uiUtils.showConfirm(this.dataText.warning, 'Deseja realizar o download via excel?').then((result) => {
+    this.uiUtils.showConfirm(this.dataText.warning, 'Deseja realizar o download via Excel?').then((result) => {
       if (result) {
         this.downloadExcelContinue();
       }
@@ -398,27 +400,71 @@ export class HistoryPage implements OnInit {
   }
 
   downloadExcelContinue(): void {
-    this.showLoading(this.dataText.loading);
-    this.db.addReport(
-      this.formGroup.value.selectedDate,
-      this.formGroup.value.selectedDateEnd,
-      this.totalJobs,
-      '0.00', // totalComissionStr
-      '0.00', // totalPrePaidStr
-      '0.00', // totalCardStr
-      '0.00', // totalMoneyStr
-      this.totalPrice.toFixed(2), // totalFinalStr
-      this.formGroup.value.client,
-      this.formGroup.value.worker
-    ).then(() => {
-      this.dismissLoading();
-      this.uiUtils.showAlertSuccess('Favor aguarde. Estamos processando seu relatório');
-      this.showReports();
-    }).catch(err => {
-      console.error('Erro ao adicionar relatório:', err);
-      this.dismissLoading();
-      this.uiUtils.showAlertError('Erro ao processar o relatório.');
+    this.showLoading('Gerando relatório Excel...');
+
+    // Preparar os dados para o Excel
+    const excelData = this.worksArray.map(work => {
+      const dropPointsDetails = (work.dropPoints || []).map(point => {
+        return 'Endereço: ' + (point.description || 'Não informado') +
+          ', Chegada: ' + (point.arrivedAt || 'Não informado') +
+          ', Conclusão: ' + (point.completedAt || 'Não informado') +
+          ', Distância do Anterior: ' + (point.distanceFromPrevious || 0) + ' km' +
+          ', Tempo do Anterior: ' + (point.timeFromPrevious || 0) + ' min' +
+          (point.distanceToNext ? ', Distância até o Próximo: ' + point.distanceToNext : '') +
+          (point.timeToNext ? ', Tempo até o Próximo: ' + point.timeToNext : '');
+      }).join('; ');
+
+      return {
+        'Data': work.datetime,
+        'Status': work.status,
+        'Cliente': work.user && work.user.email ? work.user.email : 'Não informado',
+        'Profissional': work.driver && work.driver.email ? work.driver.email : 'Não informado',
+        'Distância Total (km)': work.servicesPrices && work.servicesPrices.totalDistance ? work.servicesPrices.totalDistance : 0,
+        'Tempo Total (min)': work.servicesPrices && work.servicesPrices.totalTime ? work.servicesPrices.totalTime : 0,
+        'Preço Total (R$)': work.servicesPrices && work.servicesPrices.totalPrice ? work.servicesPrices.totalPrice : '0.00',
+        'Pontos de Entrega': dropPointsDetails
+      };
     });
+
+    // Adicionar linha de totais
+    excelData.push({
+      'Data': 'Totais',
+      'Status': '',
+      'Cliente': '',
+      'Profissional': '',
+      'Distância Total (km)': this.totalDistance,
+      'Tempo Total (min)': this.totalTime,
+      'Preço Total (R$)': this.totalPrice.toFixed(2),
+      'Pontos de Entrega': ''
+    });
+
+    // Criar a planilha
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Histórico');
+
+    // Estilizar as colunas (ajustar largura)
+    worksheet['!cols'] = [
+      { wch: 20 }, // Data
+      { wch: 15 }, // Status
+      { wch: 30 }, // Cliente
+      { wch: 30 }, // Profissional
+      { wch: 20 }, // Distância Total
+      { wch: 20 }, // Tempo Total
+      { wch: 20 }, // Preço Total
+      { wch: 50 }  // Pontos de Entrega
+    ];
+
+    // Gerar o arquivo Excel
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const fileName = 'relatorio_historico_' + moment().format('DD-MM-YYYY') + '.xlsx';
+
+    // Fazer o download
+    saveAs(data, fileName);
+
+    this.dismissLoading();
+    this.uiUtils.showAlertSuccess('Relatório Excel gerado com sucesso!');
   }
 
   showReports(): void {
@@ -456,6 +502,59 @@ export class HistoryPage implements OnInit {
 
   expand(work: Work): void {
     work.expand = !work.expand;
+  }
+
+  showDetails(work: Work): void {
+    let details = `
+      <strong>Cliente:</strong> ${work.user && work.user.email ? work.user.email : 'Não informado'}<br>
+      <strong>Profissional:</strong> ${work.driver && work.driver.email ? work.driver.email : 'Não informado'}<br>
+      <strong>Data:</strong> ${work.datetime}<br>
+      <strong>Status:</strong> ${work.status}<br>
+      <strong>Criado em:</strong> ${work.createdAt}<br>
+      <strong>Finalizado em:</strong> ${work.finalizedAt || 'Não informado'}<br>
+    `;
+
+    if (work.cancellationReason) {
+      details += `<strong>Motivo do Cancelamento:</strong> ${work.cancellationReason}<br>`;
+    }
+
+    details += `
+      <strong>Distância Total:</strong> ${work.servicesPrices && work.servicesPrices.totalDistance ? work.servicesPrices.totalDistance : 0} km<br>
+      <strong>Tempo Total:</strong> ${work.servicesPrices && work.servicesPrices.totalTime ? work.servicesPrices.totalTime : 0} min<br>
+      <strong>Preço Total:</strong> R$ ${work.servicesPrices && work.servicesPrices.totalPrice ? work.servicesPrices.totalPrice : '0.00'}<br>
+      <strong>Pontos de Entrega:</strong><br>
+    `;
+
+    (work.dropPoints || []).forEach((point, index) => {
+      details += `
+        <strong>Ponto ${index + 1}:</strong><br>
+        Endereço: ${point.description || 'Não informado'}<br>
+        Chegada: ${point.arrivedAt || 'Não informado'}<br>
+        Conclusão: ${point.completedAt || 'Não informado'}<br>
+        Distância do Anterior: ${point.distanceFromPrevious || 0} km<br>
+        Tempo do Anterior: ${point.timeFromPrevious || 0} min<br>
+      `;
+      if (point.distanceToNext) {
+        details += `Distância até o Próximo: ${point.distanceToNext}<br>`;
+      }
+      if (point.timeToNext) {
+        details += `Tempo até o Próximo: ${point.timeToNext}<br>`;
+      }
+      details += '<br>';
+    });
+
+    const alert = this.alertCtrl.create({
+      title: 'Detalhes do Serviço',
+      message: details,
+      buttons: [
+        {
+          text: 'Fechar',
+          role: 'cancel'
+        }
+      ],
+      cssClass: 'custom-alert'
+    });
+    alert.present();
   }
 
   open(data: Report): void {
@@ -565,7 +664,7 @@ export class HistoryPage implements OnInit {
   }
 
   recovery(work: Work): void {
-    const clientSub = this.db.getUserUid(work.user.uid).subscribe({
+    const clientSub = this.db.getUserUid(work.user ? work.user.uid : '').subscribe({
       next: (data) => {
         this.recoveryClientContinue(data, work);
         clientSub.unsubscribe();

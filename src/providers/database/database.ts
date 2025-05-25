@@ -108,15 +108,10 @@ export class DatabaseProvider {
     agency_: string,
     account_: string,
     cpf_: string,
-    cnpj_: string,
-    carName_: string,
-    carPlate_: string,
+    cnpj_: string,        
     state_: string,
-    city_: string,
-    prefixo_: string,
-    tablePrice: string,
-    ifoodClientId: string,
-    ifoodClientSecret: string
+    city_: string,    
+    tablePrice: string,    
   ): Promise<void> {
     let path = '/userProfile/';
     return this.db.list(path).update(uid_, {
@@ -138,19 +133,13 @@ export class DatabaseProvider {
       cnpj: cnpj_,
       bank: bank_,
       agency: agency_,
-      account: account_,
-      carName: carName_,
+      account: account_,      
       state: state_,
-      city: city_,
-      carPlate: carPlate_,
-      prefixo: prefixo_,
+      city: city_,      
       tablePrice: tablePrice,
       pathRequest: path,
       ranking: 'Bronze',
-      status: 'Perfil verificado',
-      ifoodClientId: ifoodClientId,
-      ifoodClientSecret: ifoodClientSecret,
-      datetime: moment().format()
+      status: 'Perfil verificado'
     });
   }
 
@@ -298,24 +287,18 @@ export class DatabaseProvider {
     district_: string,
     telefone_: string,
     foto_: string,
-    latitude_: string,
-    longitude_: string,
+    latitude_: number,
+    longitude_: number,
     tipo_: number,
     description_: string,
     bank_: string,
     agency_: string,
     account_: string,
     cpf_: string,
-    cnpj_: string,
-    carName_: string,
-    carPlate_: string,
+    cnpj_: string,    
     state_: string,
-    city_: string,
-    prefixo_: string,
-    tablePrice: string,
-    ifoodClientId: string,
-    ifoodClientSecret: string,
-    pix: string
+    city_: string,    
+    tablePrice: string    
   ): Promise<void> {
     let path = `/userProfile/`;
     return this.db.list(path).update(uid_, {
@@ -336,15 +319,10 @@ export class DatabaseProvider {
       bank: bank_,
       agency: agency_,
       url: foto_,
-      account: account_,
-      carName: carName_,
+      account: account_,      
       state: state_,
-      city: city_,
-      carPlate: carPlate_,
-      prefixo: prefixo_,
-      tablePrice: tablePrice,
-      ifoodClientId: ifoodClientId,
-      ifoodClientSecret: ifoodClientSecret
+      city: city_,            
+      tablePrice: tablePrice,      
     });
   }
 
@@ -896,4 +874,20 @@ export class DatabaseProvider {
     let path = '/acquaintances/';
     return this.db.list(path, ref => ref.orderByKey()).snapshotChanges();
   }
+
+  addToOrderHistory(historyData: any): Promise<any> {
+    let path = '/orderHistory/';
+    let ref = this.db.list(path);
+    let uid = this.authProvider.currentUserUid();
+    return ref.push({
+      ...historyData,
+      uid: uid,
+      datetime: moment().format(),
+      datetimeAccepted: historyData.datetimeAccepted || '',
+      datetimeStart: historyData.datetimeStart || '',
+      datetimeFinish: historyData.datetimeFinish || '',
+      datetimeCancel: historyData.datetimeCancel || '',
+      datetimeRated: historyData.datetimeRated || '',      
+      });
+    }
 }

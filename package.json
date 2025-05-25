@@ -84,6 +84,7 @@
     "css-animator": "^2.3.1",
     "default-passive-events": "^1.0.10",
     "es6-promise-plugin": "^4.2.2",
+    "file-saver": "^2.0.5",
     "firebase": "7.16.0",
     "firebase-config": "0.0.2",
     "firebase-functions": "^2.1.0",
@@ -114,6 +115,7 @@
   "devDependencies": {
     "@ionic/app-scripts": "3.2.3",
     "@types/chartist": "0.9.46",
+    "@types/file-saver": "^2.0.7",
     "@types/node": "^16.3.1",
     "typescript": "^2.8.0"
   },

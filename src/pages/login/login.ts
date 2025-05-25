@@ -104,15 +104,7 @@ export class LoginPage {
 
         this.dataInfo.isHome = true;
 
-        if (this.dataInfo.userInfo && this.dataInfo.userInfo.isAdmin)
-          this.navCtrl.setRoot(HomePage);
-        else if (this.dataInfo.userInfo && this.dataInfo.userInfo.manager) {
-          if (this.dataInfo.userInfo.managerRegion) {
-            this.navCtrl.setRoot(HomePage);
-          }
-        } else {
-          this.navCtrl.setRoot("WorkPage");
-        }
+        this.navCtrl.setRoot(HomePage);
         ///  this.goPageDev()
       } else this.uiUtils.showAlertError("Usuário não localizado ou senha incorreta");
     }

@@ -110,3 +110,17 @@ page-documentation {
   }
   
 }
+
+.page-documentation {
+  .ion-card {
+    transition: transform 0.2s ease-in-out;
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  img {
+    object-fit: cover;
+    border: 1px solid #e0e0e0;
+  }
+}

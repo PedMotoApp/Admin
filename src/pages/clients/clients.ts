@@ -29,7 +29,7 @@ interface Client {
   uid?: string;
   prePaid?: boolean;
   isPremium?: boolean;
-  showDetails?: boolean; // Adicionado para controlar a expansão dos detalhes
+  showDetails?: boolean;
 }
 
 @IonicPage()
@@ -46,7 +46,7 @@ export class ClientsPage {
   orderType: string = '1';
 
   private subscriptions: Subscription[] = [];
-  private activeLoading: any = null; // Para rastrear o loading ativo
+  private activeLoading: any = null;
 
   constructor(
     public navCtrl: NavController,
@@ -80,9 +80,10 @@ export class ClientsPage {
   }
 
   private reload(): void {
-    // Fechar qualquer loading ativo antes de abrir um novo
-    
-    // Cancelar qualquer inscrição anterior para evitar múltiplas inscrições
+    const loading = this.uiUtils.showLoading(this.dataInfo.titleLoadingInformations);
+    loading.present();
+    this.activeLoading = loading;
+
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.subscriptions = [];
 
@@ -90,12 +91,12 @@ export class ClientsPage {
     const sub = this.usersWorkers.subscribe({
       next: (data) => {
         this.reloadCallback(data);
-        
+        this.dismissLoading();
       },
       error: (err) => {
         console.error('Erro ao carregar clientes:', err);
         this.uiUtils.showAlertError('Erro ao carregar dados dos clientes.');
-        
+        this.dismissLoading();
       }
     });
     this.subscriptions.push(sub);
@@ -110,8 +111,8 @@ export class ClientsPage {
         key: element.payload.key,
         name: payloadVal.name,
         email: payloadVal.email,
-        status: payloadVal.status,
-        ranking: payloadVal.ranking,
+        status: payloadVal.status || 'Perfil não verificado',
+        ranking: payloadVal.ranking || 'Bronze',
         photo: payloadVal.photo,
         tablePrice: payloadVal.tablePrice,
         datetime: payloadVal.datetime,
@@ -127,15 +128,13 @@ export class ClientsPage {
         uid: payloadVal.uid,
         prePaid: payloadVal.prePaid,
         isPremium: payloadVal.isPremium,
-        showDetails: false // Inicialmente, os detalhes estão ocultos
+        showDetails: false
       };
 
-      // Definir nome padrão como e-mail se não houver nome
       if (!info.name) {
         info.name = info.email;
       }
 
-      // Filtrar apenas clientes ativos (userType 1, não desativados ou removidos)
       if (info.userType === 1 && info.status !== 'Desativado' && info.status !== 'Removido') {
         this.addArray(info);
       }
@@ -153,12 +152,9 @@ export class ClientsPage {
   }
 
   private checkRegion(info: Client): void {
-    // Administradores veem todos os clientes
     if (this.dataInfo.userInfo.isAdmin) {
       this.usersArray.push(info);
-    }
-    // Gerentes veem apenas clientes da sua região
-    else if (this.dataInfo.userInfo.managerRegion && info.region === this.dataInfo.userInfo.managerRegion) {
+    } else if (this.dataInfo.userInfo.managerRegion && info.region === this.dataInfo.userInfo.managerRegion) {
       this.usersArray.push(info);
     }
   }
@@ -285,11 +281,15 @@ export class ClientsPage {
   }
 
   addClient(): void {
-    this.navCtrl.push('ClientsAddPage');
+    this.navCtrl.push('ClientsAddPage', {
+      defaultSettings: {
+        ranking: 'Bronze',
+        status: 'Perfil não verificado'
+      }
+    });
   }
 
   private updateProfileStatus(key: string, status: string): void {
-    console.log('Atualizando status do perfil:', key, status);
     this.db.updateProfileStatusUser(key, status)
       .then(() => {
         this.uiUtils.showAlert(this.dataText.success, this.dataText.savedSuccess).present();
@@ -327,7 +327,7 @@ export class ClientsPage {
           icon: !this.platform.is('ios') ? 'md-trash' : null,
           handler: () => this.removeUser(payload)
         },
-        {
+        /*{
           text: this.dataText.credits,
           role: 'destructive',
           icon: 'cash',
@@ -342,7 +342,7 @@ export class ClientsPage {
           text: this.dataText.premiumUser,
           icon: !this.platform.is('ios') ? 'md-medal' : null,
           handler: () => this.changePremium(payload)
-        },
+        },*/
         {
           text: this.dataText.cancel,
           role: 'cancel',
@@ -376,7 +376,11 @@ export class ClientsPage {
     this.uiUtils.showConfirm(this.dataText.warning, this.dataText.areYouVerySure)
       .then((result) => {
         if (result) {
-          this.removeUserContinue(payload);
+          if (!this.dataInfo.isTest) {
+            this.removeUserContinue(payload);
+          } else {
+            this.uiUtils.showAlertError(this.dataText.accessDenied);
+          }
         }
       })
       .catch(err => {
@@ -390,27 +394,18 @@ export class ClientsPage {
     loading.present();
 
     const uid = payload.uid || payload.key;
-    this.httpd.apiRemoveUser({ uid })
-      .subscribe({
-        next: (result) => {
-          console.log('Resultado da API de remoção:', result);
-          this.uiUtils.showAlertSuccess(this.dataText.removeSuccess);
-          this.db.updateUserStatus(uid, 'Removido')
-            .then(() => {
-              this.reload();
-            })
-            .catch(err => {
-              console.error('Erro ao atualizar status do usuário:', err);
-              this.uiUtils.showAlertError('Erro ao atualizar o status do cliente.');
-            });
-        },
-        error: (err) => {
-          console.error('Erro na API de remoção:', err);
-          this.uiUtils.showAlertError('Erro ao remover o cliente via API.');
-        },
-        complete: () => {
-          loading.dismiss();
-        }
+
+    // Delete user data from Realtime Database only
+    this.db.removeUser(uid)
+      .then(() => {
+        loading.dismiss();
+        this.uiUtils.showAlertSuccess(this.dataText.removeSuccess);
+        this.reload();
+      })
+      .catch(err => {
+        console.error('Erro ao remover usuário do banco:', err);
+        loading.dismiss();
+        this.uiUtils.showAlertError('Erro ao remover o usuário do banco de dados: ' + (err.message || 'Erro desconhecido'));
       });
   }
 
@@ -418,7 +413,11 @@ export class ClientsPage {
     this.uiUtils.showConfirm(this.dataText.warning, this.dataText.doYouWantDisableUser)
       .then((result) => {
         if (result) {
-          this.inativate(payload);
+          if (!this.dataInfo.isTest) {
+            this.inativate(payload);
+          } else {
+            this.uiUtils.showAlertError(this.dataText.accessDenied);
+          }
         }
       })
       .catch(err => {
@@ -495,5 +494,20 @@ export class ClientsPage {
 
   clientChanged(event: any): void {
     this.reload();
+  }
+
+  private showLoading(message: string): void {
+    if (this.activeLoading) {
+      this.activeLoading.dismiss();
+    }
+    this.activeLoading = this.uiUtils.showLoading(message);
+    this.activeLoading.present();
+  }
+
+  private dismissLoading(): void {
+    if (this.activeLoading) {
+      this.activeLoading.dismiss();
+      this.activeLoading = null;
+    }
   }
 }

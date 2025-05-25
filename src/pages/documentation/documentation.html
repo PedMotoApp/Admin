@@ -1,95 +1,163 @@
-<ion-header>
+<ion-header class="bg-theme">
+  <ion-navbar text-center no-border-bottom>
+    <ion-title style="color: white; font-size: 16px;">{{dataText.documentation}}</ion-title>
+  </ion-navbar>
+</ion-header>
 
-    <ion-navbar text-center no-border-bottom>
-      <ion-title>{{dataText.documentation}}</ion-title>                
-    </ion-navbar>
-   
-</ion-header>  
+<ion-content class="page-documentation" style="background: #f4f5f8;">
+  <ion-grid style="padding: 10px;">
+    <ion-row>
+      <!-- Carteira de Identidade -->
+      <ion-col col-12 col-md-6>
+        <ion-card style="border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <ion-item style="padding: 8px;">
+            <ion-icon name="card-outline" slot="start" style="color: #666; font-size: 24px;"></ion-icon>
+            <div style="margin-left: 10px; flex: 1;">
+              <h2 style="font-size: 14px; font-weight: bold; color: #333; margin: 0;">{{dataText.cardId}}</h2>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;">
+                <strong>{{picOne ? dataText.sent : dataText.notSent}}</strong>
+              </p>
+            </div>
+          </ion-item>
+          <div style="padding: 8px; background: #f9f9f9; text-align: center;">
+            <img *ngIf="picOne" [src]="picOne" alt="Carteira de Identidade" style="max-width: 100%; max-height: 150px; border-radius: 5px;">
+            <p *ngIf="!picOne" style="font-size: 12px; color: #999; margin: 0;">Nenhum documento disponível</p>
+          </div>
+        </ion-card>
+      </ion-col>
 
-<ion-content class="bg-light">
-        
-  <ion-list>
+      <!-- Carteira de Habilitação -->
+      <ion-col col-12 col-md-6>
+        <ion-card style="border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <ion-item style="padding: 8px;">
+            <ion-icon name="car-outline" slot="start" style="color: #666; font-size: 24px;"></ion-icon>
+            <div style="margin-left: 10px; flex: 1;">
+              <h2 style="font-size: 14px; font-weight: bold; color: #333; margin: 0;">{{dataText.driveLicence}}</h2>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;">
+                <strong>{{picTwo ? dataText.sent : dataText.notSent}}</strong>
+              </p>
+            </div>
+          </ion-item>
+          <div style="padding: 8px; background: #f9f9f9; text-align: center;">
+            <img *ngIf="picTwo" [src]="picTwo" alt="Carteira de Habilitação" style="max-width: 100%; max-height: 150px; border-radius: 5px;">
+            <p *ngIf="!picTwo" style="font-size: 12px; color: #999; margin: 0;">Nenhum documento disponível</p>
+          </div>
+        </ion-card>
+      </ion-col>
 
-      <ion-card class="trip card" text-center>  
-          <ion-card-header class="bg-theme text-black">{{dataText.cardId}}
-              <span *ngIf="picOne" ion-text><strong> {{dataText.sent}}</strong></span>
-              <span *ngIf="! picOne" ion-text><strong> {{dataText.notSent}}</strong></span>
-          </ion-card-header>
-          
-          <img src="{{picOne}}">
-                                
-      </ion-card>
+      <!-- Foto 1 -->
+      <ion-col col-12 col-md-6>
+        <ion-card style="border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <ion-item style="padding: 8px;">
+            <ion-icon name="image-outline" slot="start" style="color: #666; font-size: 24px;"></ion-icon>
+            <div style="margin-left: 10px; flex: 1;">
+              <h2 style="font-size: 14px; font-weight: bold; color: #333; margin: 0;">{{dataText.photo1}}</h2>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;">
+                <strong>{{picThree ? dataText.sent : dataText.notSent}}</strong>
+              </p>
+            </div>
+          </ion-item>
+          <div style="padding: 8px; background: #f9f9f9; text-align: center;">
+            <img *ngIf="picThree" [src]="picThree" alt="Foto 1" style="max-width: 100%; max-height: 150px; border-radius: 5px;">
+            <p *ngIf="!picThree" style="font-size: 12px; color: #999; margin: 0;">Nenhum documento disponível</p>
+          </div>
+        </ion-card>
+      </ion-col>
 
-      <ion-card text-center>  
-          <ion-card-header class="bg-theme text-black">{{dataText.driveLicence}}
-              <span  ion-text><strong>{{dataText.sent}}</strong></span>
-              <span *ngIf="! picTwo" ion-text><strong>{{dataText.notSent}}</strong></span>
-          </ion-card-header>            
+      <!-- Renavam -->
+      <ion-col col-12 col-md-6>
+        <ion-card style="border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <ion-item style="padding: 8px;">
+            <ion-icon name="document-text-outline" slot="start" style="color: #666; font-size: 24px;"></ion-icon>
+            <div style="margin-left: 10px; flex: 1;">
+              <h2 style="font-size: 14px; font-weight: bold; color: #333; margin: 0;">{{dataText.renavan}}</h2>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;">
+                <strong>{{picFour ? dataText.sent : dataText.notSent}}</strong>
+              </p>
+            </div>
+          </ion-item>
+          <div style="padding: 8px; background: #f9f9f9; text-align: center;">
+            <img *ngIf="picFour" [src]="picFour" alt="Renavam" style="max-width: 100%; max-height: 150px; border-radius: 5px;">
+            <p *ngIf="!picFour" style="font-size: 12px; color: #999; margin: 0;">Nenhum documento disponível</p>
+          </div>
+        </ion-card>
+      </ion-col>
 
-          <img src="{{picTwo}}">
-          
-      </ion-card>
+      <!-- Antecedentes Criminais -->
+      <ion-col col-12 col-md-6>
+        <ion-card style="border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <ion-item style="padding: 8px;">
+            <ion-icon name="shield-checkmark-outline" slot="start" style="color: #666; font-size: 24px;"></ion-icon>
+            <div style="margin-left: 10px; flex: 1;">
+              <h2 style="font-size: 14px; font-weight: bold; color: #333; margin: 0;">{{dataText.criminal}}</h2>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;">
+                <strong>{{picFive ? dataText.sent : dataText.notSent}}</strong>
+              </p>
+            </div>
+          </ion-item>
+          <div style="padding: 8px; background: #f9f9f9; text-align: center;">
+            <img *ngIf="picFive" [src]="picFive" alt="Antecedentes Criminais" style="max-width: 100%; max-height: 150px; border-radius: 5px;">
+            <p *ngIf="!picFive" style="font-size: 12px; color: #999; margin: 0;">Nenhum documento disponível</p>
+          </div>
+        </ion-card>
+      </ion-col>
 
-      <ion-card text-center>
-          <ion-card-header class="bg-theme text-black">{{dataText.photo1}}
-              <span *ngIf="picThree" ion-text><strong>{{dataText.sent}}</strong></span>
-              <span *ngIf="! picThree" ion-text><strong>{{dataText.notSent}}</strong></span>
-          </ion-card-header>            
+      <!-- Comprovante de Residência -->
+      <ion-col col-12 col-md-6>
+        <ion-card style="border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <ion-item style="padding: 8px;">
+            <ion-icon name="home-outline" slot="start" style="color: #666; font-size: 24px;"></ion-icon>
+            <div style="margin-left: 10px; flex: 1;">
+              <h2 style="font-size: 14px; font-weight: bold; color: #333; margin: 0;">{{dataText.residenceProof}}</h2>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;">
+                <strong>{{picSix ? dataText.sent : dataText.notSent}}</strong>
+              </p>
+            </div>
+          </ion-item>
+          <div style="padding: 8px; background: #f9f9f9; text-align: center;">
+            <img *ngIf="picSix" [src]="picSix" alt="Comprovante de Residência" style="max-width: 100%; max-height: 150px; border-radius: 5px;">
+            <p *ngIf="!picSix" style="font-size: 12px; color: #999; margin: 0;">Nenhum documento disponível</p>
+          </div>
+        </ion-card>
+      </ion-col>
 
-          <img src="{{picThree}}">
-                      
-      </ion-card>     
+      <!-- Foto 2 -->
+      <ion-col col-12 col-md-6>
+        <ion-card style="border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <ion-item style="padding: 8px;">
+            <ion-icon name="image-outline" slot="start" style="color: #666; font-size: 24px;"></ion-icon>
+            <div style="margin-left: 10px; flex: 1;">
+              <h2 style="font-size: 14px; font-weight: bold; color: #333; margin: 0;">{{dataText.photo2}}</h2>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;">
+                <strong>{{picSeven ? dataText.sent : dataText.notSent}}</strong>
+              </p>
+            </div>
+          </ion-item>
+          <div style="padding: 8px; background: #f9f9f9; text-align: center;">
+            <img *ngIf="picSeven" [src]="picSeven" alt="Foto 2" style="max-width: 100%; max-height: 150px; border-radius: 5px;">
+            <p *ngIf="!picSeven" style="font-size: 12px; color: #999; margin: 0;">Nenhum documento disponível</p>
+          </div>
+        </ion-card>
+      </ion-col>
 
-      <ion-card text-center>
-          <ion-card-header class="bg-theme text-black">{{dataText.renavan}}
-              <span *ngIf="picFour" ion-text><strong>{{dataText.sent}}</strong></span>
-              <span *ngIf="! picFour" ion-text><strong>{{dataText.notSent}}</strong></span>
-          </ion-card-header>     
-
-          <img src="{{picFour}}">
-          
-      </ion-card>
-
-      <ion-card text-center>
-          <ion-card-header class="bg-theme text-black">{{dataText.criminal}}      
-              <span *ngIf="picFive" ion-text><strong>{{dataText.sent}}</strong></span>
-              <span *ngIf="! picFive" ion-text><strong>{{dataText.notSent}}</strong></span>
-          </ion-card-header>     
-
-          <img src="{{picFive}}">          
-      </ion-card>
-
-      <ion-card text-center>
-          <ion-card-header class="bg-theme text-black">{{dataText.residenceProof}}
-              <span *ngIf="picSix" ion-text><strong>{{dataText.sent}}</strong></span>
-              <span *ngIf="! picSix" ion-text><strong>{{dataText.notSent}}</strong></span>
-          </ion-card-header>            
-
-          <img src="{{picSix}}">
-          
-      </ion-card>
-
-      <ion-card text-center>
-        <ion-card-header class="bg-theme text-black">{{dataText.photo2}}
-            <span *ngIf="picSeven" ion-text><strong>{{dataText.sent}}</strong></span>
-            <span *ngIf="! picSeven" ion-text><strong>{{dataText.notSent}}</strong></span>
-        </ion-card-header>            
-        
-        <img src="{{picSeven}}">
-
-    </ion-card>
-
-    <ion-card text-center>
-        <ion-card-header class="bg-theme text-black">{{dataText.photo3}}
-            <span *ngIf="picHeight" ion-text><strong>{{dataText.sent}}</strong></span>
-            <span *ngIf="! picHeight" ion-text><strong>{{dataText.notSent}}</strong></span>
-        </ion-card-header>            
-
-        <img src="{{picHeight}}">
-        
-    </ion-card>
-
-      
-  </ion-list>
-
-</ion-content>  
+      <!-- Foto 3 -->
+      <ion-col col-12 col-md-6>
+        <ion-card style="border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <ion-item style="padding: 8px;">
+            <ion-icon name="image-outline" slot="start" style="color: #666; font-size: 24px;"></ion-icon>
+            <div style="margin-left: 10px; flex: 1;">
+              <h2 style="font-size: 14px; font-weight: bold; color: #333; margin: 0;">{{dataText.photo3}}</h2>
+              <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;">
+                <strong>{{picEight ? dataText.sent : dataText.notSent}}</strong>
+              </p>
+            </div>
+          </ion-item>
+          <div style="padding: 8px; background: #f9f9f9; text-align: center;">
+            <img *ngIf="picEight" [src]="picEight" alt="Foto 3" style="max-width: 100%; max-height: 150px; border-radius: 5px;">
+            <p *ngIf="!picEight" style="font-size: 12px; color: #999; margin: 0;">Nenhum documento disponível</p>
+          </div>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

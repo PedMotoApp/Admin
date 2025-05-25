@@ -142,6 +142,10 @@
               <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Data:</b> {{work.datetime}}</p>
               <p style="font-size: 12px; color: #666; margin: 2px 0 0 0;"><b>Status:</b> {{work.status}}</p>
             </div>
+            <!-- Botão de Detalhes -->
+            <button ion-button icon-only clear small (click)="showDetails(work); $event.stopPropagation()" item-end style="color: #007bff;">
+              <ion-icon name="information-circle-outline"></ion-icon>
+            </button>
             <ion-icon [name]="work.expand ? 'chevron-up' : 'chevron-down'" item-end style="color: #666; font-size: 14px;"></ion-icon>
           </ion-item>
 

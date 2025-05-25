@@ -19,7 +19,7 @@
         </ion-list>
         <button ion-button block full text-uppercase class="bg-theme text-white btn round shadow-blue" (click)="loginUser()">{{dataText.login}}</button>
         <ion-row padding-left padding-right>         
-            <ion-col (click)="goToSignup()"  *ngIf="dataInfo.appUserType !== 3"><small  class="text-theme">Quer se cadastrar?<strong class="text-theme">Clique aqui</strong></small></ion-col>
+            <!--<ion-col (click)="goToSignup()"  *ngIf="dataInfo.appUserType !== 3"><small  class="text-theme">Quer se cadastrar?<strong class="text-theme">Clique aqui</strong></small></ion-col>-->
             <ion-col (click)="goToResetPassword()" text-end><small class="text-theme">Esqueceu<strong class="text-theme">a senha?</strong></small></ion-col>
         </ion-row>
     </div>

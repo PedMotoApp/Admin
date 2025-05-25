@@ -8,6 +8,9 @@ import { DataTextProvider } from '../../providers/data-text/data-text';
 import { DocumentationPage } from '../../pages/documentation/documentation';
 import { Observable, Subscription } from 'rxjs';
 import * as moment from 'moment';
+import { AngularFireAuth } from 'angularfire2/auth';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { firebaseConfig } from '../../assets/configs/firebase';
 
 // Interface para tipagem dos dados dos trabalhadores
 interface Worker {
@@ -30,7 +33,20 @@ interface Worker {
   region?: string;
   userType?: number;
   uid?: string;
-  showDetails?: boolean; // Adicionado para controlar a expansão dos detalhes
+  showDetails?: boolean;
+  lastName?: string;
+  complement?: string;
+  numero?: string;
+  postCode?: string;
+  district?: string;
+  cpf?: string;
+  cnpj?: string;
+  state?: string;
+  city?: string;
+  bank?: string;
+  agency?: string;
+  account?: string;
+  description?: string;
 }
 
 @IonicPage()
@@ -61,7 +77,9 @@ export class ProfessionalsPage {
     public httpd: HttpdProvider,
     public actionsheetCtrl: ActionSheetController,
     public dataText: DataTextProvider,
-    public navParams: NavParams
+    public navParams: NavParams,
+    private afAuth: AngularFireAuth,
+    private http: HttpClient
   ) {}
 
   ionViewDidLoad(): void {
@@ -143,8 +161,8 @@ export class ProfessionalsPage {
         key: element.payload.key,
         name: payloadVal.name,
         email: payloadVal.email,
-        status: payloadVal.status,
-        ranking: payloadVal.ranking,
+        status: payloadVal.status || "Perfil não verificado",
+        ranking: payloadVal.ranking || "Bronze",
         photo: payloadVal.photo,
         tablePrice: payloadVal.tablePrice,
         datetime: payloadVal.datetime,
@@ -161,7 +179,20 @@ export class ProfessionalsPage {
         region: payloadVal.region,
         userType: payloadVal.userType,
         uid: payloadVal.uid,
-        showDetails: false // Inicialmente, os detalhes estão ocultos
+        showDetails: false,
+        lastName: payloadVal.lastName,
+        complement: payloadVal.complement,
+        numero: payloadVal.numero,
+        postCode: payloadVal.postCode,
+        district: payloadVal.district,
+        cpf: payloadVal.cpf,
+        cnpj: payloadVal.cnpj,
+        state: payloadVal.state,
+        city: payloadVal.city,
+        bank: payloadVal.bank,
+        agency: payloadVal.agency,
+        account: payloadVal.account,
+        description: payloadVal.description
       };
 
       if (!info.name) {
@@ -245,7 +276,6 @@ export class ProfessionalsPage {
   }
 
   startJob(worker: Worker): void {
-    // Implementar lógica para iniciar um trabalho, se necessário
     this.navCtrl.pop();
     this.events.publish('worker-selected', worker);
   }
@@ -352,12 +382,6 @@ export class ProfessionalsPage {
           handler: () => this.removeUser(payload)
         },
         {
-          text: this.dataText.credits,
-          role: 'destructive',
-          icon: 'cash',
-          handler: () => this.credit(payload)
-        },
-        {
           text: this.dataText.documents,
           role: 'destructive',
           icon: 'clipboard',
@@ -400,37 +424,28 @@ export class ProfessionalsPage {
     loading.present();
 
     const uid = payload.uid || payload.key;
-    this.httpd.apiRemoveUser({ uid })
-      .subscribe({
-        next: (result) => {
-          console.log('Resultado da API de remoção:', result);
-          this.uiUtils.showAlertSuccess(this.dataText.removeSuccess);
-          this.db.removeUser(uid)
-            .then(() => {
-              this.reload();
-            })
-            .catch(err => {
-              console.error('Erro ao remover usuário do banco:', err);
-              this.uiUtils.showAlertError('Erro ao remover o usuário do banco de dados.');
-            })
-            .finally(() => {
-              loading.dismiss();
-            });
-        },
-        error: (err) => {
-          console.error('Erro na API de remoção:', err);
-          this.uiUtils.showAlertError('Erro ao remover o usuário via API.');
-          loading.dismiss();
-        }
+
+    // Delete user data from Realtime Database only
+    this.db.removeUser(uid)
+      .then(() => {
+        loading.dismiss();
+        this.uiUtils.showAlertSuccess(this.dataText.removeSuccess);
+        this.reload();
+      })
+      .catch(err => {
+        console.error('Erro ao remover usuário do banco:', err);
+        loading.dismiss();
+        this.uiUtils.showAlertError('Erro ao remover o usuário do banco de dados: ' + (err.message || 'Erro desconhecido'));
       });
   }
 
   addProfessional(): void {
-    this.navCtrl.push('ProfessionalsAddPage');
-  }
-
-  credit(payload: Worker): void {
-    this.navCtrl.push('CreditsManualPage', { payload });
+    this.navCtrl.push('ProfessionalsAddPage', {
+      defaultSettings: {
+        ranking: 'Bronze',
+        status: 'Perfil não verificado'
+      }
+    });
   }
 
   disableUser(payload: Worker): void {
@@ -463,8 +478,26 @@ export class ProfessionalsPage {
   }
 
   workerChanged(event: any): void {
-    console.log('Worker changed:', event);
-    this.reload();
+    const selectedEmail = event.value && event.value.email;
+    console.log('workerChanged: selectedEmail:', selectedEmail);
+
+    if (!selectedEmail) {
+      console.warn('workerChanged: event.value.email não encontrado');
+      return;
+    }
+    const found = this.usersWorkersArray.find(function(worker) {
+      return worker.email === selectedEmail;
+    });
+
+    if (found) {
+      this.worker = found;
+      this.usersWorkersArray = this.usersWorkersArray.filter(w => w !== found);
+      this.usersWorkersArray.unshift(found);
+      console.log('Worker selecionado:', found);
+    } else {
+      this.worker = null;
+      console.warn('workerChanged: Nenhum worker encontrado com o email:', selectedEmail);
+    }
   }
 
   private getDenuncias(): void {

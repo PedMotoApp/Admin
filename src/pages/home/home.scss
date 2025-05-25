@@ -14,6 +14,15 @@ page-home {
       .toolbar-title,
       ion-title {
         color: $white !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+          height: 40px; // Aumenta o tamanho do ícone da logo
+          width: auto;
+          margin: 0 auto;
+        }
       }
 
       button {

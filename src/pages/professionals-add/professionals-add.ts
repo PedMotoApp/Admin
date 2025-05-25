@@ -5,11 +5,13 @@ import { UiUtilsProvider } from '../../providers/ui-utils/ui-utils';
 import { DataInfoProvider } from '../../providers/data-info/data-info';
 import { StorageProvider } from '../../providers/storage/storage';
 import { DatabaseProvider } from '../../providers/database/database';
-import { HttpdProvider } from '../../providers/httpd/httpd';
 import { AuthProvider } from '../../providers/auth/auth';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { DataTextProvider } from '../../providers/data-text/data-text';
+import { AngularFireAuth } from 'angularfire2/auth';
+import * as firebase from 'firebase/app';
+import 'firebase/auth';
 
 interface Professional {
   uid: string;
@@ -28,11 +30,8 @@ interface Professional {
   account: string;
   cpf: string;
   cnpj: string;
-  carName: string;
-  carPlate: string;
   state: string;
   city: string;
-  prefixo: string;
   tablePrice: any;
   pix: string;
 }
@@ -59,6 +58,8 @@ export class ProfessionalsAddPage implements OnInit {
   photoChanged: boolean = false;
   uid_: string;
   private activeLoading: any = null;
+  private defaultSettings: { ranking: string, status: string } | null = null;
+  private secondaryAuth: firebase.auth.Auth;
 
   constructor(
     public navCtrl: NavController,
@@ -75,9 +76,13 @@ export class ProfessionalsAddPage implements OnInit {
     public auth: AuthProvider,
     public dataText: DataTextProvider,
     private formBuilder: FormBuilder,
-    public httpd: HttpdProvider,
-    public dataInfo: DataInfoProvider
-  ) {}
+    public dataInfo: DataInfoProvider,
+    private afAuth: AngularFireAuth
+  ) {
+    // Initialize secondary Firebase app for user creation
+    const secondaryApp = firebase.initializeApp(firebase.app().options, 'secondary');
+    this.secondaryAuth = secondaryApp.auth();
+  }
 
   ngOnInit(): void {
     this.initForm();
@@ -113,9 +118,6 @@ export class ProfessionalsAddPage implements OnInit {
       city: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(300)]],
       tel: ['', [Validators.required, Validators.minLength(11), Validators.maxLength(11)]],
       cnpj: ['', [Validators.minLength(14), Validators.maxLength(14)]],
-      selectedService: [''],
-      prefixo: [''],
-      plate: [''],
       selectedBank: [''],
       agency: [''],
       account: [''],
@@ -138,6 +140,7 @@ export class ProfessionalsAddPage implements OnInit {
   // Inicializa a interface
   private startInterface(): void {
     this.clear();
+    this.defaultSettings = this.navParams.get('defaultSettings') || null;
     this.payload = this.navParams.get('payload');
     if (this.formGroup.get('state') && this.dataInfo.defaultState) {
       this.formGroup.get('state').setValue(this.dataInfo.defaultState);
@@ -179,9 +182,6 @@ export class ProfessionalsAddPage implements OnInit {
       postCode: this.payload.postCode,
       complement: this.payload.complement,
       cnpj: this.payload.cnpj || '',
-      selectedService: this.payload.carName || '',
-      prefixo: this.payload.prefixo || '',
-      plate: this.payload.carPlate || '',
       selectedBank: this.payload.bank || '',
       agency: this.payload.agency || '',
       account: this.payload.account || '',
@@ -300,21 +300,19 @@ export class ProfessionalsAddPage implements OnInit {
   }
 
   private addFinish(url: string): void {
-    const data = {
-      email: this.formGroup.value.email,
-      password: this.formGroup.value.password,
-      name: this.formGroup.value.name
-    };
-    this.httpd.apiAddUser(data).subscribe({
-      next: (callback) => {
+    const email = this.formGroup.value.email;
+    const password = this.formGroup.value.password;
+    this.showLoading(this.dataText.pleaseWait);
+    this.secondaryAuth.createUserWithEmailAndPassword(email, password)
+      .then(userCredential => {
         this.dismissLoading();
-        this.addCallback(callback);
-      },
-      error: (err) => {
+        this.addCallback({ success: true, uid: userCredential.user.uid });
+      })
+      .catch(err => {
         this.dismissLoading();
-        this.uiUtils.showAlertError(this.dataText.errorRegister);
-      }
-    });
+        console.error('Erro ao criar usuário no Firebase Auth:', err);
+        this.uiUtils.showAlertError(this.dataText.errorRegister + ': ' + err.message);
+      });
   }
 
   private addCallback(data: any): void {
@@ -330,7 +328,7 @@ export class ProfessionalsAddPage implements OnInit {
     this.defaultValues();
     this.db.addUserStart(
       data.uid,
-      this.formGroup.value.password,
+      "",
       this.formGroup.value.name,
       this.formGroup.value.lastName,
       this.formGroup.value.address,
@@ -348,20 +346,21 @@ export class ProfessionalsAddPage implements OnInit {
       this.formGroup.value.account,
       this.formGroup.value.cpf,
       this.formGroup.value.cnpj,
-      this.formGroup.value.selectedService,
-      this.formGroup.value.plate,
       this.formGroup.value.state,
       this.formGroup.value.city,
-      this.formGroup.value.prefixo,
-      this.formGroup.value.tablePrice,
-      '',
-      ''
+      this.formGroup.value.tablePrice
     ).then(() => {
+      // Set default ranking and status
+      return this.db.updateUserStatus(data.uid, 'Perfil não verificado');
+    }).then(() => {
+      return this.db.updateRankingUser(data.uid, 'Bronze');
+    }).then(() => {
       this.dismissLoading();
       this.navCtrl.pop();
       this.uiUtils.showAlertSuccess(this.dataText.addedSuccess);
     }).catch(error => {
       this.dismissLoading();
+      console.error('Erro ao salvar perfil do usuário:', error);
       this.uiUtils.showAlertError(this.dataText.errorRegister);
     });
   }
@@ -380,8 +379,8 @@ export class ProfessionalsAddPage implements OnInit {
       this.formGroup.value.district,
       this.formGroup.value.tel,
       url,
-      'this.dataInfo.longitude',
-      'this.dataInfo.longitude',
+      this.dataInfo.longitude,
+      this.dataInfo.longitude,
       2,
       this.formGroup.value.description,
       this.formGroup.value.selectedBank,
@@ -389,15 +388,9 @@ export class ProfessionalsAddPage implements OnInit {
       this.formGroup.value.account,
       this.formGroup.value.cpf,
       this.formGroup.value.cnpj,
-      this.formGroup.value.selectedService,
-      this.formGroup.value.plate,
       this.formGroup.value.state,
       this.formGroup.value.city,
-      this.formGroup.value.prefixo,
-      this.formGroup.value.tablePrice,
-      '',
-      '',
-      this.formGroup.value.pix
+      this.formGroup.value.tablePrice      
     ).then(() => {
       this.dismissLoading();
       this.uiUtils.showAlertSuccess(this.dataText.savedSuccess);
@@ -414,13 +407,10 @@ export class ProfessionalsAddPage implements OnInit {
     const defaultText = this.dataText.notInformade;
     this.formGroup.patchValue({
       description: this.formGroup.value.description || this.dataInfo.titleCompleteDescription,
-      selectedService: this.formGroup.value.selectedService && this.formGroup.value.selectedService.length > 0 ? this.formGroup.value.selectedService : defaultText,
-      plate: this.formGroup.value.plate && this.formGroup.value.plate.length > 0 ? this.formGroup.value.plate : defaultText,
       cnpj: this.formGroup.value.cnpj && this.formGroup.value.cnpj.length > 0 ? this.formGroup.value.cnpj : defaultText,
       selectedBank: this.formGroup.value.selectedBank && this.formGroup.value.selectedBank.length > 0 ? this.formGroup.value.selectedBank : defaultText,
       agency: this.formGroup.value.agency && this.formGroup.value.agency.length > 0 ? this.formGroup.value.agency : defaultText,
       account: this.formGroup.value.account && this.formGroup.value.account.length > 0 ? this.formGroup.value.account : defaultText,
-      prefixo: this.formGroup.value.prefixo && this.formGroup.value.prefixo.length > 0 ? this.formGroup.value.prefixo : defaultText,
       tablePrice: this.formGroup.value.tablePrice || ''
     });
   }
@@ -515,6 +505,39 @@ export class ProfessionalsAddPage implements OnInit {
   stateChanged(state: string): void {
     this.formGroup.get('state') && this.formGroup.get('state').setValue(state);
     // Aqui você pode adicionar lógica para carregar cidades com base no estado, se necessário
+  }
+
+  // Preenche os campos do formulário com valores aleatórios para testes
+  fillRandomValues(): void {
+    const randomString = (length: number) => Math.random().toString(36).substring(2, 2 + length);
+    const randomNumber = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const randomCPF = () => Array(11).fill(0).map(() => randomNumber(0, 9)).join('');
+    const randomPhone = () => `119${randomNumber(10000000, 99999999)}`;
+    const randomEmail = () => `test${randomString(5)}@example.com`;
+
+    this.formGroup.patchValue({
+      name: 'Teste' + randomString(5),
+      lastName: 'Sobrenome' + randomString(5),
+      address: 'Rua Exemplo ' + randomNumber(100, 999),
+      complement: 'Apto ' + randomNumber(1, 100),
+      postCode: '12345678',
+      numero: randomNumber(1, 9999).toString(),
+      district: 'Bairro Teste',
+      cpf: randomCPF(),
+      state: 'DF',
+      city: 'Brasília',
+      tel: randomPhone(),
+      cnpj: '',
+      selectedBank: this.dataInfo.banks[0] || 'Banco Teste',
+      agency: randomNumber(1000, 9999).toString(),
+      account: randomNumber(10000, 99999).toString() + '-1',
+      pix: randomCPF(),
+      description: 'Experiência profissional de teste.',
+      tablePrice: this.tableArray[0] || '',
+      email: randomEmail(),
+      password: '123456',
+      password1: '123456'
+    });
   }
 
   // Validação e mensagens de erro
